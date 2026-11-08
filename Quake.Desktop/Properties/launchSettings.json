@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Quake.Desktop": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    }
+  }
+}

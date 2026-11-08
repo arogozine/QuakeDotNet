@@ -1,0 +1,14 @@
+root = false
+
+# Quake.Engine folders group files by WinQuake subsystem only; everything stays in the
+# flat Quake.Engine namespace (Memory/ keeps Quake.Engine.Memory) to mirror the original
+# C global namespace and avoid cross-subsystem using churn. See architecture_overview.md.
+[Quake.Engine/**.cs]
+dotnet_style_namespace_match_folder = false
+
+[*]
+end_of_line = crlf
+insert_final_newline = true
+
+[*.sh]
+end_of_line = lf

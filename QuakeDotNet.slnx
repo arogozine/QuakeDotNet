@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Quake.Engine/Quake.Engine.csproj" />
+  <Project Path="Quake.Desktop/Quake.Desktop.csproj" />
+  <Project Path="Quake.UnitTests/Quake.UnitTests.csproj" />
+  <Project Path="Quake.Benchmarks/Quake.Benchmarks.csproj" />
+</Solution>

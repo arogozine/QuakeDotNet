@@ -1,0 +1,24 @@
+# Normalize all text files to LF in the repository
+* text=auto
+
+# Files Visual Studio cares about: always CRLF in the working tree
+*.cs      text eol=crlf
+*.vb      text eol=crlf
+*.xaml    text eol=crlf
+*.csproj  text eol=crlf
+*.vbproj  text eol=crlf
+*.props   text eol=crlf
+*.targets text eol=crlf
+*.sln     text eol=crlf
+*.config  text eol=crlf
+*.resx    text eol=crlf
+
+# Scripts that must keep LF even on Windows
+*.sh      text eol=lf
+
+# Binary files: never touch
+*.png  binary
+*.jpg  binary
+*.dll  binary
+*.exe  binary
+*.pdf  binary
