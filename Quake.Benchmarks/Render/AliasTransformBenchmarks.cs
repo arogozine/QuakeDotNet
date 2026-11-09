@@ -3,10 +3,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Numerics;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
+using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Quake.Benchmarks;
 
@@ -31,9 +31,9 @@ public unsafe class AliasTransformBenchmarks
     public void Setup()
     {
         Random rng = new(42);
-        _verts = (TriVertX_t*)NativeMemory.Alloc((nuint)(NumVerts * sizeof(TriVertX_t)));
-        _stverts = (StVert_t*)NativeMemory.Alloc((nuint)(NumVerts * sizeof(StVert_t)));
-        _fv = (FinalVert_t*)NativeMemory.Alloc((nuint)(NumVerts * sizeof(FinalVert_t)));
+        _verts = NativeMemory.AllocArray<TriVertX_t>(NumVerts);
+        _stverts = NativeMemory.AllocArray<StVert_t>(NumVerts);
+        _fv = NativeMemory.AllocArray<FinalVert_t>(NumVerts);
         for (int i = 0; i < NumVerts; i++)
         {
             _verts[i].V[0] = (byte)rng.Next(256);

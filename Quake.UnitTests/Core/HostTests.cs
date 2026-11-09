@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
-using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -23,7 +22,7 @@ public sealed unsafe class HostTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
 
         // Reset every piece of shared static state Host.Init's call chain
         // touches, matching the reset lists in CvarTests/RealPakFileTests.
@@ -42,7 +41,7 @@ public sealed unsafe class HostTests
         // test class touching them (see RealPakFileTests' own comment on
         // this); a previous test's now-freed Hunk arena can otherwise leave
         // dangling pointers here that crash mid-load.
-        NativeMemory.Clear(Model.mod_known, (nuint)(Model.mod_numknown * sizeof(Model_t)));
+        NativeMemory.Clear(Model.mod_known, Model.mod_numknown);
         Model.mod_numknown = 0;
         Model.loadmodel = null;
         RMain.r_notexture_mip = null;
@@ -81,7 +80,7 @@ public sealed unsafe class HostTests
         // constructor's own fallback allocation). Re-point it at a fresh
         // one-slot NativeMemory block so this test class doesn't leak a
         // dangling pointer into whichever test class runs next.
-        Svs.clients = (Client_t*)NativeMemory.AllocZeroed((nuint)sizeof(Client_t));
+        Svs.clients = NativeMemory.AllocZeroed<Client_t>();
         Svs.maxclients = 1;
         Svs.maxclientslimit = 1;
     }

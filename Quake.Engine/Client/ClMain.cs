@@ -7,7 +7,6 @@
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -35,7 +34,7 @@ public static unsafe class ClMain
             Sv.host_protocol_datagram_maxsize = QuakeDef.MAX_MARK_V_DATAGRAM;
 
         SizeBuf_t* msg = Cls.message;
-            Sz.Clear(msg);
+        Sz.Clear(msg);
 
         // clear other arrays
         NativeMemory.Clear(ClEntities.cl_efrags, ClEntities.MAX_EFRAGS);
@@ -631,7 +630,7 @@ public static unsafe class ClMain
         Cvar.RegisterVariable(Cl.cl_name);
         Cl.cl_color->String = "0"u8;
         Cvar.RegisterVariable(Cl.cl_color);
-        Cl.cl_shownet->String ="0"u8;
+        Cl.cl_shownet->String = "0"u8;
         Cvar.RegisterVariable(Cl.cl_shownet);
         Cl.cl_nolerp->String = "0"u8;
         Cvar.RegisterVariable(Cl.cl_nolerp);

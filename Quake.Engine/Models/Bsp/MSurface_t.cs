@@ -3,9 +3,7 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.CompilerServices;
 using Quake.Engine;
+using System.Runtime.CompilerServices;
 
 namespace Quake.UnitTests;
 

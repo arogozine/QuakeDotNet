@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
-using static Quake.Engine.QuakeDef;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -20,7 +19,7 @@ public sealed unsafe class SvTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -142,7 +141,7 @@ public sealed unsafe class SvTests
         byte* dataBuf = stackalloc byte[64];
         *Sv.datagram = new SizeBuf_t { Data = dataBuf, MaxSize = 64 };
         SizeBuf_t* dg = Sv.datagram;
-            Msg.WriteByte(dg, 42);
+        Msg.WriteByte(dg, 42);
         Assert.AreNotEqual(0, Sv.datagram->CurSize);
 
         Sv.ClearDatagram();

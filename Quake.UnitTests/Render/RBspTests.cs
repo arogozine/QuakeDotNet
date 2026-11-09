@@ -51,7 +51,7 @@ public sealed unsafe class RBspTests
         MNode_t node = default;
         node.Contents = (int)Contents.Solid;
         node.VisFrame = 999; // deliberately not matching -- proves the
-                              // Contents check short-circuits before it
+                             // Contents check short-circuits before it
 
         RBsp.RecursiveWorldNode(&node, 0);
 

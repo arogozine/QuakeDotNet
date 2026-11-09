@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Alexandre Rogozine
 
 using System.Runtime.InteropServices;
+using Quake.Engine;
 
 namespace Quake.UnitTests;
 
@@ -34,7 +35,7 @@ internal static unsafe class TestHelpers
     // Matches SvPhysTests.cs's private AllocZeroed<T>.
     public static T* AllocZeroed<T>(List<nint> tracker, int count) where T : unmanaged
     {
-        T* p = (T*)NativeMemory.AllocZeroed((nuint)(sizeof(T) * count));
+        T* p = NativeMemory.AllocArrayZeroed<T>(count);
         tracker.Add((nint)p);
         return p;
     }

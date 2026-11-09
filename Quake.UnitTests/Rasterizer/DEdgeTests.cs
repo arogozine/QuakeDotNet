@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -40,7 +40,7 @@ public sealed unsafe class DEdgeTests
     [TestMethod]
     public void DrawSolidSurface_FillsSpanRun_WithLowByteOfColor()
     {
-        byte* viewbuf = (byte*)NativeMemory.AllocZeroed(32);
+        byte* viewbuf = NativeMemory.AllocArrayZeroed<byte>(32);
         try
         {
             DLocal.d_viewbuffer = viewbuf;
@@ -110,8 +110,8 @@ public sealed unsafe class DEdgeTests
     [TestMethod]
     public void DrawSkyScans8_SinglePixelSpan_SamplesSkySourceAtComputedUv()
     {
-        byte* viewbuf = (byte*)NativeMemory.AllocZeroed(16);
-        byte* skysource = (byte*)NativeMemory.AllocZeroed(128 * 128);
+        byte* viewbuf = NativeMemory.AllocArrayZeroed<byte>(16);
+        byte* skysource = NativeMemory.AllocArrayZeroed<byte>(128 * 128);
         try
         {
             DLocal.d_viewbuffer = viewbuf;

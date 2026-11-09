@@ -5,11 +5,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Buffers.Binary;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -30,7 +29,7 @@ public static unsafe class Com
     private const int PAK0_CRC = 32981;
 
     private const int VA_BUFFER_SIZE = 1024;
-    internal static readonly byte* va_string = (byte*)NativeMemory.AllocZeroed(VA_BUFFER_SIZE);
+    internal static readonly byte* va_string = NativeMemory.AllocArrayZeroed<byte>(VA_BUFFER_SIZE);
 
     /*
     ============
@@ -118,7 +117,7 @@ public static unsafe class Com
     ];
 
     // com_token
-    public static readonly byte* com_token = (byte*)NativeMemory.Alloc(1024);
+    public static readonly byte* com_token = NativeMemory.AllocArray<byte>(1024);
 
     // com_argc
     public static int com_argc;
@@ -127,7 +126,7 @@ public static unsafe class Com
     public static byte*[] com_argv = [];
 
     // com_cmdline
-    public static readonly byte* com_cmdline = (byte*)NativeMemory.AllocZeroed(CMDLINE_LENGTH);
+    public static readonly byte* com_cmdline = NativeMemory.AllocArrayZeroed<byte>(CMDLINE_LENGTH);
 
     // standard_quake, rogue, hipnotic
     public static bool standard_quake = true, rogue, hipnotic;
@@ -309,7 +308,7 @@ public static unsafe class Com
         *@out = 0;
     }
 
-    internal static readonly byte* extenBuf = (byte*)NativeMemory.Alloc(8);
+    internal static readonly byte* extenBuf = NativeMemory.AllocArray<byte>(8);
 
     // COM_FileExtension
     public static byte* FileExtension(byte* @in)
@@ -455,10 +454,10 @@ public static unsafe class Com
     public static int com_filesize;
 
     // com_cachedir
-    public static readonly byte* com_cachedir = (byte*)NativeMemory.AllocZeroed(MAX_OSPATH);
+    public static readonly byte* com_cachedir = NativeMemory.AllocArrayZeroed<byte>(MAX_OSPATH);
 
     // com_gamedir
-    public static readonly byte* com_gamedir = (byte*)NativeMemory.AllocZeroed(MAX_OSPATH);
+    public static readonly byte* com_gamedir = NativeMemory.AllocArrayZeroed<byte>(MAX_OSPATH);
 
     // com_searchpaths
     public static SearchPath_t* com_searchpaths;
@@ -782,7 +781,7 @@ public static unsafe class Com
         // MAX_FILES_IN_PACK-sized stack array, ~128 KB); DirLen may not be a
         // multiple of sizeof(DPackFile_t), so it is the read length that counts.
         int dirLen = Math.Max(header.DirLen, 0);
-        DPackFile_t* info = (DPackFile_t*)NativeMemory.Alloc((nuint)Math.Max(dirLen, 1));
+        DPackFile_t* info = (DPackFile_t*)NativeMemory.AllocArray<byte>(Math.Max(dirLen, 1));
         try
         {
             Sys.FileSeek(packhandle, header.DirOfs);

@@ -4,9 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using BenchmarkDotNet.Attributes;
-using Quake.Engine;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
+using Quake.Engine;
 
 namespace Quake.Benchmarks;
 
@@ -22,7 +21,7 @@ public unsafe class BlitScaledBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _src = (byte*)NativeMemory.AllocZeroed(PW * PH); _a = (byte*)NativeMemory.AllocZeroed(1024 * 128); _b = (byte*)NativeMemory.AllocZeroed(1024 * 128);
+        _src = NativeMemory.AllocArrayZeroed<byte>(PW * PH); _a = NativeMemory.AllocArrayZeroed<byte>(1024 * 128); _b = NativeMemory.AllocArrayZeroed<byte>(1024 * 128);
         Random r = new(2); for (int i = 0; i < PW * PH; i++) _src[i] = (byte)r.Next(256);
         Orig(); Fast();
         if (!new ReadOnlySpan<byte>(_a, 1024 * 128).SequenceEqual(new ReadOnlySpan<byte>(_b, 1024 * 128))) throw new Exception("mismatch");

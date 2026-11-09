@@ -33,7 +33,7 @@ public sealed unsafe class RSkyTests
         // data (no mip header needed for InitSky, it just reads raw bytes
         // via mt->Offsets[0]).
         int pixelBytes = 256 * 128;
-        byte* buf = (byte*)System.Runtime.InteropServices.NativeMemory.AllocZeroed((nuint)(sizeof(Texture_t) + pixelBytes));
+        byte* buf = System.Runtime.InteropServices.NativeMemory.AllocArrayZeroed<byte>(sizeof(Texture_t) + pixelBytes);
         Texture_t* tx = (Texture_t*)buf;
         tx->Offsets[0] = (uint)sizeof(Texture_t);
         byte* pixels = buf + sizeof(Texture_t);

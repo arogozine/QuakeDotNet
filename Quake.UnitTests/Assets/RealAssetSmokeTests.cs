@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -27,7 +27,7 @@ public sealed unsafe class RealAssetSmokeTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null;
         MemoryManager.Memory_Init(_buf, Size);
         Com.com_searchpaths = null;
@@ -51,7 +51,7 @@ public sealed unsafe class RealAssetSmokeTests
 
     private static void ResetModels()
     {
-        NativeMemory.Clear(Model.mod_known, (nuint)(Model.mod_numknown * sizeof(Model_t)));
+        NativeMemory.Clear(Model.mod_known, Model.mod_numknown);
         Model.mod_numknown = 0;
         Model.loadmodel = null;
         Model.Init();

@@ -3,8 +3,8 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using OpenTK.Audio.OpenAL;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 
@@ -84,7 +84,7 @@ public static unsafe class SndHost
         SndDma.shm->Samples = SND_BUF_SIZE / (SndDma.shm->SampleBits / 8);
         SndDma.shm->SamplePos = 0;
         SndDma.shm->SubmissionChunk = 1;
-        SndDma.shm->Buffer = (byte*)NativeMemory.AllocZeroed(SND_BUF_SIZE);
+        SndDma.shm->Buffer = NativeMemory.AllocArrayZeroed<byte>(SND_BUF_SIZE);
         SndDma.shm->SoundAlive = true;
         SndDma.shm->GameAlive = true;
 

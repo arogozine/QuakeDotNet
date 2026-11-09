@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Quake.UnitTests;
 
@@ -19,7 +19,7 @@ public sealed unsafe class ScreenTests
     [TestInitialize]
     public void Setup()
     {
-        _memBuf = (byte*)NativeMemory.Alloc(MemSize);
+        _memBuf = NativeMemory.AllocArray<byte>(MemSize);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_memBuf, MemSize);
         Cmd.cmd_functions = null;
@@ -29,7 +29,7 @@ public sealed unsafe class ScreenTests
         Cmd.BufInit();
 
         DIface.r_pixbytes = 1;
-        _vidBuf = (byte*)NativeMemory.AllocZeroed(64 * 64);
+        _vidBuf = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
         Vid.vid.Buffer = _vidBuf;
         Vid.vid.RowBytes = 64;
         Vid.vid.Width = 64;
@@ -41,7 +41,7 @@ public sealed unsafe class ScreenTests
         Vid.vid.ConWidth = 64;
         Vid.vid.ConHeight = 64;
 
-        Draw.draw_chars = (byte*)NativeMemory.AllocZeroed(128 * 16);
+        Draw.draw_chars = NativeMemory.AllocArrayZeroed<byte>(128 * 16);
 
         Cls.state = CActive.Connected;
         Cls.signon = Cls.SIGNONS;
@@ -80,7 +80,7 @@ public sealed unsafe class ScreenTests
         int picSize = sizeof(int) * 2 + 1; // width,height + 1 data byte
         int lumpsSize = names.Length * sizeof(LumpInfo_t);
         int picsOffset = lumpsSize;
-        _wadBuf = (byte*)NativeMemory.AllocZeroed((nuint)(lumpsSize + picSize * names.Length));
+        _wadBuf = NativeMemory.AllocArrayZeroed<byte>(lumpsSize + picSize * names.Length);
 
         LumpInfo_t* lumps = (LumpInfo_t*)_wadBuf;
         for (int i = 0; i < names.Length; i++)

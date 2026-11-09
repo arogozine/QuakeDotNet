@@ -3,8 +3,8 @@
 
 namespace Quake.UnitTests;
 
-using System.Reflection;
 using Quake.Engine;
+using System.Reflection;
 
 /// <summary>
 /// Guardrail for duplicate_consolidation.md: a static field/const/method name that WinQuake C

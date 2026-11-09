@@ -26,7 +26,7 @@ public static unsafe class Cache
         @new = TryAlloc(c->Size, true);
         if (@new != null)
         {
-            NativeMemory.Copy(c + 1, @new + 1, (nuint)(c->Size - sizeof(CacheSystem)));
+            NativeMemory.Copy((byte*)(c + 1), (byte*)(@new + 1), c->Size - sizeof(CacheSystem));
             @new->User = c->User;
             NativeMemory.Copy(c->Name, @new->Name, 16);
             Free(c->User);
@@ -267,7 +267,7 @@ public static unsafe class Cache
             // free the least recently used cahedat
             if (cache_head->LruPrev == cache_head)
                 Sys.Error("Cache_Alloc: out of memory"u8);
-                                                        // not enough memory at all
+            // not enough memory at all
             Free(cache_head->LruPrev->User);
         }
 

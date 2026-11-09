@@ -3,7 +3,6 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
@@ -144,6 +143,6 @@ public static unsafe class RShared
     // read directly is declared here (D_ViewChanged, D_PolysetDrawFinalVerts,
     // D_SpriteScanRightEdge, D_DrawParticle indirectly via d_vrect* set from
     // this).
-    public static readonly RRefDef_t* r_refdef = (RRefDef_t*)NativeMemory.AllocZeroed((nuint)sizeof(RRefDef_t));
+    public static readonly RRefDef_t* r_refdef = NativeMemory.AllocZeroed<RRefDef_t>();
 }
 

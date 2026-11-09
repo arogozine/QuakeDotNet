@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -62,7 +62,7 @@ public sealed unsafe class VidTests
     public void DirectRect_DrawsThenRestores_AndFlipsEachTime()
     {
         const int w = 64, h = 48;
-        byte* screen = (byte*)NativeMemory.Alloc(w * h);
+        byte* screen = NativeMemory.AllocArray<byte>(w * h);
         byte* bitmap = stackalloc byte[24 * 24];
         try
         {
@@ -107,7 +107,7 @@ public sealed unsafe class VidTests
     public void DirectRect_TallAspect_DoublesRows()
     {
         const int w = 32, h = 64;
-        byte* screen = (byte*)NativeMemory.Alloc(w * h);
+        byte* screen = NativeMemory.AllocArray<byte>(w * h);
         byte* bitmap = stackalloc byte[24 * 24];
         try
         {
@@ -157,7 +157,7 @@ public sealed unsafe class VidTests
     [TestMethod]
     public void SetPalette_FullRandomPalette_MatchesScalarPacking()
     {
-        byte* palette = (byte*)NativeMemory.AllocZeroed(768);
+        byte* palette = NativeMemory.AllocArrayZeroed<byte>(768);
         try
         {
             new Random(6).NextBytes(new Span<byte>(palette, 768));

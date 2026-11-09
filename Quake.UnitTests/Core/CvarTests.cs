@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -26,7 +26,7 @@ public sealed unsafe class CvarTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -48,7 +48,7 @@ public sealed unsafe class CvarTests
 
     private static Cvar_t* MakeCvar(string name, string value, bool archive = false)
     {
-        Cvar_t* v = (Cvar_t*)NativeMemory.AllocZeroed((nuint)sizeof(Cvar_t));
+        Cvar_t* v = NativeMemory.AllocZeroed<Cvar_t>();
         v->Name = Ansi(name);
         v->String = Ansi(value);
         v->Archive = archive;
@@ -110,7 +110,7 @@ public sealed unsafe class CvarTests
         Svs.clients[0] = default;
         Svs.clients[0].Active = true;
         Svs.clients[0].Spawned = true;
-        Svs.clients[0].Message.Data = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_MSGLEN);
+        Svs.clients[0].Message.Data = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_MSGLEN);
         Svs.clients[0].Message.MaxSize = QuakeDef.MAX_MSGLEN;
         try
         {
@@ -138,7 +138,7 @@ public sealed unsafe class CvarTests
         Svs.clients[0] = default;
         Svs.clients[0].Active = true;
         Svs.clients[0].Spawned = true;
-        Svs.clients[0].Message.Data = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_MSGLEN);
+        Svs.clients[0].Message.Data = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_MSGLEN);
         Svs.clients[0].Message.MaxSize = QuakeDef.MAX_MSGLEN;
         try
         {

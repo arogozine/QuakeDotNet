@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -40,12 +40,12 @@ public sealed unsafe class RDrawTests
             RShared.removeedges[i] = null;
         }
 
-        _edgeBuf = (Edge_t*)NativeMemory.AllocZeroed((nuint)(16 * sizeof(Edge_t)));
+        _edgeBuf = NativeMemory.AllocArrayZeroed<Edge_t>(16);
         RShared.r_edges = _edgeBuf;
         RShared.edge_p = _edgeBuf;
         RShared.edge_max = _edgeBuf + 16;
 
-        _surfBuf = (Surf_t*)NativeMemory.AllocZeroed((nuint)(4 * sizeof(Surf_t)));
+        _surfBuf = NativeMemory.AllocArrayZeroed<Surf_t>(4);
         RShared.surfaces = _surfBuf;
         RShared.surface_p = _surfBuf + 2; // arbitrary non-zero index
         RShared.surf_max = _surfBuf + 4;

@@ -6,7 +6,6 @@
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 
 namespace Quake.Benchmarks;
 
@@ -20,7 +19,7 @@ public unsafe class FadeScreenBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _a = (byte*)NativeMemory.Alloc(W * H); _b = (byte*)NativeMemory.Alloc(W * H);
+        _a = NativeMemory.AllocArray<byte>(W * H); _b = NativeMemory.AllocArray<byte>(W * H);
         Random r = new(1); for (int i = 0; i < W * H; i++) _a[i] = _b[i] = (byte)r.Next(256);
         Orig(_a); New(_b);
         if (!new ReadOnlySpan<byte>(_a, W * H).SequenceEqual(new ReadOnlySpan<byte>(_b, W * H))) throw new Exception("mismatch");

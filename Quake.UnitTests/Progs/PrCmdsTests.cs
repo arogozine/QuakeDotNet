@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -36,7 +36,7 @@ public sealed unsafe class PrCmdsTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         Cvar.cvar_vars = null;
@@ -44,7 +44,7 @@ public sealed unsafe class PrCmdsTests
         Cmd.cmd_alias = null;
         Cmd.cmd_argc = 0;
 
-        _globals = (float*)NativeMemory.AllocZeroed((nuint)(GlobalsCount * sizeof(float)));
+        _globals = NativeMemory.AllocArrayZeroed<float>(GlobalsCount);
         // pr_strings and pr_string_temp both live in the Hunk, matching
         // LoadProgs/PR_Init, so PR_NewString's offsets fit in a string_t.
         _strings = (byte*)Hunk.AllocName(StringsSize, "strings"u8);
@@ -55,7 +55,7 @@ public sealed unsafe class PrCmdsTests
         Progs.pr_argc = 0;
 
         Progs.pr_edict_size = sizeof(EDict_t);
-        _edictsBuf = (byte*)NativeMemory.AllocZeroed((nuint)(Progs.pr_edict_size * MaxEdicts));
+        _edictsBuf = NativeMemory.AllocArrayZeroed<byte>(Progs.pr_edict_size * MaxEdicts);
         Sv.edicts = (EDict_t*)_edictsBuf;
         Sv.max_edicts = MaxEdicts;
         Svs.maxclients = 1;
@@ -64,7 +64,7 @@ public sealed unsafe class PrCmdsTests
         // ED_ClearEdict (called by ED_Alloc/ED_Free's caller) reads
         // progs->EntityFields; point it at a minimal header describing an
         // edict whose entity-field block is exactly EntVars_t-sized.
-        _progsHeader = (DPrograms_t*)NativeMemory.AllocZeroed((nuint)sizeof(DPrograms_t));
+        _progsHeader = NativeMemory.AllocZeroed<DPrograms_t>();
         _progsHeader->EntityFields = sizeof(EntVars_t) / 4;
         Progs.progs = _progsHeader;
 
@@ -76,7 +76,7 @@ public sealed unsafe class PrCmdsTests
         SizeBuf_t* rdg = Sv.reliable_datagram; Sz.Alloc(rdg, 1024);
         SizeBuf_t* sig = Sv.signon; Sz.Alloc(sig, 1024);
         Svs.clients[0] = default;
-        Svs.clients[0].Message.Data = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_MSGLEN);
+        Svs.clients[0].Message.Data = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_MSGLEN);
         Svs.clients[0].Message.MaxSize = QuakeDef.MAX_MSGLEN;
     }
 
@@ -362,7 +362,7 @@ public sealed unsafe class PrCmdsTests
     [TestMethod]
     public void PF_cvar_ReturnsRegisteredValue()
     {
-        Cvar_t* v = (Cvar_t*)NativeMemory.AllocZeroed((nuint)sizeof(Cvar_t));
+        Cvar_t* v = NativeMemory.AllocZeroed<Cvar_t>();
         v->Name = Ansi("pr_cmds_test_cvar");
         v->String = Ansi("42");
         Cvar.RegisterVariable(v);
@@ -376,7 +376,7 @@ public sealed unsafe class PrCmdsTests
     [TestMethod]
     public void PF_cvar_set_UpdatesRegisteredValue()
     {
-        Cvar_t* v = (Cvar_t*)NativeMemory.AllocZeroed((nuint)sizeof(Cvar_t));
+        Cvar_t* v = NativeMemory.AllocZeroed<Cvar_t>();
         v->Name = Ansi("pr_cmds_test_cvar2");
         v->String = Ansi("1");
         Cvar.RegisterVariable(v);
@@ -536,7 +536,7 @@ public sealed unsafe class PrCmdsTests
 
     private void BeginReadingFrom(in SizeBuf_t buf)
     {
-        _readBuf = (byte*)NativeMemory.AllocZeroed((nuint)buf.CurSize);
+        _readBuf = NativeMemory.AllocArrayZeroed<byte>(buf.CurSize);
         new Span<byte>(buf.Data, buf.CurSize).CopyTo(new Span<byte>(_readBuf, buf.CurSize));
         Net.net_message->Data = _readBuf; Net.net_message->MaxSize = buf.CurSize; Msg.net_message->CurSize = buf.CurSize;
         Msg.BeginReading();
@@ -619,7 +619,7 @@ public sealed unsafe class PrCmdsTests
         Progs.G_INT_SET(Progs.OFS_PARM0, Progs.PR_NewString(Ansi("boom")));
 
         DFunction_t* oldFunction = Progs.pr_xfunction;
-        Progs.pr_xfunction = (DFunction_t*)NativeMemory.AllocZeroed((nuint)sizeof(DFunction_t));
+        Progs.pr_xfunction = NativeMemory.AllocZeroed<DFunction_t>();
         try
         {
             Assert.ThrowsExactly<Host.QuakeHostAbortException>(() => PrCmds.PF_error());

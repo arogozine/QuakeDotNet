@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -16,7 +16,7 @@ public sealed unsafe class RMainTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         Cmd.cmd_functions = null;
@@ -193,7 +193,7 @@ public sealed unsafe class RMainTests
         // A synthetic 1-leaf worldmodel: NewMap only needs NumLeafs/Leafs.
         Model_t model = default;
         model.NumLeafs = 1;
-        model.Leafs = (MLeaf_t*)NativeMemory.AllocZeroed((nuint)(2 * sizeof(MLeaf_t)));
+        model.Leafs = NativeMemory.AllocArrayZeroed<MLeaf_t>(2);
         Cl.worldmodel = &model;
 
         RMain.r_maxsurfs->Value = 0; // below MINSURFACES -> stack path

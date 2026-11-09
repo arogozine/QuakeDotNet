@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -20,7 +20,7 @@ public sealed unsafe class SvPhysTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -60,7 +60,7 @@ public sealed unsafe class SvPhysTests
 
     private T* AllocZeroed<T>(int count) where T : unmanaged
     {
-        T* p = (T*)NativeMemory.AllocZeroed((nuint)(sizeof(T) * count));
+        T* p = NativeMemory.AllocArrayZeroed<T>(count);
         _allocations.Add((nint)p);
         return p;
     }

@@ -68,7 +68,7 @@ public unsafe class Utf8StringHandlerBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _dst = (byte*)NativeMemory.AllocZeroed(BufSize);
+        _dst = NativeMemory.AllocArrayZeroed<byte>(BufSize);
         _zone = (nint)_dst;
 
         _cname = AllocCString(_name);
@@ -90,7 +90,7 @@ public unsafe class Utf8StringHandlerBenchmarks
     private static byte* AllocCString(string s)
     {
         byte[] bytes = Encoding.ASCII.GetBytes(s);
-        byte* p = (byte*)NativeMemory.AllocZeroed((nuint)bytes.Length + 1);
+        byte* p = NativeMemory.AllocArrayZeroed<byte>(bytes.Length + 1);
         bytes.AsSpan().CopyTo(new Span<byte>(p, bytes.Length));
         return p;
     }

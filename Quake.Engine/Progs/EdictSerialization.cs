@@ -4,7 +4,6 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using Quake.Engine.Memory;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

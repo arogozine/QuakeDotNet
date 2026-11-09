@@ -63,7 +63,7 @@ public static unsafe class Hunk
 
         Cache.FreeLow(hunk_low_used);
 
-        NativeMemory.Clear(h, (nuint)size);
+        NativeMemory.Clear((byte*)h, size);
 
         h->Size = size;
         h->Sentinel = HUNK_SENTINAL;
@@ -74,7 +74,7 @@ public static unsafe class Hunk
 
     // Hunk_Alloc
     public static T* Alloc<T>()
-        where T: unmanaged
+        where T : unmanaged
     {
         return (T*)Alloc(sizeof(T));
     }
@@ -95,7 +95,7 @@ public static unsafe class Hunk
     {
         if (mark < 0 || mark > hunk_low_used)
             Sys.Error($"Hunk_FreeToLowMark: bad mark {mark}");
-        NativeMemory.Clear(hunk_base + mark, (nuint)(hunk_low_used - mark));
+        NativeMemory.Clear(hunk_base + mark, hunk_low_used - mark);
         hunk_low_used = mark;
     }
 
@@ -121,7 +121,7 @@ public static unsafe class Hunk
         }
         if (mark < 0 || mark > hunk_high_used)
             Sys.Error($"Hunk_FreeToHighMark: bad mark {mark}");
-        NativeMemory.Clear(hunk_base + hunk_size - hunk_high_used, (nuint)(hunk_high_used - mark));
+        NativeMemory.Clear(hunk_base + hunk_size - hunk_high_used, hunk_high_used - mark);
         hunk_high_used = mark;
     }
 
@@ -157,7 +157,7 @@ public static unsafe class Hunk
 
         h = (HunkHeader*)(hunk_base + hunk_size - hunk_high_used);
 
-        NativeMemory.Clear(h, (nuint)size);
+        NativeMemory.Clear((byte*)h, size);
         h->Size = size;
         h->Sentinel = HUNK_SENTINAL;
         CStr.QStrncpy(h->Name, u8Name, 8);

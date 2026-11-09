@@ -3,11 +3,11 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.Desktop;
 
@@ -109,7 +109,7 @@ public static unsafe class Program
         argv[0] = new Utf8String("quake"u8);
         for (int i = 0; i < args.Length; i++)
         {
-            argv[i + 1] = (byte*)NativeMemory.Alloc((nuint)args[i].Length + 1);
+            argv[i + 1] = NativeMemory.AllocArray<byte>(checked(args[i].Length + 1));
             CStr.Write(argv[i + 1], args[i]);
         }
 

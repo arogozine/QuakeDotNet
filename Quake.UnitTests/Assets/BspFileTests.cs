@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -20,7 +20,7 @@ public sealed unsafe class BspFileTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -28,7 +28,7 @@ public sealed unsafe class BspFileTests
         MemoryManager.Memory_Init(_buf, Size);
         Com.com_searchpaths = null;
 
-        NativeMemory.Clear(Model.mod_known, (nuint)(Model.mod_numknown * sizeof(Model_t)));
+        NativeMemory.Clear(Model.mod_known, Model.mod_numknown);
         Model.mod_numknown = 0;
         Model.loadmodel = null;
         RMain.InitTextures(); // R_InitTextures: Host_Init builds r_notexture_mip before any map loads
@@ -293,7 +293,7 @@ public sealed unsafe class BspFileTests
     [TestMethod]
     public void LoadVertexes_CopiesAllComponents()
     {
-        float* file = (float*)NativeMemory.Alloc(64);
+        float* file = NativeMemory.AllocArray<float>(16);
         Model_t model = default;
         byte* savedBase = Model.mod_base;
         Model_t* savedModel = Model.loadmodel;
@@ -342,7 +342,7 @@ public sealed unsafe class BspFileTests
         Model_t* savedModel = Model.loadmodel;
         try
         {
-            Lump_t* lump = (Lump_t*)NativeMemory.AllocZeroed((nuint)sizeof(Lump_t));
+            Lump_t* lump = NativeMemory.AllocZeroed<Lump_t>();
             lump->FileLen = sizeof(System.Numerics.Vector3) + 1;
             Model.loadmodel = &model;
             try { Assert.ThrowsExactly<QuakeSysErrorException>(() => Model.LoadVertexes(lump)); }

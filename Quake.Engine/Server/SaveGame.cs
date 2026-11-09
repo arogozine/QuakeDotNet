@@ -4,10 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using Quake.Engine.Memory;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -214,7 +212,7 @@ public static unsafe class SaveGame
         // buffered text-stream reader, so the whole file is slurped up front
         // and parsed from an in-memory cursor instead (fscanf's %s/%i/%f
         // whitespace-skipping semantics are replicated by hand above).
-        byte* cp = (byte*)NativeMemory.Alloc((nuint)len + 1);
+        byte* cp = NativeMemory.AllocArray<byte>(checked(len + 1));
         try
         {
             Sys.FileRead(handle, cp, len);

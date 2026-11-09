@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -20,7 +20,7 @@ public sealed unsafe class CommonTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.

@@ -7,7 +7,6 @@
 
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Quake.Engine.Memory;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;

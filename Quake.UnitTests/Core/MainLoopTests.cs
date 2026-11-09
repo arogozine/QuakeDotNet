@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -22,7 +22,7 @@ public sealed unsafe class MainLoopTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         _allocations = [];
@@ -97,7 +97,7 @@ public sealed unsafe class MainLoopTests
 
     private T* AllocZeroed<T>(int count) where T : unmanaged
     {
-        T* p = (T*)NativeMemory.AllocZeroed((nuint)(sizeof(T) * count));
+        T* p = NativeMemory.AllocArrayZeroed<T>(count);
         _allocations.Add((nint)p);
         return p;
     }
@@ -329,12 +329,12 @@ public sealed unsafe class MainLoopTests
     {
         SetupTrivialProgs();
         HostCmd.InitCommands();
-        *Sv.signon = new SizeBuf_t { Data = (byte*)NativeMemory.AllocZeroed(64), MaxSize = 64 };
+        *Sv.signon = new SizeBuf_t { Data = NativeMemory.AllocArrayZeroed<byte>(64), MaxSize = 64 };
         _allocations.Add((nint)Sv.signon->Data);
 
         Svs.clients[0].Active = true;
         Svs.clients[0].Edict = TestEnt;
-        Svs.clients[0].Message.Data = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_MSGLEN);
+        Svs.clients[0].Message.Data = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_MSGLEN);
         _allocations.Add((nint)Svs.clients[0].Message.Data);
         Svs.clients[0].Message.MaxSize = QuakeDef.MAX_MSGLEN;
         Svs.host_client = &Svs.clients[0];

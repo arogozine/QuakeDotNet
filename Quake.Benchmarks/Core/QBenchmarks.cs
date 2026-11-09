@@ -3,9 +3,9 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.Benchmarks;
 
@@ -28,11 +28,11 @@ public unsafe class QBenchmarks
         // _buf1 is Count+1 bytes: Count non-zero bytes followed by a single
         // NUL terminator, so both StrLen implementations scan the full
         // Count-byte buffer before finding it.
-        _buf1 = (byte*)NativeMemory.Alloc((nuint)(Count + 1));
-        _buf2 = (byte*)NativeMemory.Alloc((nuint)Count);
+        _buf1 = NativeMemory.AllocArray<byte>(Count + 1);
+        _buf2 = NativeMemory.AllocArray<byte>(Count);
         // Separate scratch buffer for the MemSet benchmarks, so they don't
         // overwrite the contents _buf1/_buf2 rely on for MemCmp/StrLen.
-        _setBuf = (byte*)NativeMemory.Alloc((nuint)Count);
+        _setBuf = NativeMemory.AllocArray<byte>(Count);
 
         Random rng = new(1234);
         for (int i = 0; i < Count; i++)

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -23,7 +23,7 @@ public sealed unsafe class CmdTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -193,7 +193,7 @@ public sealed unsafe class CmdTests
             calledCount = 0;
             Cmd.AddCommand(Ansi("cmdtest_cfgcmd"), &TestCommand_f);
 
-            Cvar_t* v = (Cvar_t*)NativeMemory.AllocZeroed((nuint)sizeof(Cvar_t));
+            Cvar_t* v = NativeMemory.AllocZeroed<Cvar_t>();
             v->Name = Ansi("cmdtest_cfgcvar");
             v->String = Ansi("0");
             Cvar.RegisterVariable(v);
@@ -218,7 +218,7 @@ public sealed unsafe class CmdTests
     [TestMethod]
     public void ExecuteString_FallsThroughToCvarCommand_ForUnknownCommandName()
     {
-        Cvar_t* v = (Cvar_t*)NativeMemory.AllocZeroed((nuint)sizeof(Cvar_t));
+        Cvar_t* v = NativeMemory.AllocZeroed<Cvar_t>();
         v->Name = Ansi("cmdtest_fallthroughcvar");
         v->String = Ansi("1");
         Cvar.RegisterVariable(v);

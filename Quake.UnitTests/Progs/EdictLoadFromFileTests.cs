@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Quake.UnitTests;
 
@@ -26,7 +26,7 @@ public sealed unsafe class EdictLoadFromFileTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         _allocations = [];
@@ -66,7 +66,7 @@ public sealed unsafe class EdictLoadFromFileTests
 
     private T* AllocZeroed<T>(int count) where T : unmanaged
     {
-        T* p = (T*)NativeMemory.AllocZeroed((nuint)(sizeof(T) * count));
+        T* p = NativeMemory.AllocArrayZeroed<T>(count);
         _allocations.Add((nint)p);
         return p;
     }
@@ -137,7 +137,7 @@ public sealed unsafe class EdictLoadFromFileTests
     private static byte* Text(string s)
     {
         byte[] bytes = Encoding.ASCII.GetBytes(s + "\0");
-        byte* p = (byte*)NativeMemory.Alloc((nuint)bytes.Length);
+        byte* p = NativeMemory.AllocArray<byte>(bytes.Length);
         for (int i = 0; i < bytes.Length; i++)
             p[i] = bytes[i];
         return p;

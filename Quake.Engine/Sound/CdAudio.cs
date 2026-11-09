@@ -3,10 +3,9 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using NVorbis;
 using OpenTK.Audio.OpenAL;
-using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 
@@ -50,7 +49,7 @@ public static unsafe class CdAudio
     internal static float cdvolume;
 
     // remap
-    internal static readonly byte* remap = (byte*)NativeMemory.AllocZeroed(MAX_TRACKS);
+    internal static readonly byte* remap = NativeMemory.AllocArrayZeroed<byte>(MAX_TRACKS);
 
     // playTrack, maxTrack
     internal static byte playTrack;
@@ -116,7 +115,7 @@ public static unsafe class CdAudio
             return false;
         }
 
-        byte* data = (byte*)NativeMemory.Alloc((nuint)len);
+        byte* data = NativeMemory.AllocArray<byte>(len);
         int total = 0;
         while (total < len)
         {

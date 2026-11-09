@@ -6,7 +6,6 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -209,19 +208,19 @@ public static unsafe class Cls
     // here directly instead (same 1024-byte size CL_Init uses) so SignonReply
     // works even before ClMain.Init() runs.
     internal const int MESSAGE_BUFSIZE = 1024;
-    internal static readonly byte* messageBuffer = (byte*)NativeMemory.AllocZeroed(MESSAGE_BUFSIZE);
+    internal static readonly byte* messageBuffer = NativeMemory.AllocArrayZeroed<byte>(MESSAGE_BUFSIZE);
     public static readonly SizeBuf_t* message = Sz.Wrap(messageBuffer, MESSAGE_BUFSIZE);
 
     // cls.spawnparms -- personalization string sent back on signon stage 2
     // ("spawn <spawnparms>"); left empty (matching its post-CL_ClearState
     // zeroed state) since nothing populates it -- Host_Map_f's spawnparms
     // save/restore (host_cmd.c) isn't part of this port's "map" command.
-    public static readonly byte* spawnparms = (byte*)NativeMemory.AllocZeroed(1);
+    public static readonly byte* spawnparms = NativeMemory.AllocArrayZeroed<byte>(1);
 
     // cls.mapstring -- char mapstring[MAX_QPATH] (client.h); the full "map"
     // command line, rebuilt in HostCmd.Map_f. Currently inert since nothing
     // reads it back yet.
-    public static readonly byte* mapstring = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_QPATH);
+    public static readonly byte* mapstring = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_QPATH);
 
     // cls.netcon -- the client's end of the loopback socket pair, set by
     // ClMain.EstablishConnection ("connect local", wired into HostCmd.Map_f).

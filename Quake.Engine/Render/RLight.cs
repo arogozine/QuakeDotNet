@@ -79,7 +79,7 @@ public static unsafe class RLight
     public static void PushDlights()
     {
         RMain.r_dlightframecount = DIface.r_framecount + 1; // because the count hasn't
-                                                              //  advanced yet for this frame
+                                                            //  advanced yet for this frame
 
         for (int i = 0; i < ClEntities.MAX_DLIGHTS; i++)
         {

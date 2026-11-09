@@ -14,7 +14,8 @@ public unsafe readonly struct Utf8String
 
     public readonly byte* _str;
 
-    public int Length {
+    public int Length
+    {
         get
         {
             byte* index = _str;
@@ -64,13 +65,13 @@ public unsafe readonly struct Utf8String
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Utf8String (ReadOnlySpan<byte> u8Literal)
+    public static implicit operator Utf8String(ReadOnlySpan<byte> u8Literal)
     {
         return new(u8Literal);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator byte* (Utf8String u8Literal) => u8Literal._str;
+    public static implicit operator byte*(Utf8String u8Literal) => u8Literal._str;
 
     // Q_strcmp(a, b) == 0; two nulls are equal, null never equals a string.
     private static bool ContentEquals(byte* a, byte* b)

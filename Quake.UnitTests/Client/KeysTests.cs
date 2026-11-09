@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -22,7 +22,7 @@ public sealed unsafe class KeysTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
 
@@ -66,7 +66,7 @@ public sealed unsafe class KeysTests
     [TestMethod]
     public void Console_Tab_FallsBackToCvarCompletion_WhenNoCommandMatches()
     {
-        Cvar_t* v = (Cvar_t*)NativeMemory.AllocZeroed((nuint)sizeof(Cvar_t));
+        Cvar_t* v = NativeMemory.AllocZeroed<Cvar_t>();
         v->Name = Ansi("cv_tabtest");
         v->String = Ansi("0");
         Cvar.RegisterVariable(v);

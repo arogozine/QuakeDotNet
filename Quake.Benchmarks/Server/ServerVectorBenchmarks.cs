@@ -3,11 +3,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Numerics;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using Quake.Engine;
+using System.Numerics;
 
 namespace Quake.Benchmarks;
 

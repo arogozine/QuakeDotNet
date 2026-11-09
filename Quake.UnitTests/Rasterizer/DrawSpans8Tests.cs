@@ -4,8 +4,8 @@
 // Copyright (C) 1996-1997 Id Software, Inc. (GNU General Public License)
 // Contains a scalar transcription of D_DrawSpans8 (d_scan.c) used as the reference.
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -23,9 +23,9 @@ public sealed unsafe class DrawSpans8Tests
     [TestInitialize]
     public void Setup()
     {
-        _viewbuf = (byte*)NativeMemory.AllocZeroed(ScreenWidth * ScreenHeight);
+        _viewbuf = NativeMemory.AllocArrayZeroed<byte>(ScreenWidth * ScreenHeight);
         // +4: the gather path may read up to 3 bytes past the last texel.
-        _tex = (byte*)NativeMemory.AllocZeroed(CacheWidth * CacheHeight + 4);
+        _tex = NativeMemory.AllocArrayZeroed<byte>(CacheWidth * CacheHeight + 4);
 
         DLocal.d_viewbuffer = _viewbuf;
         RShared.screenwidth = ScreenWidth;
@@ -122,8 +122,8 @@ public sealed unsafe class DrawSpans8Tests
         // every length 1..70 (past the 32-pixel vector chunk and the 8-pixel
         // tail), one per row group, at assorted U offsets.
         const int n = 70;
-        ESpan_t* spans = (ESpan_t*)NativeMemory.Alloc((nuint)(n * sizeof(ESpan_t)));
-        byte* expected = (byte*)NativeMemory.AllocZeroed(ScreenWidth * ScreenHeight);
+        ESpan_t* spans = NativeMemory.AllocArray<ESpan_t>(n);
+        byte* expected = NativeMemory.AllocArrayZeroed<byte>(ScreenWidth * ScreenHeight);
         try
         {
             for (int i = 0; i < n; i++)

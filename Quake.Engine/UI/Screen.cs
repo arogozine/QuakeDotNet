@@ -5,8 +5,8 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 
@@ -105,7 +105,7 @@ public static unsafe class Screen
     // (not Hunk-allocated: unlike con_text, nothing ever frees/reinits the
     // arena this needs to survive), matching the "stable native buffer for
     // a plain fixed-size C array" idiom used throughout this port.
-    internal static readonly byte* scr_centerstring = (byte*)NativeMemory.AllocZeroed(1024);
+    internal static readonly byte* scr_centerstring = NativeMemory.AllocArrayZeroed<byte>(1024);
     private static double scr_centertime_start; // for slow victory printing
 
     // internal (not private): ScreenTests.cs drives SCR_CheckDrawCenterString/

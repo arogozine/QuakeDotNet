@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -19,7 +19,7 @@ public sealed unsafe class MemoryManagerTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Com.com_argc = 0;
         Com.com_argv = [];
         Cmd.cmd_functions = null;
@@ -39,7 +39,7 @@ public sealed unsafe class MemoryManagerTests
     public void MemoryInit_WithZoneParm_OverridesDefaultZoneSize()
     {
         NativeMemory.Free(_buf);
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init()'s Cmd.AddCommand("flush", ...) re-runs on this second
         // Memory_Init call; reset cmd_functions first so it doesn't chain
         // onto a Hunk-allocated node from Setup()'s now-replaced buffer.

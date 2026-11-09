@@ -3,14 +3,12 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using Quake.Engine;
-using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.Desktop;
 
@@ -277,7 +275,7 @@ public static unsafe class VidWindow
 
         // vid.buffer/rowbytes/width/height -- VID_AllocBuffers's OS-agnostic
         // equivalent: a plain NativeMemory block instead of a DIB section.
-        byte* buffer = (byte*)NativeMemory.AllocZeroed((nuint)width * (nuint)height);
+        byte* buffer = NativeMemory.AllocArrayZeroed<byte>(checked(width * height));
         Vid.vid.Buffer = buffer;
         Vid.vid.ConBuffer = buffer;
         Vid.vid.Direct = buffer;

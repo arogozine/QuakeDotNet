@@ -3,8 +3,8 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -41,7 +41,7 @@ public static unsafe class ClDemo
 
     // cls.demos[MAX_DEMOS][MAX_DEMONAME]
     public static readonly byte* demos =
-        (byte*)NativeMemory.AllocZeroed((nuint)(MAX_DEMOS * MAX_DEMONAME));
+        NativeMemory.AllocArrayZeroed<byte>(MAX_DEMOS * MAX_DEMONAME);
 
 
     /*

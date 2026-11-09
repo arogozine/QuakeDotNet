@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -23,7 +23,7 @@ public sealed unsafe class SvSendTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         _allocations = [];
@@ -59,7 +59,7 @@ public sealed unsafe class SvSendTests
         // A single "" string at pr_strings[0], enough for every string_t
         // field this file's code paths read when left at its zero default
         // (v.message, v.model, v.weaponmodel, ...).
-        Progs.pr_strings = (byte*)NativeMemory.AllocZeroed(64);
+        Progs.pr_strings = NativeMemory.AllocArrayZeroed<byte>(64);
         _allocations.Add((nint)Progs.pr_strings);
 
         Sv.edicts = AllocZeroed<EDict_t>(4);
@@ -73,11 +73,11 @@ public sealed unsafe class SvSendTests
         Sv.sound_precache[0] = Progs.pr_strings;
 
         SizeBuf_t* sig = Sv.signon;
-            Sz.Alloc(sig, 8192);
+        Sz.Alloc(sig, 8192);
         SizeBuf_t* dg = Sv.datagram;
-            Sz.Alloc(dg, QuakeDef.MAX_DATAGRAM);
+        Sz.Alloc(dg, QuakeDef.MAX_DATAGRAM);
         SizeBuf_t* rdg = Sv.reliable_datagram;
-            Sz.Alloc(rdg, QuakeDef.MAX_DATAGRAM);
+        Sz.Alloc(rdg, QuakeDef.MAX_DATAGRAM);
     }
 
     [TestCleanup]
@@ -90,7 +90,7 @@ public sealed unsafe class SvSendTests
 
     private T* AllocZeroed<T>(int count) where T : unmanaged
     {
-        T* p = (T*)NativeMemory.AllocZeroed((nuint)(sizeof(T) * count));
+        T* p = NativeMemory.AllocArrayZeroed<T>(count);
         _allocations.Add((nint)p);
         return p;
     }
@@ -232,7 +232,7 @@ public sealed unsafe class SvSendTests
         ent->V.Health = 90;
         Sv.sv_player = ent; // SV_SetIdealPitch reads it
         DPrograms_t* oldProgs = Progs.progs;
-        DPrograms_t* fakeProgs = (DPrograms_t*)NativeMemory.AllocZeroed((nuint)sizeof(DPrograms_t)); // no field defs
+        DPrograms_t* fakeProgs = NativeMemory.AllocZeroed<DPrograms_t>(); // no field defs
         Progs.progs = fakeProgs;
         ent->Alpha = 0;
 
@@ -242,7 +242,7 @@ public sealed unsafe class SvSendTests
         msg.MaxSize = 256;
         Sv.WriteClientdataToMessage(ent, &msg);
 
-        byte* netBuf = (byte*)NativeMemory.AllocZeroed(256);
+        byte* netBuf = NativeMemory.AllocArrayZeroed<byte>(256);
         try
         {
             Net.net_message->Data = netBuf; Net.net_message->MaxSize = 256;

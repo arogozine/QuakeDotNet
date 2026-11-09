@@ -3,9 +3,8 @@
 
 namespace Quake.UnitTests;
 
-using System.Text.RegularExpressions;
 using Quake.Engine;
-using static Quake.Engine.QuakeDef;
+using System.Text.RegularExpressions;
 
 /// <summary>quakedef.h constants (QuakeDef.cs) and the single-definition rule for them.</summary>
 [TestClass]

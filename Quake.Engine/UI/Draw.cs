@@ -6,7 +6,6 @@
 using Quake.Engine.Memory;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
 

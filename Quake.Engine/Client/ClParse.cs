@@ -763,71 +763,71 @@ public static unsafe class ClParse
                     break;
 
                 case Svc.LightStyle:
-                {
-                    int i = Msg.ReadByte();
-                    if (i >= QuakeDef.MAX_LIGHTSTYLES)
-                        Sys.Error("Svc.LightStyle > MAX_LIGHTSTYLES"u8);
                     {
-                        LightStyle_t* ls = &ClLightStyle.cl_lightstyle[i];
-                        Q.StrCpy(ls->Map, Msg.ReadString());
-                        ls->Length = Q.StrLen(ls->Map);
+                        int i = Msg.ReadByte();
+                        if (i >= QuakeDef.MAX_LIGHTSTYLES)
+                            Sys.Error("Svc.LightStyle > MAX_LIGHTSTYLES"u8);
+                        {
+                            LightStyle_t* ls = &ClLightStyle.cl_lightstyle[i];
+                            Q.StrCpy(ls->Map, Msg.ReadString());
+                            ls->Length = Q.StrLen(ls->Map);
+                        }
+                        break;
                     }
-                    break;
-                }
 
                 case Svc.Sound:
                     ParseStartSoundPacket();
                     break;
 
                 case Svc.StopSound:
-                {
-                    int i = Msg.ReadShort();
-                    SndDma.StopSound(i >> 3, i & 7);
-                    break;
-                }
+                    {
+                        int i = Msg.ReadShort();
+                        SndDma.StopSound(i >> 3, i & 7);
+                        break;
+                    }
 
                 case Svc.UpdateName:
-                {
-                    Sbar.Changed();
-                    int i = Msg.ReadByte();
-                    if (i >= Cl.maxclients)
-                        Host.Error("CL_ParseServerMessage: (int)Svc.UpdateName > MAX_SCOREBOARD"u8);
-                    Q.StrCpy(Cl.scores[i].Name, Msg.ReadString());
-                    break;
-                }
+                    {
+                        Sbar.Changed();
+                        int i = Msg.ReadByte();
+                        if (i >= Cl.maxclients)
+                            Host.Error("CL_ParseServerMessage: (int)Svc.UpdateName > MAX_SCOREBOARD"u8);
+                        Q.StrCpy(Cl.scores[i].Name, Msg.ReadString());
+                        break;
+                    }
 
                 case Svc.UpdateFrags:
-                {
-                    Sbar.Changed();
-                    int i = Msg.ReadByte();
-                    if (i >= Cl.maxclients)
-                        Host.Error("CL_ParseServerMessage: (int)Svc.UpdateFrags > MAX_SCOREBOARD"u8);
-                    Cl.scores[i].Frags = Msg.ReadShort();
-                    break;
-                }
+                    {
+                        Sbar.Changed();
+                        int i = Msg.ReadByte();
+                        if (i >= Cl.maxclients)
+                            Host.Error("CL_ParseServerMessage: (int)Svc.UpdateFrags > MAX_SCOREBOARD"u8);
+                        Cl.scores[i].Frags = Msg.ReadShort();
+                        break;
+                    }
 
                 case Svc.UpdateColors:
-                {
-                    Sbar.Changed();
-                    int i = Msg.ReadByte();
-                    if (i >= Cl.maxclients)
-                        Host.Error("CL_ParseServerMessage: (int)Svc.UpdateColors > MAX_SCOREBOARD"u8);
-                    Cl.scores[i].Colors = Msg.ReadByte();
-                    NewTranslation(i);
-                    break;
-                }
+                    {
+                        Sbar.Changed();
+                        int i = Msg.ReadByte();
+                        if (i >= Cl.maxclients)
+                            Host.Error("CL_ParseServerMessage: (int)Svc.UpdateColors > MAX_SCOREBOARD"u8);
+                        Cl.scores[i].Colors = Msg.ReadByte();
+                        NewTranslation(i);
+                        break;
+                    }
 
                 case Svc.Particle:
                     RPart.ParseParticleEffect();
                     break;
 
                 case Svc.SpawnBaseline:
-                {
-                    int i = Msg.ReadShort();
-                    // must use CL_EntityNum() to force cl.num_entities up
-                    ParseBaseline(EntityNum(i));
-                    break;
-                }
+                    {
+                        int i = Msg.ReadShort();
+                        // must use CL_EntityNum() to force cl.num_entities up
+                        ParseBaseline(EntityNum(i));
+                        break;
+                    }
 
                 case Svc.SpawnStatic:
                     ParseStatic();
@@ -835,12 +835,12 @@ public static unsafe class ClParse
 
                 // johnfitz -- PROTOCOL_FITZQUAKE
                 case Svc.SpawnBaseline2:
-                {
-                    int i = Msg.ReadShort();
-                    // must use CL_EntityNum() to force cl.num_entities up
-                    ParseBaseline(EntityNum(i), 2);
-                    break;
-                }
+                    {
+                        int i = Msg.ReadShort();
+                        // must use CL_EntityNum() to force cl.num_entities up
+                        ParseBaseline(EntityNum(i), 2);
+                        break;
+                    }
 
                 case Svc.SpawnStatic2:
                     ParseStatic(2);
@@ -871,25 +871,25 @@ public static unsafe class ClParse
                     break;
 
                 case Svc.SetPause:
-                {
-                    Cl.paused = Msg.ReadByte() != 0;
-                    if (Cl.paused)
-                        CdAudio.Pause();
-                    else
-                        CdAudio.Resume();
-                    // VID_HandlePause is Win32-only (sys_win.c) -- skipped per CLAUDE.md rule 5.
-                    break;
-                }
+                    {
+                        Cl.paused = Msg.ReadByte() != 0;
+                        if (Cl.paused)
+                            CdAudio.Pause();
+                        else
+                            CdAudio.Resume();
+                        // VID_HandlePause is Win32-only (sys_win.c) -- skipped per CLAUDE.md rule 5.
+                        break;
+                    }
 
                 case Svc.SignOnNum:
-                {
-                    int i = Msg.ReadByte();
-                    if (i <= Cls.signon)
-                        Host.Error($"Received signon {i} when at {Cls.signon}");
-                    Cls.signon = i;
-                    SignonReply();
-                    break;
-                }
+                    {
+                        int i = Msg.ReadByte();
+                        if (i <= Cls.signon)
+                            Host.Error($"Received signon {i} when at {Cls.signon}");
+                        Cls.signon = i;
+                        SignonReply();
+                        break;
+                    }
 
                 case Svc.KilledMonster:
                     Cl.stats[(int)Stat.Monsters]++;
@@ -900,13 +900,13 @@ public static unsafe class ClParse
                     break;
 
                 case Svc.UpdateStat:
-                {
-                    int i = Msg.ReadByte();
-                    if (i is < 0 or >= 32) // MAX_CL_STATS
-                        Sys.Error($"(int)Svc.UpdateStat: {i} is invalid");
-                    Cl.stats[i] = Msg.ReadLong();
-                    break;
-                }
+                    {
+                        int i = Msg.ReadByte();
+                        if (i is < 0 or >= 32) // MAX_CL_STATS
+                            Sys.Error($"(int)Svc.UpdateStat: {i} is invalid");
+                        Cl.stats[i] = Msg.ReadLong();
+                        break;
+                    }
 
                 case Svc.SpawnStaticSound:
                     ParseStaticSound();

@@ -3,10 +3,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -98,7 +98,7 @@ public static unsafe class RMain
 
     // pfrustum_indexes[4]/r_frustum_indexes[4*6] -- pointers into a native
     // (not GC-moved) buffer so pfrustum_indexes' stored pointers stay valid.
-    public static readonly int* r_frustum_indexes = (int*)NativeMemory.AllocZeroed(4 * 6 * sizeof(int));
+    public static readonly int* r_frustum_indexes = NativeMemory.AllocArrayZeroed<int>(4 * 6);
     public static readonly int** pfrustum_indexes = NativeMemory.AllocPointerArray<int>(4);
 
     // reinit_surfcache -- render.h global; not read anywhere in the
@@ -184,8 +184,8 @@ public static unsafe class RMain
         {
             byte* dest = (byte*)r_notexture_mip + r_notexture_mip->Offsets[m];
             for (int y = 0; y < (16 >> m); y++)
-            for (int x = 0; x < (16 >> m); x++)
-                *dest++ = (y < (8 >> m)) ^ (x < (8 >> m)) ? (byte)0 : (byte)0xff;
+                for (int x = 0; x < (16 >> m); x++)
+                    *dest++ = (y < (8 >> m)) ^ (x < (8 >> m)) ? (byte)0 : (byte)0xff;
         }
     }
 
@@ -908,7 +908,7 @@ public static unsafe class RMain
         // stack array in the original; kept as a lazily-allocated native
         // buffer instead.
         if (warpBuffer == null)
-            warpBuffer = (byte*)NativeMemory.AllocZeroed(DIface.WARP_WIDTH * DIface.WARP_HEIGHT);
+            warpBuffer = NativeMemory.AllocArrayZeroed<byte>(DIface.WARP_WIDTH * DIface.WARP_HEIGHT);
         DIface.r_warpbuffer = warpBuffer;
 
         if (r_timegraph->Value != 0 || r_speeds->Value != 0 || r_dspeeds->Value != 0)

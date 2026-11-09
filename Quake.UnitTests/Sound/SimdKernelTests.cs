@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
+using Quake.Engine;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine;
 
 namespace Quake.UnitTests;
 
@@ -72,7 +72,7 @@ public sealed unsafe class SimdKernelTests
     {
         const int samples = 64;
         Dma_t shm = default;
-        byte* buf = (byte*)NativeMemory.AllocZeroed(samples);
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(samples);
         byte[] expected = new byte[samples];
         try
         {
@@ -158,10 +158,10 @@ public sealed unsafe class PvsSimdTests
         Random r = new(9);
         foreach (int n in new[] { 1, 7, 8, 9, 63, 64, 65, 100, 128, 129, 1000 })
         {
-            MLeaf_t* leaves = (MLeaf_t*)NativeMemory.AllocZeroed((nuint)((n + 2) * sizeof(MLeaf_t)));
-            MNode_t* nodes = (MNode_t*)NativeMemory.AllocZeroed((nuint)((n + 2) * sizeof(MNode_t)));
+            MLeaf_t* leaves = NativeMemory.AllocArrayZeroed<MLeaf_t>(n + 2);
+            MNode_t* nodes = NativeMemory.AllocArrayZeroed<MNode_t>(n + 2);
             int rowBytes = ((n + 7) >> 3) + 16;
-            byte* vis = (byte*)NativeMemory.AllocZeroed((nuint)rowBytes);
+            byte* vis = NativeMemory.AllocArrayZeroed<byte>(rowBytes);
             try
             {
                 for (int i = 0; i <= n; i++) leaves[i].Parent = &nodes[1 + i / 3];

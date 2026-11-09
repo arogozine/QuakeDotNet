@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -21,14 +21,14 @@ public sealed unsafe class ClTEntTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null;
         MemoryManager.Memory_Init(_buf, Size);
 
         Cl.time = 10.0;
         Cl.viewentity = 0;
 
-        _colormap = (byte*)NativeMemory.AllocZeroed((nuint)(Vid.VID_GRADES * 256));
+        _colormap = NativeMemory.AllocArrayZeroed<byte>(Vid.VID_GRADES * 256);
         Vid.vid.Colormap = _colormap;
 
         new Span<Entity_t>(ClEntities.cl_entities, QuakeDef.MAX_EDICTS).Clear();
@@ -54,7 +54,7 @@ public sealed unsafe class ClTEntTests
         ClTEnt.cl_sfx_ric3 = null;
         ClTEnt.cl_sfx_r_exp3 = null;
 
-        _netMessageBuf = (byte*)NativeMemory.AllocZeroed(2048);
+        _netMessageBuf = NativeMemory.AllocArrayZeroed<byte>(2048);
         Net.net_message->Data = _netMessageBuf; Net.net_message->MaxSize = 2048;
     }
 

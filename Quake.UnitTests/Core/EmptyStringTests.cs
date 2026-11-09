@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -18,7 +18,7 @@ public sealed unsafe class EmptyStringTests
     [TestInitialize]
     public void Setup()
     {
-        _data = (byte*)NativeMemory.AllocZeroed(64);
+        _data = NativeMemory.AllocArrayZeroed<byte>(64);
         _sb = Sz.Wrap(_data, 64);
     }
 

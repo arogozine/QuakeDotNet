@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -165,11 +165,11 @@ public sealed unsafe class RSurfTests
     {
         const int nv = 3, hb = 3, texW = 64, texH = 64;
         Random rng = new(42);
-        byte* colormap = (byte*)NativeMemory.AllocZeroed(16384 + 16);
-        byte* source = (byte*)NativeMemory.AllocZeroed(texW * texH);
-        uint* lights = (uint*)NativeMemory.AllocZeroed((hb + 1) * (nv + 1) * 4);
-        byte* destA = (byte*)NativeMemory.AllocZeroed(16 * hb * 16 * nv);
-        byte* destB = (byte*)NativeMemory.AllocZeroed(16 * hb * 16 * nv);
+        byte* colormap = NativeMemory.AllocArrayZeroed<byte>(16384 + 16);
+        byte* source = NativeMemory.AllocArrayZeroed<byte>(texW * texH);
+        uint* lights = NativeMemory.AllocArrayZeroed<uint>((hb + 1) * (nv + 1));
+        byte* destA = NativeMemory.AllocArrayZeroed<byte>(16 * hb * 16 * nv);
+        byte* destB = NativeMemory.AllocArrayZeroed<byte>(16 * hb * 16 * nv);
         try
         {
             for (int i = 0; i < 16384; i++) colormap[i] = (byte)rng.Next(256);

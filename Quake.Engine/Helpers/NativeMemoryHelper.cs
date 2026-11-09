@@ -21,7 +21,7 @@ internal static unsafe class NativeMemoryHelper
         }
     }
 
-    extension <T>(NativeMemory)
+    extension<T>(NativeMemory)
         where T : unmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

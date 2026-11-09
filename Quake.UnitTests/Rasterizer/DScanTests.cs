@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -15,8 +15,8 @@ public sealed unsafe class DScanTests
     [TestInitialize]
     public void Setup()
     {
-        _viewbuf = (byte*)NativeMemory.AllocZeroed(16);
-        _tex = (byte*)NativeMemory.AllocZeroed(4);
+        _viewbuf = NativeMemory.AllocArrayZeroed<byte>(16);
+        _tex = NativeMemory.AllocArrayZeroed<byte>(4);
         _tex[0] = 42;
 
         DLocal.d_viewbuffer = _viewbuf;
@@ -50,8 +50,8 @@ public sealed unsafe class DScanTests
     [TestMethod]
     public void Turbulent8_SpanLongerThanSixteenPixels_HitsChunkAndRemainderBranches()
     {
-        byte* turbTex = (byte*)NativeMemory.AllocZeroed(64 * 64);
-        byte* viewbuf = (byte*)NativeMemory.AllocZeroed(32);
+        byte* turbTex = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
+        byte* viewbuf = NativeMemory.AllocArrayZeroed<byte>(32);
         try
         {
             turbTex[0] = 7;
@@ -85,10 +85,10 @@ public sealed unsafe class DScanTests
     {
         const int W = 256, H = 8, N = 70;
         Random rng = new(seed);
-        byte* tex = (byte*)NativeMemory.AllocZeroed(64 * 64 + 4);
-        byte* view = (byte*)NativeMemory.AllocZeroed(W * H);
-        byte* expected = (byte*)NativeMemory.AllocZeroed(W * H);
-        ESpan_t* spans = (ESpan_t*)NativeMemory.Alloc((nuint)(N * sizeof(ESpan_t)));
+        byte* tex = NativeMemory.AllocArrayZeroed<byte>(64 * 64 + 4);
+        byte* view = NativeMemory.AllocArrayZeroed<byte>(W * H);
+        byte* expected = NativeMemory.AllocArrayZeroed<byte>(W * H);
+        ESpan_t* spans = NativeMemory.AllocArray<ESpan_t>(N);
         try
         {
             for (int i = 0; i < 64 * 64; i++) tex[i] = (byte)rng.Next(256);
@@ -184,7 +184,7 @@ public sealed unsafe class DScanTests
     [TestMethod]
     public void DrawZSpans_OddAlignedDest_FixupThenPairedWritesMatchScalarRecurrence()
     {
-        short* zbuf = (short*)NativeMemory.AllocZeroed(sizeof(short) * 8);
+        short* zbuf = NativeMemory.AllocArrayZeroed<short>(8);
         try
         {
             DLocal.d_pzbuffer = zbuf;
@@ -223,7 +223,7 @@ public sealed unsafe class DScanTests
         // i.e. 1 + 8 + 2 + 0 = 11, since the fixup consumes one before the
         // quad/double/single split of the remaining 10.
         const int count = 11;
-        short* zbuf = (short*)NativeMemory.AllocZeroed(sizeof(short) * (count + 1));
+        short* zbuf = NativeMemory.AllocArrayZeroed<short>(count + 1);
         try
         {
             DLocal.d_pzbuffer = zbuf;
@@ -259,8 +259,8 @@ public sealed unsafe class DScanTests
         // Guards the DLocal.d_pzbuffer/d_zwidth local-caching change: the
         // cache must be scoped to a single call, not leak across calls the
         // way it would if hoisted to a wider scope.
-        short* zbufA = (short*)NativeMemory.AllocZeroed(sizeof(short) * 4);
-        short* zbufB = (short*)NativeMemory.AllocZeroed(sizeof(short) * 4);
+        short* zbufA = NativeMemory.AllocArrayZeroed<short>(4);
+        short* zbufB = NativeMemory.AllocArrayZeroed<short>(4);
         try
         {
             DLocal.d_pzbuffer = zbufA;

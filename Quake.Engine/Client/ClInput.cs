@@ -5,7 +5,6 @@
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 

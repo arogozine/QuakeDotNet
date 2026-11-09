@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -23,7 +23,7 @@ public sealed unsafe class HostShutdownServerTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         _allocations = [];
@@ -71,7 +71,7 @@ public sealed unsafe class HostShutdownServerTests
         Progs.pr_global_struct = globals;
         Progs.pr_globals = (float*)globals;
 
-        Progs.pr_strings = (byte*)NativeMemory.AllocZeroed(64);
+        Progs.pr_strings = NativeMemory.AllocArrayZeroed<byte>(64);
         _allocations.Add((nint)Progs.pr_strings);
 
         Sv.edicts = AllocZeroed<EDict_t>(4);
@@ -85,11 +85,11 @@ public sealed unsafe class HostShutdownServerTests
         Sv.sound_precache[0] = Progs.pr_strings;
 
         SizeBuf_t* sig = Sv.signon;
-            Sz.Alloc(sig, 8192);
+        Sz.Alloc(sig, 8192);
         SizeBuf_t* dg = Sv.datagram;
-            Sz.Alloc(dg, QuakeDef.MAX_DATAGRAM);
+        Sz.Alloc(dg, QuakeDef.MAX_DATAGRAM);
         SizeBuf_t* rdg = Sv.reliable_datagram;
-            Sz.Alloc(rdg, QuakeDef.MAX_DATAGRAM);
+        Sz.Alloc(rdg, QuakeDef.MAX_DATAGRAM);
     }
 
     [TestCleanup]
@@ -105,7 +105,7 @@ public sealed unsafe class HostShutdownServerTests
 
     private T* AllocZeroed<T>(int count) where T : unmanaged
     {
-        T* p = (T*)NativeMemory.AllocZeroed((nuint)(sizeof(T) * count));
+        T* p = NativeMemory.AllocArrayZeroed<T>(count);
         _allocations.Add((nint)p);
         return p;
     }

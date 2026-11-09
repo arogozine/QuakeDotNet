@@ -5,9 +5,9 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -112,7 +112,7 @@ public static unsafe class Keys
     // internal (not private): Console.cs's ported Con_DrawInput needs
     // key_lines[edit_line]/key_linepos/edit_line directly, same as the
     // original's console.c reaching into keys.c's globals.
-    internal static readonly byte* key_lines = (byte*)NativeMemory.AllocZeroed(32 * MAXCMDLINE);
+    internal static readonly byte* key_lines = NativeMemory.AllocArrayZeroed<byte>(32 * MAXCMDLINE);
     internal static byte* KeyLine(int i) => key_lines + i * MAXCMDLINE;
 
     internal static int key_linepos;
@@ -122,7 +122,7 @@ public static unsafe class Keys
     // chat_buffer/team_message (keys.c globals used by Key_Message).
     // internal: Con_DrawNotify reads chat_buffer directly (console.c's
     // "extern char chat_buffer[]").
-    internal static readonly byte* chat_buffer = (byte*)NativeMemory.AllocZeroed(32);
+    internal static readonly byte* chat_buffer = NativeMemory.AllocArrayZeroed<byte>(32);
     private static int chat_bufferlen;
     public static bool team_message;
 

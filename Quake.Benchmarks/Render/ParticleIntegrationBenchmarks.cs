@@ -3,10 +3,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Numerics;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
+using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Quake.Benchmarks;
 
@@ -34,7 +34,7 @@ public unsafe class ParticleIntegrationBenchmarks
     public void Setup()
     {
         Random rng = new(7);
-        _particles = (Particle_t*)NativeMemory.AllocZeroed((nuint)(Count * sizeof(Particle_t)));
+        _particles = NativeMemory.AllocArrayZeroed<Particle_t>(Count);
         for (int i = 0; i < Count; i++)
         {
             _particles[i].Org = new Vector3(rng.Next(-1000, 1000), rng.Next(-1000, 1000), rng.Next(-1000, 1000));

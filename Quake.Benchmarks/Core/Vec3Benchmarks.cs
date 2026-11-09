@@ -4,7 +4,6 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using BenchmarkDotNet.Attributes;
-using Quake.Engine;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;

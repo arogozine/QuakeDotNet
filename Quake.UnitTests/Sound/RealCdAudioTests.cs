@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -25,7 +25,7 @@ public sealed unsafe class RealCdAudioTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         Com.com_searchpaths = null;
@@ -45,7 +45,7 @@ public sealed unsafe class RealCdAudioTests
         SndDma.total_channels = 0;
         SndDma.shm = null;
         SndDma.paintedtime = 0;
-        NativeMemory.Clear(SndDma.channels, (nuint)(SndDma.MAX_CHANNELS * sizeof(Channel_t)));
+        NativeMemory.Clear(SndDma.channels, SndDma.MAX_CHANNELS);
 
         CdAudio.playLooping = false;
         CdAudio.streamEnded = false;

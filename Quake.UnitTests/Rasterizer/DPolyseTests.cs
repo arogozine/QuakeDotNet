@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -12,7 +12,7 @@ public sealed unsafe class DPolyseTests
     [TestMethod]
     public void PolysetFillSpans8_FillsEachSpan_WithIncrementingFlatColor()
     {
-        byte* buf = (byte*)NativeMemory.AllocZeroed(16);
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(16);
         try
         {
             DPolyse.d_aflatcolor = 10;
@@ -40,10 +40,10 @@ public sealed unsafe class DPolyseTests
     [TestMethod]
     public void PolysetDrawFinalVerts_WritesPixel_ThroughColormapAndSkin_WhenCloserThanZBuffer()
     {
-        byte* viewbuf = (byte*)NativeMemory.AllocZeroed(64);
-        short* zrow = (short*)NativeMemory.AllocZeroed(16 * sizeof(short));
-        byte* skin = (byte*)NativeMemory.AllocZeroed(64); // 8 wide x 8 tall
-        byte* colormap = (byte*)NativeMemory.AllocZeroed(256 * 4);
+        byte* viewbuf = NativeMemory.AllocArrayZeroed<byte>(64);
+        short* zrow = NativeMemory.AllocArrayZeroed<short>(16);
+        byte* skin = NativeMemory.AllocArrayZeroed<byte>(64); // 8 wide x 8 tall
+        byte* colormap = NativeMemory.AllocArrayZeroed<byte>(256 * 4);
         try
         {
             const int skinwidth = 8;
@@ -88,10 +88,10 @@ public sealed unsafe class DPolyseTests
     [TestMethod]
     public void PolysetDrawFinalVerts_SkipsPixel_WhenBehindExistingZ()
     {
-        byte* viewbuf = (byte*)NativeMemory.AllocZeroed(64);
-        short* zrow = (short*)NativeMemory.AllocZeroed(16 * sizeof(short));
-        byte* skin = (byte*)NativeMemory.AllocZeroed(64);
-        byte* colormap = (byte*)NativeMemory.AllocZeroed(256 * 4);
+        byte* viewbuf = NativeMemory.AllocArrayZeroed<byte>(64);
+        short* zrow = NativeMemory.AllocArrayZeroed<short>(16);
+        byte* skin = NativeMemory.AllocArrayZeroed<byte>(64);
+        byte* colormap = NativeMemory.AllocArrayZeroed<byte>(256 * 4);
         try
         {
             DIface.r_affinetridesc.SkinWidth = 8;
@@ -172,11 +172,16 @@ public sealed unsafe class DPolyseTests
 
     private static Gradients ReadGradients() => new()
     {
-        LStepX = DPolyse.r_lstepx, LStepY = DPolyse.r_lstepy,
-        SStepX = DPolyse.r_sstepx, SStepY = DPolyse.r_sstepy,
-        TStepX = DPolyse.r_tstepx, TStepY = DPolyse.r_tstepy,
-        ZiStepX = DPolyse.r_zistepx, ZiStepY = DPolyse.r_zistepy,
-        SStepXFrac = DPolyse.a_sstepxfrac, TStepXFrac = DPolyse.a_tstepxfrac,
+        LStepX = DPolyse.r_lstepx,
+        LStepY = DPolyse.r_lstepy,
+        SStepX = DPolyse.r_sstepx,
+        SStepY = DPolyse.r_sstepy,
+        TStepX = DPolyse.r_tstepx,
+        TStepY = DPolyse.r_tstepy,
+        ZiStepX = DPolyse.r_zistepx,
+        ZiStepY = DPolyse.r_zistepy,
+        SStepXFrac = DPolyse.a_sstepxfrac,
+        TStepXFrac = DPolyse.a_tstepxfrac,
         StStepXWhole = DPolyse.a_ststepxwhole,
     };
 
@@ -278,11 +283,11 @@ public sealed unsafe class DPolyseTests
     {
         const int n = 30, max = 40, skin = 64;
         Random rng = new(11);
-        SpanPackage_t* spans = (SpanPackage_t*)NativeMemory.AllocZeroed((nuint)((n + 1) * sizeof(SpanPackage_t)));
-        byte* dest = (byte*)NativeMemory.AllocZeroed(n * max);
-        short* z = (short*)NativeMemory.AllocZeroed(n * max * 2);
-        byte* tex = (byte*)NativeMemory.AllocZeroed(skin * skin * 2);
-        byte* cmap = (byte*)NativeMemory.AllocZeroed(16384);
+        SpanPackage_t* spans = NativeMemory.AllocArrayZeroed<SpanPackage_t>(n + 1);
+        byte* dest = NativeMemory.AllocArrayZeroed<byte>(n * max);
+        short* z = NativeMemory.AllocArrayZeroed<short>(n * max);
+        byte* tex = NativeMemory.AllocArrayZeroed<byte>(skin * skin * 2);
+        byte* cmap = NativeMemory.AllocArrayZeroed<byte>(16384);
         byte[] expDest = new byte[n * max];
         short[] expZ = new short[n * max];
         try
@@ -295,9 +300,14 @@ public sealed unsafe class DPolyseTests
             for (int i = 0; i < n; i++)
                 spans[i] = new SpanPackage_t
                 {
-                    PDest = dest + i * max, Pz = z + i * max, Count = rng.Next(2, max - 4),
-                    PTex = tex + rng.Next(0, 200), Sfrac = rng.Next(0, 0x10000), Tfrac = rng.Next(0, 0x10000),
-                    Light = rng.Next(0, 0x3F00), Zi = rng.Next(1000, 20000) << 16,
+                    PDest = dest + i * max,
+                    Pz = z + i * max,
+                    Count = rng.Next(2, max - 4),
+                    PTex = tex + rng.Next(0, 200),
+                    Sfrac = rng.Next(0, 0x10000),
+                    Tfrac = rng.Next(0, 0x10000),
+                    Light = rng.Next(0, 0x3F00),
+                    Zi = rng.Next(1000, 20000) << 16,
                 };
             spans[n].Count = -999999;
 

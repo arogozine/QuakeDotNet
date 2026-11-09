@@ -241,7 +241,7 @@ public static unsafe class Con
         Keys.team_message = true;
     }
 
-    
+
     // Con_NotifyBox
 
     /*

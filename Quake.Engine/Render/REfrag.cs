@@ -130,7 +130,7 @@ public static unsafe class REfrag
         {
             if (node->Contents != (int)Contents.Solid)
                 RMain.r_pefragtopnode = node; // we've reached a non-solid leaf, so it's
-                                                //  visible and not BSP clipped
+                                              //  visible and not BSP clipped
             return;
         }
 

@@ -20,7 +20,7 @@ public unsafe class DlightBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _a = (uint*)NativeMemory.AllocZeroed(324 * 4); _b = (uint*)NativeMemory.AllocZeroed(324 * 4);
+        _a = NativeMemory.AllocArrayZeroed<uint>(324); _b = NativeMemory.AllocArrayZeroed<uint>(324);
         Orig(); Simd();
         for (int i = 0; i < 324; i++) if (_a[i] != _b[i]) throw new Exception("mismatch " + i);
         bool any = false; for (int i = 0; i < 324; i++) any |= _a[i] != 0; if (!any) throw new Exception("no lights");

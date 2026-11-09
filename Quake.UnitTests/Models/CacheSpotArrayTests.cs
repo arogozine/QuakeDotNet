@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -14,7 +14,7 @@ public sealed unsafe class CacheSpotArrayTests
     [TestInitialize]
     public void Setup()
     {
-        _surface = (MSurface_t*)NativeMemory.AllocZeroed((nuint)sizeof(MSurface_t));
+        _surface = NativeMemory.AllocZeroed<MSurface_t>();
     }
 
     [TestCleanup]

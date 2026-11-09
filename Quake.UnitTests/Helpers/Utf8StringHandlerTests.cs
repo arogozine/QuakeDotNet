@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
+using Quake.Engine;
+using Quake.Engine.Memory;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
-using Quake.Engine;
-using Quake.Engine.Memory;
 
 namespace Quake.UnitTests;
 
@@ -63,7 +63,7 @@ public sealed unsafe class Utf8StringHandlerTests
     [TestMethod]
     public void Append_Utf8String_HeapBacked_WritesContents()
     {
-        byte* p = (byte*)NativeMemory.AllocZeroed(4);
+        byte* p = NativeMemory.AllocArrayZeroed<byte>(4);
         p[0] = (byte)'a'; p[1] = (byte)'b';
         try
         {
@@ -138,7 +138,7 @@ public sealed unsafe class Utf8StringHandlerTests
     {
         string fill = new('a', Max - 1);
         ReadOnlySpan<byte> one = "b"u8;
-        byte* p = (byte*)NativeMemory.AllocZeroed(2);
+        byte* p = NativeMemory.AllocArrayZeroed<byte>(2);
         p[0] = (byte)'b';
         try
         {
@@ -323,7 +323,7 @@ public sealed unsafe class Utf8StringHandlerTests
     [TestMethod]
     public void BytePointer_Copies()
     {
-        byte* p = (byte*)NativeMemory.Alloc(4);
+        byte* p = NativeMemory.AllocArray<byte>(4);
         p[0] = (byte)'o'; p[1] = (byte)'k'; p[2] = 0; p[3] = (byte)'x';
         try
         {
@@ -341,7 +341,7 @@ public sealed unsafe class Utf8StringHandlerTests
     {
         const int maxPlus15 = Max + 15;
 
-        byte* src = (byte*)NativeMemory.Alloc(maxPlus15 + 1);
+        byte* src = NativeMemory.AllocArray<byte>(maxPlus15 + 1);
         new Span<byte>(src, maxPlus15).Fill((byte)'e');
         src[maxPlus15] = 0;
 
@@ -359,7 +359,7 @@ public sealed unsafe class Utf8StringHandlerTests
     public void BytePointer_AtFullBuffer_IsTruncated()
     {
         string big = new('c', Max);
-        byte* p = (byte*)NativeMemory.Alloc(3);
+        byte* p = NativeMemory.AllocArray<byte>(3);
         p[0] = (byte)'z'; p[1] = (byte)'z'; p[2] = 0;
         try
         {
@@ -382,7 +382,7 @@ public sealed unsafe class Utf8StringHandlerTests
     [TestMethod]
     public void BytePointer_Alignment_PadsLikePrintfS()
     {
-        byte* p = (byte*)NativeMemory.Alloc(3);
+        byte* p = NativeMemory.AllocArray<byte>(3);
         p[0] = (byte)'a'; p[1] = (byte)'b'; p[2] = 0;
         try
         {

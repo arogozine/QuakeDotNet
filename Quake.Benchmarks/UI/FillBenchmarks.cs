@@ -4,9 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using BenchmarkDotNet.Attributes;
-using Quake.Engine;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
+using Quake.Engine;
 
 namespace Quake.Benchmarks;
 
@@ -18,7 +17,7 @@ public unsafe class FillBenchmarks
     private const int H = 24;
     private byte* _buf;
 
-    [GlobalSetup] public void Setup() => _buf = (byte*)NativeMemory.AllocZeroed(1024 * 64);
+    [GlobalSetup] public void Setup() => _buf = NativeMemory.AllocArrayZeroed<byte>(1024 * 64);
 
     [GlobalCleanup] public void Cleanup() => NativeMemory.Free(_buf);
 

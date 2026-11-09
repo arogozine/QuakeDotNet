@@ -5,10 +5,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -427,7 +427,7 @@ public static unsafe class SndDma
 
         total_channels = MAX_DYNAMIC_CHANNELS + BspFile.NUM_AMBIENTS; // no statics
 
-        NativeMemory.Clear(channels, (nuint)(MAX_CHANNELS * sizeof(Channel_t)));
+        NativeMemory.Clear(channels, MAX_CHANNELS);
 
         if (clear)
             ClearBuffer();

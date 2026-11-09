@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -16,8 +16,8 @@ public sealed unsafe class CStrTests
     [TestMethod]
     public void ToString_Write_RoundTripEveryNonZeroByte()
     {
-        byte* src = (byte*)NativeMemory.Alloc(256);
-        byte* dst = (byte*)NativeMemory.Alloc(256);
+        byte* src = NativeMemory.AllocArray<byte>(256);
+        byte* dst = NativeMemory.AllocArray<byte>(256);
         try
         {
             for (int i = 1; i < 256; i++)
@@ -77,7 +77,7 @@ public sealed unsafe class CStrTests
     [TestMethod]
     public void Va_InterpolatedHandler_TruncatesAt1023Bytes()
     {
-        byte* big = (byte*)NativeMemory.AllocZeroed(2001);
+        byte* big = NativeMemory.AllocArrayZeroed<byte>(2001);
         new Span<byte>(big, 2000).Fill((byte)'x');
         byte* p = Com.Va($"{big}{big}");
         Assert.AreEqual(1023, Q.StrLen(p));

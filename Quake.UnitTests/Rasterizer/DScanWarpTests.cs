@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -31,9 +31,9 @@ public sealed unsafe class DScanWarpTests
     public void WarpScreen_CachedTables_MatchOriginalAcrossGeometryChanges()
     {
         const int sw = 128;
-        byte* view = (byte*)NativeMemory.AllocZeroed(sw * 100);
-        byte* outA = (byte*)NativeMemory.AllocZeroed(sw * 100);
-        byte* outB = (byte*)NativeMemory.AllocZeroed(sw * 100);
+        byte* view = NativeMemory.AllocArrayZeroed<byte>(sw * 100);
+        byte* outA = NativeMemory.AllocArrayZeroed<byte>(sw * 100);
+        byte* outB = NativeMemory.AllocArrayZeroed<byte>(sw * 100);
         try
         {
             Random rng = new(8);

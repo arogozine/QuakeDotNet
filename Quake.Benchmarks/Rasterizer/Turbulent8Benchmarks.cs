@@ -28,9 +28,9 @@ public unsafe partial class Turbulent8Benchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _tex = (byte*)NativeMemory.AllocZeroed(64 * 64 + 4); // +4: dword texel gather may overread 3 bytes
-        _view = (byte*)NativeMemory.AllocZeroed((nuint)(ViewWidth * ViewHeight));
-        _spans = (ESpan_t*)NativeMemory.Alloc((nuint)(SpanCount * sizeof(ESpan_t)));
+        _tex = NativeMemory.AllocArrayZeroed<byte>(64 * 64 + 4); // +4: dword texel gather may overread 3 bytes
+        _view = NativeMemory.AllocArrayZeroed<byte>(ViewWidth * ViewHeight);
+        _spans = NativeMemory.AllocArray<ESpan_t>(SpanCount);
 
         Random rng = new(1234);
         for (int i = 0; i < 64 * 64; i++)

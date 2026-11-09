@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
+using Quake.Engine;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine;
 
 namespace Quake.UnitTests;
 
@@ -19,7 +19,7 @@ public sealed unsafe class SndDmaTests
     [TestInitialize]
     public void Setup()
     {
-        NativeMemory.Clear(SndDma.channels, (nuint)(SndDma.MAX_CHANNELS * sizeof(Channel_t)));
+        NativeMemory.Clear(SndDma.channels, SndDma.MAX_CHANNELS);
         SndDma.paintedtime = 0;
         Cl.viewentity = -1; // no channel matches this by default
 

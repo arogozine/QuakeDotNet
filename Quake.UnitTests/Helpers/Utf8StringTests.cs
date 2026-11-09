@@ -31,7 +31,7 @@ public sealed unsafe class Utf8StringTests
     [TestMethod]
     public void Equality_ComparesContents()
     {
-        byte* heap = (byte*)System.Runtime.InteropServices.NativeMemory.AllocZeroed(8);
+        byte* heap = System.Runtime.InteropServices.NativeMemory.AllocArrayZeroed<byte>(8);
         heap[0] = (byte)'a'; heap[1] = (byte)'b';
         Utf8String a = "ab"u8;
         Utf8String b = new(heap);

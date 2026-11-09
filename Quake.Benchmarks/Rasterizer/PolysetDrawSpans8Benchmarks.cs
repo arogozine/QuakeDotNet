@@ -25,13 +25,13 @@ public unsafe class PolysetDrawSpans8Benchmarks
     public void Setup()
     {
         Random rng = new(3);
-        _spans = (SpanPackage_t*)NativeMemory.AllocZeroed((nuint)((SpanCount + 1) * sizeof(SpanPackage_t)));
-        _dest = (byte*)NativeMemory.AllocZeroed(SpanCount * MaxCount);
-        _dest2 = (byte*)NativeMemory.AllocZeroed(SpanCount * MaxCount);
-        _z = (short*)NativeMemory.AllocZeroed(SpanCount * MaxCount * 2);
-        _z2 = (short*)NativeMemory.AllocZeroed(SpanCount * MaxCount * 2);
-        _tex = (byte*)NativeMemory.AllocZeroed(Skin * Skin * 2);
-        _colormap = (byte*)NativeMemory.AllocZeroed(16384);
+        _spans = NativeMemory.AllocArrayZeroed<SpanPackage_t>(SpanCount + 1);
+        _dest = NativeMemory.AllocArrayZeroed<byte>(SpanCount * MaxCount);
+        _dest2 = NativeMemory.AllocArrayZeroed<byte>(SpanCount * MaxCount);
+        _z = NativeMemory.AllocArrayZeroed<short>(SpanCount * MaxCount);
+        _z2 = NativeMemory.AllocArrayZeroed<short>(SpanCount * MaxCount);
+        _tex = NativeMemory.AllocArrayZeroed<byte>(Skin * Skin * 2);
+        _colormap = NativeMemory.AllocArrayZeroed<byte>(16384);
         for (int i = 0; i < Skin * Skin * 2; i++) _tex[i] = (byte)rng.Next(256);
         for (int i = 0; i < 16384; i++) _colormap[i] = (byte)rng.Next(256);
 

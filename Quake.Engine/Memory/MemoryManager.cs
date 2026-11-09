@@ -56,7 +56,7 @@ public static unsafe class MemoryManager
         // truncates memsize to a 32-bit int here; throwing on overflow
         // surfaces a misconfigured heap size instead of corrupting it.
         MemSize = checked((int)memsize);
-        MemBase = (byte*)NativeMemory.Alloc((nuint)MemSize);
+        MemBase = NativeMemory.AllocArray<byte>(MemSize);
 
         if (MemBase == null)
             Sys.Error("Not enough memory free; check disk space\n"u8);

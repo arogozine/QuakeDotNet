@@ -3,11 +3,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Collections.Generic;
+using Quake.Engine.Memory;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 

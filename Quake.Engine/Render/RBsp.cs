@@ -6,9 +6,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using System.Numerics;
-using System.Runtime.InteropServices;
-
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 

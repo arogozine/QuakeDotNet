@@ -5,11 +5,11 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -97,7 +97,7 @@ public static unsafe class Model
 
     // mod_novis
     internal const int MOD_NOVIS_SIZE = BspFile.MAX_MAP_LEAFS / 8;
-    public static readonly byte* mod_novis = (byte*)NativeMemory.AllocZeroed(MOD_NOVIS_SIZE);
+    public static readonly byte* mod_novis = NativeMemory.AllocArrayZeroed<byte>(MOD_NOVIS_SIZE);
 
     // loadmodel
     public static Model_t* loadmodel;
@@ -107,7 +107,7 @@ public static unsafe class Model
     // state with model.c's brush loader in the original) can use it too.
     // char loadname[32] -- a native buffer (rule 9), read as a C string by
     // Hunk.AllocName/Cache.Alloc.
-    internal static readonly byte* loadname = (byte*)NativeMemory.AllocZeroed(32);
+    internal static readonly byte* loadname = NativeMemory.AllocArrayZeroed<byte>(32);
 
     // mod_base
     internal static byte* mod_base;
@@ -171,7 +171,7 @@ public static unsafe class Model
     }
 
     // Mod_DecompressVis
-    internal static readonly byte* decompressed = (byte*)NativeMemory.AllocZeroed(MOD_NOVIS_SIZE);
+    internal static readonly byte* decompressed = NativeMemory.AllocArrayZeroed<byte>(MOD_NOVIS_SIZE);
 
     public static byte* DecompressVis(byte* @in, Model_t* model)
     {
@@ -198,7 +198,7 @@ public static unsafe class Model
             @in += 2;
             if (c != 0)
             {
-                NativeMemory.Clear(@out, (nuint)c);
+                NativeMemory.Clear(@out, c);
                 @out += c;
             }
         } while (@out - decompressed < row);

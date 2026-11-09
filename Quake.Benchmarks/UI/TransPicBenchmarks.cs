@@ -6,7 +6,6 @@
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 
 namespace Quake.Benchmarks;
 
@@ -21,7 +20,7 @@ public unsafe class TransPicBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _src = (byte*)NativeMemory.Alloc((nuint)(Width * H)); _a = (byte*)NativeMemory.AllocZeroed((nuint)(Width * H)); _b = (byte*)NativeMemory.AllocZeroed((nuint)(Width * H));
+        _src = NativeMemory.AllocArray<byte>(Width * H); _a = NativeMemory.AllocArrayZeroed<byte>(Width * H); _b = NativeMemory.AllocArrayZeroed<byte>(Width * H);
         Random r = new(1); for (int i = 0; i < Width * H; i++) _src[i] = r.Next(3) == 0 ? (byte)255 : (byte)r.Next(255);
         Orig(); New();
         if (!new ReadOnlySpan<byte>(_a, Width * H).SequenceEqual(new ReadOnlySpan<byte>(_b, Width * H))) throw new Exception("mismatch");

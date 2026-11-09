@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -29,7 +28,7 @@ public sealed unsafe class HostCmdTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         Cmd.cmd_functions = null;
@@ -42,16 +41,16 @@ public sealed unsafe class HostCmdTests
         // reaches these commands' real logic instead of Cmd_ForwardToServer).
         Cmd.cmd_source = CmdSource_t.SrcClient;
 
-        _globals = (GlobalVars_t*)NativeMemory.AllocZeroed((nuint)sizeof(GlobalVars_t));
+        _globals = NativeMemory.AllocZeroed<GlobalVars_t>();
         Progs.pr_global_struct = _globals;
         Progs.pr_globals = (float*)_globals;
-        Progs.pr_strings = (byte*)NativeMemory.AllocZeroed(64);
+        Progs.pr_strings = NativeMemory.AllocArrayZeroed<byte>(64);
 
-        _player = (EDict_t*)NativeMemory.AllocZeroed((nuint)sizeof(EDict_t));
+        _player = NativeMemory.AllocZeroed<EDict_t>();
         Sv.sv_player = _player;
 
         Svs.clients[0] = default;
-        Svs.clients[0].Message.Data = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_MSGLEN);
+        Svs.clients[0].Message.Data = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_MSGLEN);
         Svs.clients[0].Message.MaxSize = QuakeDef.MAX_MSGLEN;
         Svs.host_client = &Svs.clients[0];
 
@@ -59,18 +58,18 @@ public sealed unsafe class HostCmdTests
         Host.pausable->Value = 1;
 
         *Sv.reliable_datagram = default;
-        Sv.reliable_datagram->Data = (byte*)NativeMemory.AllocZeroed(1024);
+        Sv.reliable_datagram->Data = NativeMemory.AllocArrayZeroed<byte>(1024);
         Sv.reliable_datagram->MaxSize = 1024;
 
         // FindViewthing/mcache/demo-loop state
         Progs.pr_edict_size = sizeof(EDict_t);
-        _edicts = (byte*)NativeMemory.AllocZeroed((nuint)(Progs.pr_edict_size * MaxEdicts));
+        _edicts = NativeMemory.AllocArrayZeroed<byte>(Progs.pr_edict_size * MaxEdicts);
         Sv.edicts = (EDict_t*)_edicts;
         Sv.num_edicts = 0;
         Sv.max_edicts = MaxEdicts;
         NativeMemory.ClearPointerArray<Model_t>(Cl.model_precache, QuakeDef.MAX_MODELS);
         Com.com_searchpaths = null;
-        NativeMemory.Clear(Model.mod_known, (nuint)(Model.mod_numknown * sizeof(Model_t)));
+        NativeMemory.Clear(Model.mod_known, Model.mod_numknown);
         Model.mod_numknown = 0;
         Model.loadmodel = null;
         RMain.r_notexture_mip = null;
@@ -198,15 +197,15 @@ public sealed unsafe class HostCmdTests
     {
         Client_t* savedClients = Svs.clients;
         int savedMax = Svs.maxclients;
-        Client_t* extra = (Client_t*)NativeMemory.AllocZeroed((nuint)(count * sizeof(Client_t)));
+        Client_t* extra = NativeMemory.AllocArrayZeroed<Client_t>(count);
         QSocket_t*[] sockets = new QSocket_t*[count];
         try
         {
             for (int i = 0; i < count; i++)
             {
-                extra[i].Message.Data = (byte*)NativeMemory.AllocZeroed(QuakeDef.MAX_MSGLEN);
+                extra[i].Message.Data = NativeMemory.AllocArrayZeroed<byte>(QuakeDef.MAX_MSGLEN);
                 extra[i].Message.MaxSize = QuakeDef.MAX_MSGLEN;
-                sockets[i] = (QSocket_t*)NativeMemory.AllocZeroed((nuint)sizeof(QSocket_t));
+                sockets[i] = NativeMemory.AllocZeroed<QSocket_t>();
                 // Disconnected -- Net.Init (net_drivers[]) never runs in
                 // these fixtures, so a "live" socket would call through a
                 // null driver function pointer the moment DropClient/
@@ -861,7 +860,7 @@ public sealed unsafe class HostCmdTests
     public void Say_Team_f_Teamplay_OnlySendsToSameTeam()
     {
         Host.teamplay->Value = 1;
-        EDict_t* otherEdict = (EDict_t*)NativeMemory.AllocZeroed((nuint)sizeof(EDict_t));
+        EDict_t* otherEdict = NativeMemory.AllocZeroed<EDict_t>();
 
         try
         {
@@ -935,7 +934,7 @@ public sealed unsafe class HostCmdTests
 
     private static byte* RawBytes(params byte[] bytes)
     {
-        byte* p = (byte*)NativeMemory.AllocZeroed((nuint)bytes.Length + 1);
+        byte* p = NativeMemory.AllocArrayZeroed<byte>(bytes.Length + 1);
         bytes.CopyTo(new Span<byte>(p, bytes.Length));
         return p;
     }

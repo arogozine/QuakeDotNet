@@ -5,7 +5,6 @@
 
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
@@ -29,14 +28,14 @@ public unsafe class SurfaceBlockBenchmarks
     public void Setup()
     {
         Random rng = new(5);
-        _colormap = (byte*)NativeMemory.AllocZeroed(16384 + 16);
+        _colormap = NativeMemory.AllocArrayZeroed<byte>(16384 + 16);
         for (int i = 0; i < 16384; i++) _colormap[i] = (byte)rng.Next(256);
-        _source = (byte*)NativeMemory.AllocZeroed(128 * 128);
+        _source = NativeMemory.AllocArrayZeroed<byte>(128 * 128);
         for (int i = 0; i < 128 * 128; i++) _source[i] = (byte)rng.Next(256);
-        _dest = (byte*)NativeMemory.AllocZeroed(RowBytes * 16 * Blocks);
-        _dest2 = (byte*)NativeMemory.AllocZeroed(RowBytes * 16 * Blocks);
-        _dest3 = (byte*)NativeMemory.AllocZeroed(RowBytes * 16 * Blocks);
-        _lights = (uint*)NativeMemory.AllocZeroed(LightWidth * (Blocks + 1) * 4);
+        _dest = NativeMemory.AllocArrayZeroed<byte>(RowBytes * 16 * Blocks);
+        _dest2 = NativeMemory.AllocArrayZeroed<byte>(RowBytes * 16 * Blocks);
+        _dest3 = NativeMemory.AllocArrayZeroed<byte>(RowBytes * 16 * Blocks);
+        _lights = NativeMemory.AllocArrayZeroed<uint>(LightWidth * (Blocks + 1));
         for (int i = 0; i < LightWidth * (Blocks + 1); i++) _lights[i] = (uint)rng.Next(64, 16320);
 
         Quake.Engine.Vid.vid.Colormap = _colormap;

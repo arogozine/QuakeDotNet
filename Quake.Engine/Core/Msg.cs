@@ -210,7 +210,7 @@ public static unsafe class Msg
     }
 
     private const int READ_STRING_SIZE = 2048;
-    internal static readonly byte* readStringBuffer = (byte*)NativeMemory.Alloc(READ_STRING_SIZE);
+    internal static readonly byte* readStringBuffer = NativeMemory.AllocArray<byte>(READ_STRING_SIZE);
 
     // MSG_ReadString
     public static byte* ReadString()

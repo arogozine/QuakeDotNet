@@ -5,9 +5,8 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -476,7 +475,7 @@ public static unsafe partial class Sv
     */
 
     private static int fatbytes;
-    internal static readonly byte* fatpvs = (byte*)NativeMemory.AllocZeroed(BspFile.MAX_MAP_LEAFS / 8);
+    internal static readonly byte* fatpvs = NativeMemory.AllocArrayZeroed<byte>(BspFile.MAX_MAP_LEAFS / 8);
 
     // SV_AddToFatPVS
     public static void AddToFatPVS(Vec3_t org, MNode_t* node)

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -130,13 +130,13 @@ public sealed unsafe class RLerpTests
 
         public Fixture()
         {
-            Hdr = (AliasHdr_t*)NativeMemory.AllocZeroed((nuint)(sizeof(AliasHdr_t) + 2 * sizeof(MAliasFrameDesc_t)));
+            Hdr = (AliasHdr_t*)NativeMemory.AllocArrayZeroed<byte>(sizeof(AliasHdr_t) + 2 * sizeof(MAliasFrameDesc_t));
             MAliasFrameDesc_t* f = &Hdr->Frames;
             f[0].Type = AliasFrameType_t.Single;
             f[0].Frame = 100;
             f[1].Type = AliasFrameType_t.Single;
             f[1].Frame = 200;
-            Model = (Model_t*)NativeMemory.AllocZeroed((nuint)sizeof(Model_t));
+            Model = NativeMemory.AllocZeroed<Model_t>();
         }
 
         public void Dispose()

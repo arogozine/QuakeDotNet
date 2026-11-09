@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Numerics;
 using Quake.Engine;
+using System.Numerics;
 
 namespace Quake.UnitTests;
 

@@ -5,9 +5,9 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -674,46 +674,46 @@ public static unsafe class Progs
                 case Op_t.StoreP_Fld:
                 case Op_t.StoreP_S:
                 case Op_t.StoreP_Fnc:
-                {
-                    int* ptr = (int*)((byte*)Sv.edicts + *bi);
-                    *ptr = *ai;
-                    break;
-                }
+                    {
+                        int* ptr = (int*)((byte*)Sv.edicts + *bi);
+                        *ptr = *ai;
+                        break;
+                    }
                 case Op_t.StoreP_V:
-                {
-                    float* ptr = (float*)((byte*)Sv.edicts + *bi);
-                    ptr[0] = a[0]; ptr[1] = a[1]; ptr[2] = a[2];
-                    break;
-                }
+                    {
+                        float* ptr = (float*)((byte*)Sv.edicts + *bi);
+                        ptr[0] = a[0]; ptr[1] = a[1]; ptr[2] = a[2];
+                        break;
+                    }
 
                 case Op_t.Address:
-                {
-                    EDict_t* ed = ProgToEdict(*ai);
-                    if (ed == Sv.edicts && Sv.state == ServerState_t.Active)
-                        RunError("assignment to world entity"u8);
-                    *ci = (int)((byte*)((int*)&ed->V + *bi) - (byte*)Sv.edicts);
-                    break;
-                }
+                    {
+                        EDict_t* ed = ProgToEdict(*ai);
+                        if (ed == Sv.edicts && Sv.state == ServerState_t.Active)
+                            RunError("assignment to world entity"u8);
+                        *ci = (int)((byte*)((int*)&ed->V + *bi) - (byte*)Sv.edicts);
+                        break;
+                    }
 
                 case Op_t.Load_F:
                 case Op_t.Load_Fld:
                 case Op_t.Load_Ent:
                 case Op_t.Load_S:
                 case Op_t.Load_Fnc:
-                {
-                    EDict_t* ed = ProgToEdict(*ai);
-                    int* p = (int*)&ed->V + *bi;
-                    *ci = *p;
-                    break;
-                }
+                    {
+                        EDict_t* ed = ProgToEdict(*ai);
+                        int* p = (int*)&ed->V + *bi;
+                        *ci = *p;
+                        break;
+                    }
 
                 case Op_t.Load_V:
-                {
-                    EDict_t* ed = ProgToEdict(*ai);
-                    float* p = (float*)((int*)&ed->V + *bi);
-                    c[0] = p[0]; c[1] = p[1]; c[2] = p[2];
-                    break;
-                }
+                    {
+                        EDict_t* ed = ProgToEdict(*ai);
+                        float* p = (float*)((int*)&ed->V + *bi);
+                        c[0] = p[0]; c[1] = p[1]; c[2] = p[2];
+                        break;
+                    }
 
                 case Op_t.IfNot:
                     if (*ai == 0)
@@ -738,25 +738,25 @@ public static unsafe class Progs
                 case Op_t.Call6:
                 case Op_t.Call7:
                 case Op_t.Call8:
-                {
-                    pr_argc = st->Op - (int)Op_t.Call0;
-                    if (*ai == 0)
-                        RunError("NULL function"u8);
-
-                    DFunction_t* newf = &pr_functions[*ai];
-
-                    if (newf->First_Statement < 0)
                     {
-                        int bi2 = -newf->First_Statement;
-                        if (bi2 >= pr_numbuiltins)
-                            RunError("Bad builtin call number"u8);
-                        pr_builtins[bi2]();
+                        pr_argc = st->Op - (int)Op_t.Call0;
+                        if (*ai == 0)
+                            RunError("NULL function"u8);
+
+                        DFunction_t* newf = &pr_functions[*ai];
+
+                        if (newf->First_Statement < 0)
+                        {
+                            int bi2 = -newf->First_Statement;
+                            if (bi2 >= pr_numbuiltins)
+                                RunError("Bad builtin call number"u8);
+                            pr_builtins[bi2]();
+                            break;
+                        }
+
+                        s = EnterFunction(newf);
                         break;
                     }
-
-                    s = EnterFunction(newf);
-                    break;
-                }
 
                 case Op_t.Done:
                 case Op_t.Return:
@@ -770,14 +770,14 @@ public static unsafe class Progs
                     break;
 
                 case Op_t.State:
-                {
-                    EDict_t* ed = ProgToEdict(pr_global_struct->Self);
-                    ed->V.NextThink = pr_global_struct->Time + 0.1f;
-                    if (*a != ed->V.Frame)
-                        ed->V.Frame = *a;
-                    ed->V.Think = *bi;
-                    break;
-                }
+                    {
+                        EDict_t* ed = ProgToEdict(pr_global_struct->Self);
+                        ed->V.NextThink = pr_global_struct->Time + 0.1f;
+                        if (*a != ed->V.Frame)
+                            ed->V.Frame = *a;
+                        ed->V.Think = *bi;
+                        break;
+                    }
 
                 default:
                     RunError($"Bad opcode {st->Op}");

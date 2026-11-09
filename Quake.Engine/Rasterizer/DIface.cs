@@ -3,8 +3,6 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
-
 namespace Quake.Engine;
 
 // ptype_t

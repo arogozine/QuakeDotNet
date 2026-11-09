@@ -3,12 +3,12 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -277,7 +277,7 @@ public static unsafe class Sys
     // sc_return_on_enter's branch is omitted: it's only ever set by
     // Sys_Error's dedicated-server fallback loop, which this port's
     // Sys.Error (throws instead of looping) never reaches.
-    internal static readonly byte* consoleInputText = (byte*)NativeMemory.AllocZeroed(256);
+    internal static readonly byte* consoleInputText = NativeMemory.AllocArrayZeroed<byte>(256);
     private static int consoleInputLen;
 
     public static byte* ConsoleInput()

@@ -122,108 +122,108 @@ public static unsafe class ClTEnt
         switch ((TempEntityType)type)
         {
             case TempEntityType.WizSpike: // spike hitting wall
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.RunParticleEffect(pos, MathLib.vec3_origin, 20, 30);
-                SndDma.StartSound(-1, 0, cl_sfx_wizhit, pos, 1, 1);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.RunParticleEffect(pos, MathLib.vec3_origin, 20, 30);
+                    SndDma.StartSound(-1, 0, cl_sfx_wizhit, pos, 1, 1);
+                    break;
+                }
 
             case TempEntityType.KnightSpike: // spike hitting wall
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.RunParticleEffect(pos, MathLib.vec3_origin, 226, 20);
-                SndDma.StartSound(-1, 0, cl_sfx_knighthit, pos, 1, 1);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.RunParticleEffect(pos, MathLib.vec3_origin, 226, 20);
+                    SndDma.StartSound(-1, 0, cl_sfx_knighthit, pos, 1, 1);
+                    break;
+                }
 
             case TempEntityType.Spike: // spike hitting wall
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 10);
-                if (Q.Rand() % 5 != 0)
-                    SndDma.StartSound(-1, 0, cl_sfx_tink1, pos, 1, 1);
-                else
                 {
-                    int rnd = Q.Rand() & 3;
-                    if (rnd == 1)
-                        SndDma.StartSound(-1, 0, cl_sfx_ric1, pos, 1, 1);
-                    else if (rnd == 2)
-                        SndDma.StartSound(-1, 0, cl_sfx_ric2, pos, 1, 1);
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 10);
+                    if (Q.Rand() % 5 != 0)
+                        SndDma.StartSound(-1, 0, cl_sfx_tink1, pos, 1, 1);
                     else
-                        SndDma.StartSound(-1, 0, cl_sfx_ric3, pos, 1, 1);
+                    {
+                        int rnd = Q.Rand() & 3;
+                        if (rnd == 1)
+                            SndDma.StartSound(-1, 0, cl_sfx_ric1, pos, 1, 1);
+                        else if (rnd == 2)
+                            SndDma.StartSound(-1, 0, cl_sfx_ric2, pos, 1, 1);
+                        else
+                            SndDma.StartSound(-1, 0, cl_sfx_ric3, pos, 1, 1);
+                    }
+                    break;
                 }
-                break;
-            }
 
             case TempEntityType.SuperSpike: // super spike hitting wall
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 20);
-
-                if (Q.Rand() % 5 != 0)
-                    SndDma.StartSound(-1, 0, cl_sfx_tink1, pos, 1, 1);
-                else
                 {
-                    int rnd = Q.Rand() & 3;
-                    if (rnd == 1)
-                        SndDma.StartSound(-1, 0, cl_sfx_ric1, pos, 1, 1);
-                    else if (rnd == 2)
-                        SndDma.StartSound(-1, 0, cl_sfx_ric2, pos, 1, 1);
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 20);
+
+                    if (Q.Rand() % 5 != 0)
+                        SndDma.StartSound(-1, 0, cl_sfx_tink1, pos, 1, 1);
                     else
-                        SndDma.StartSound(-1, 0, cl_sfx_ric3, pos, 1, 1);
+                    {
+                        int rnd = Q.Rand() & 3;
+                        if (rnd == 1)
+                            SndDma.StartSound(-1, 0, cl_sfx_ric1, pos, 1, 1);
+                        else if (rnd == 2)
+                            SndDma.StartSound(-1, 0, cl_sfx_ric2, pos, 1, 1);
+                        else
+                            SndDma.StartSound(-1, 0, cl_sfx_ric3, pos, 1, 1);
+                    }
+                    break;
                 }
-                break;
-            }
 
             case TempEntityType.Gunshot: // bullet hitting wall
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 20);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 20);
+                    break;
+                }
 
             case TempEntityType.Explosion: // rocket explosion
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.ParticleExplosion(pos);
-                DLight_t* dl = ClMain.AllocDlight(0);
-                dl->Origin = pos;
-                dl->Radius = 350;
-                dl->Die = (float)(Cl.time + 0.5);
-                dl->Decay = 300;
-                SndDma.StartSound(-1, 0, cl_sfx_r_exp3, pos, 1, 1);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.ParticleExplosion(pos);
+                    DLight_t* dl = ClMain.AllocDlight(0);
+                    dl->Origin = pos;
+                    dl->Radius = 350;
+                    dl->Die = (float)(Cl.time + 0.5);
+                    dl->Decay = 300;
+                    SndDma.StartSound(-1, 0, cl_sfx_r_exp3, pos, 1, 1);
+                    break;
+                }
 
             case TempEntityType.TarExplosion: // tarbaby explosion
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.BlobExplosion(pos);
-                SndDma.StartSound(-1, 0, cl_sfx_r_exp3, pos, 1, 1);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.BlobExplosion(pos);
+                    SndDma.StartSound(-1, 0, cl_sfx_r_exp3, pos, 1, 1);
+                    break;
+                }
 
             case TempEntityType.Lightning1: // lightning bolts
                 ParseBeam(Model.ForName("progs/bolt.mdl"u8, true));
@@ -242,42 +242,42 @@ public static unsafe class ClTEnt
                 break;
 
             case TempEntityType.LavaSplash:
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.LavaSplash(pos);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.LavaSplash(pos);
+                    break;
+                }
 
             case TempEntityType.Teleport:
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                RPart.TeleportSplash(pos);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    RPart.TeleportSplash(pos);
+                    break;
+                }
 
             case TempEntityType.Explosion2: // color mapped explosion
-            {
-                Vec3_t pos = default;
-                pos[0] = Msg.ReadCoord();
-                pos[1] = Msg.ReadCoord();
-                pos[2] = Msg.ReadCoord();
-                int colorStart = Msg.ReadByte();
-                int colorLength = Msg.ReadByte();
-                RPart.ParticleExplosion2(pos, colorStart, colorLength);
-                DLight_t* dl = ClMain.AllocDlight(0);
-                dl->Origin = pos;
-                dl->Radius = 350;
-                dl->Die = (float)(Cl.time + 0.5);
-                dl->Decay = 300;
-                SndDma.StartSound(-1, 0, cl_sfx_r_exp3, pos, 1, 1);
-                break;
-            }
+                {
+                    Vec3_t pos = default;
+                    pos[0] = Msg.ReadCoord();
+                    pos[1] = Msg.ReadCoord();
+                    pos[2] = Msg.ReadCoord();
+                    int colorStart = Msg.ReadByte();
+                    int colorLength = Msg.ReadByte();
+                    RPart.ParticleExplosion2(pos, colorStart, colorLength);
+                    DLight_t* dl = ClMain.AllocDlight(0);
+                    dl->Origin = pos;
+                    dl->Radius = 350;
+                    dl->Die = (float)(Cl.time + 0.5);
+                    dl->Decay = 300;
+                    SndDma.StartSound(-1, 0, cl_sfx_r_exp3, pos, 1, 1);
+                    break;
+                }
 
             default:
                 Sys.Error("CL_ParseTEnt: bad type"u8); // the original genuinely calls Sys_Error directly here, not Host_Error

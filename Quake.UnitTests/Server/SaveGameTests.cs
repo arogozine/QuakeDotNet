@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -21,7 +21,7 @@ public sealed unsafe class SaveGameTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null; // Cache.Init() registers "flush"; reset before it walks a stale list
         MemoryManager.Memory_Init(_buf, Size);
         Com.com_searchpaths = null;
@@ -59,7 +59,7 @@ public sealed unsafe class SaveGameTests
         // Model resets) or they dangle into this test's freed arena.
         DSurf.sc_base = null;
         DLocal.sc_rover = null;
-        NativeMemory.Clear(Model.mod_known, (nuint)(Model.mod_numknown * sizeof(Model_t)));
+        NativeMemory.Clear(Model.mod_known, Model.mod_numknown);
         Model.mod_numknown = 0;
         Model.loadmodel = null;
         RMain.r_notexture_mip = null;
@@ -91,15 +91,15 @@ public sealed unsafe class SaveGameTests
         Sv.time = 0;
         NativeMemory.ClearPointerArray<byte>(Sv.lightstyles, QuakeDef.MAX_LIGHTSTYLES);
         Sv.num_edicts = 0;
-        NativeMemory.Clear(Cl.levelname, (nuint)Cl.LEVELNAME_LENGTH);
+        NativeMemory.Clear(Cl.levelname, Cl.LEVELNAME_LENGTH);
         new Span<int>(Cl.stats, QuakeDef.MAX_CL_STATS).Clear();
 
         // a minimal progs setup so ED_WriteGlobals/ED_Write have something
         // (empty) to walk without crashing
-        Progs.progs = (DPrograms_t*)NativeMemory.AllocZeroed((nuint)sizeof(DPrograms_t));
-        Progs.pr_strings = (byte*)NativeMemory.AllocZeroed(16);
-        Progs.pr_fielddefs = (DDef_t*)NativeMemory.AllocZeroed((nuint)sizeof(DDef_t));
-        Progs.pr_globaldefs = (DDef_t*)NativeMemory.AllocZeroed((nuint)sizeof(DDef_t));
+        Progs.progs = NativeMemory.AllocZeroed<DPrograms_t>();
+        Progs.pr_strings = NativeMemory.AllocArrayZeroed<byte>(16);
+        Progs.pr_fielddefs = NativeMemory.AllocZeroed<DDef_t>();
+        Progs.pr_globaldefs = NativeMemory.AllocZeroed<DDef_t>();
         Progs.pr_edict_size = 4;
     }
 
@@ -240,7 +240,7 @@ public sealed unsafe class SaveGameTests
             // store; Savegame_f must read straight off these instead of the
             // always-empty stand-in arrays this file used to keep.
             Sv.max_edicts = 2;
-            Sv.edicts = (EDict_t*)NativeMemory.AllocZeroed((nuint)(2 * Progs.pr_edict_size));
+            Sv.edicts = (EDict_t*)NativeMemory.AllocArrayZeroed<byte>(2 * Progs.pr_edict_size);
             Sv.num_edicts = 2;
             EDict_t* ent = Progs.EdictNum(1);
             ent->Free = 0;

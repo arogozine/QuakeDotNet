@@ -4,9 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using BenchmarkDotNet.Attributes;
-using Quake.Engine;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
+using Quake.Engine;
 
 namespace Quake.Benchmarks;
 
@@ -22,10 +21,10 @@ public unsafe class ConsoleBackgroundBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _conback = (byte*)NativeMemory.AllocZeroed(320 * 200 + 8); // +8 slack for gather overread
+        _conback = NativeMemory.AllocArrayZeroed<byte>(320 * 200 + 8); // +8 slack for gather overread
         Random r = new(2); for (int i = 0; i < 320 * 200; i++) _conback[i] = (byte)r.Next(256);
-        _a = (byte*)NativeMemory.AllocZeroed((nuint)(W * Rows)); _b = (byte*)NativeMemory.AllocZeroed((nuint)(W * Rows));
-        _tab = (ushort*)NativeMemory.AllocZeroed((nuint)(W * 2));
+        _a = NativeMemory.AllocArrayZeroed<byte>(W * Rows); _b = NativeMemory.AllocArrayZeroed<byte>(W * Rows);
+        _tab = NativeMemory.AllocArrayZeroed<ushort>(W);
         int fstep = (int)(320L * 0x10000 / W);
         for (int x = 0; x < W; x++) _tab[x] = (ushort)((x * fstep) >> 16);
         Orig(); Table();

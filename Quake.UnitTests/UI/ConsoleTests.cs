@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
-using System.Text;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
+using System.Text;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -25,7 +25,7 @@ public sealed unsafe class ConsoleTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -224,12 +224,12 @@ public sealed unsafe class ConsoleTests
     private void InstallDrawFixture()
     {
         DIface.r_pixbytes = 1;
-        _conBuf = (byte*)NativeMemory.AllocZeroed(64 * 64);
+        _conBuf = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
         Vid.vid.ConBuffer = _conBuf;
         Vid.vid.ConRowBytes = 64;
         Vid.vid.ConWidth = 64;
         Vid.vid.ConHeight = 64;
-        Draw.draw_chars = (byte*)NativeMemory.AllocZeroed(128 * 16);
+        Draw.draw_chars = NativeMemory.AllocArrayZeroed<byte>(128 * 16);
         for (int i = 0; i < 128 * 16; i++)
             Draw.draw_chars[i] = 0xAB; // every glyph fully opaque, easy to detect
     }

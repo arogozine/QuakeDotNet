@@ -4,10 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using System.Numerics;
-using System.Runtime.InteropServices;
-
 using System.Runtime.CompilerServices;
-using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 
@@ -398,7 +396,7 @@ public static unsafe class RMisc
     public static void WarpPalette()
     {
         byte* newpalette = stackalloc byte[768];
-        Span<int> basecolor = [ 130, 80, 50 ];
+        Span<int> basecolor = [130, 80, 50];
 
         // pull the colors halfway to bright brown
         for (int i = 0; i < 256; i++)

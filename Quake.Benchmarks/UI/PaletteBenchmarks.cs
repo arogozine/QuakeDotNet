@@ -4,9 +4,9 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using BenchmarkDotNet.Attributes;
-using Quake.Engine;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
+using Quake.Engine;
 
 namespace Quake.Benchmarks;
 
@@ -22,8 +22,8 @@ public unsafe class PaletteBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _pal = (byte*)NativeMemory.AllocZeroed(768 + 16); _a = (uint*)NativeMemory.AllocZeroed(1024); _b = (uint*)NativeMemory.AllocZeroed(1024);
-        _out = (byte*)NativeMemory.AllocZeroed(768);
+        _pal = NativeMemory.AllocArrayZeroed<byte>(768 + 16); _a = NativeMemory.AllocArrayZeroed<uint>(256); _b = NativeMemory.AllocArrayZeroed<uint>(256);
+        _out = NativeMemory.AllocArrayZeroed<byte>(768);
         Random r = new(5); for (int i = 0; i < 768; i++) { _pal[i] = (byte)r.Next(256); _base[i] = _pal[i]; }
         Orig(); Simd();
         if (!new ReadOnlySpan<uint>(_a, 256).SequenceEqual(new ReadOnlySpan<uint>(_b, 256))) throw new Exception("mismatch");

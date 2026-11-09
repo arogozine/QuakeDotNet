@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -23,7 +23,7 @@ public sealed unsafe class ClParseTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         // Cache.Init() (called by Memory_Init) registers "flush" via
         // Cmd.AddCommand, which walks cmd_functions -- reset it first so
         // that walk doesn't dangle into a previous test's freed Hunk arena.
@@ -61,13 +61,13 @@ public sealed unsafe class ClParseTests
 
         Sv.active = true; // short-circuits KeepaliveMessage's live-network path
 
-        _colormap = (byte*)NativeMemory.AllocZeroed((nuint)(Vid.VID_GRADES * 256));
+        _colormap = NativeMemory.AllocArrayZeroed<byte>(Vid.VID_GRADES * 256);
         Vid.vid.Colormap = _colormap;
 
         new Span<Entity_t>(ClEntities.cl_entities, QuakeDef.MAX_EDICTS).Clear();
         new Span<Entity_t>(ClEntities.cl_static_entities, ClEntities.MAX_STATIC_ENTITIES).Clear();
 
-        _netMessageBuf = (byte*)NativeMemory.AllocZeroed(2048);
+        _netMessageBuf = NativeMemory.AllocArrayZeroed<byte>(2048);
         Net.net_message->Data = _netMessageBuf; Net.net_message->MaxSize = 2048;
     }
 

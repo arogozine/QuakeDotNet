@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -108,7 +108,7 @@ public sealed unsafe class RMiscTests
     [TestMethod]
     public void CheckVariables_FlushesSurfaceCacheWhenFullbrightChanges()
     {
-        byte* buf = (byte*)NativeMemory.AllocZeroed(256);
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(256);
         try
         {
             DSurf.InitCaches(buf, 256);
@@ -133,7 +133,7 @@ public sealed unsafe class RMiscTests
     [TestMethod]
     public void LineGraph_HandTracedPixelPositions()
     {
-        byte* buf = (byte*)NativeMemory.AllocZeroed(400);
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(400);
         try
         {
             Vid.vid.Buffer = buf;
@@ -197,10 +197,10 @@ public sealed unsafe class RMiscTests
         RMisc.host_basepal = basepal;
 
         RMisc.WarpPalette(); // no direct output to inspect (newpalette is
-                              // local + passed to the Vid.ShiftPalette no-op),
-                              // so this is a not-throw / basepal-read smoke
-                              // test matching this function's leaf-utility
-                              // status.
+                             // local + passed to the Vid.ShiftPalette no-op),
+                             // so this is a not-throw / basepal-read smoke
+                             // test matching this function's leaf-utility
+                             // status.
     }
 
     [TestMethod]

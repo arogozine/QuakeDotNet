@@ -4,9 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using System.Numerics;
-using System.Runtime.InteropServices;
-
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 
@@ -26,7 +25,7 @@ public static unsafe class RSprite
     // arithmetic with a stride of 5 floats per vertex, same convention as
     // RAclip.cs's fv/av.
     internal static readonly float* clip_verts =
-        (float*)NativeMemory.AllocZeroed((nuint)(2 * RShared.MAXWORKINGVERTS * 5 * sizeof(float)));
+        NativeMemory.AllocArrayZeroed<float>(2 * RShared.MAXWORKINGVERTS * 5);
 
     internal static float* Row(int r) => clip_verts + r * RShared.MAXWORKINGVERTS * 5;
 
@@ -282,23 +281,23 @@ public static unsafe class RSprite
             Vec3_t tvec = -RShared.modelorg;
             MathLib.VectorNormalize(&tvec);
             float dot = tvec[2]; // same as DotProduct (tvec, r_spritedesc.vup) because
-                                  //  r_spritedesc.vup is 0, 0, 1
+                                 //  r_spritedesc.vup is 0, 0, 1
             if (dot > 0.999848f || dot < -0.999848f) // cos(1 degree) = 0.999848
                 return;
             DIface.r_spritedesc.Vup[0] = 0;
             DIface.r_spritedesc.Vup[1] = 0;
             DIface.r_spritedesc.Vup[2] = 1;
             DIface.r_spritedesc.Vright[0] = tvec[1];
-                                    // CrossProduct(r_spritedesc.vup, -modelorg,
+            // CrossProduct(r_spritedesc.vup, -modelorg,
             DIface.r_spritedesc.Vright[1] = -tvec[0];
-                                    //              r_spritedesc.vright)
+            //              r_spritedesc.vright)
             DIface.r_spritedesc.Vright[2] = 0;
             MathLib.VectorNormalize((Vec3_t*)Unsafe.AsPointer(ref DIface.r_spritedesc.Vright));
             DIface.r_spritedesc.Vpn[0] = -DIface.r_spritedesc.Vright[1];
             DIface.r_spritedesc.Vpn[1] = DIface.r_spritedesc.Vright[0];
             DIface.r_spritedesc.Vpn[2] = 0;
-                        // CrossProduct (r_spritedesc.vright, r_spritedesc.vup,
-                        //  r_spritedesc.vpn)
+            // CrossProduct (r_spritedesc.vright, r_spritedesc.vup,
+            //  r_spritedesc.vpn)
         }
         else if (psprite->Type == SpriteType.VpParallel)
         {
@@ -326,22 +325,22 @@ public static unsafe class RSprite
             // vectors and starts to approach an undefined state, so we don't draw if
             // the two vectors are less than 1 degree apart
             float dot = RShared.vpn[2]; // same as DotProduct (vpn, r_spritedesc.vup) because
-                                         //  r_spritedesc.vup is 0, 0, 1
+                                        //  r_spritedesc.vup is 0, 0, 1
             if (dot > 0.999848f || dot < -0.999848f) // cos(1 degree) = 0.999848
                 return;
             DIface.r_spritedesc.Vup[0] = 0;
             DIface.r_spritedesc.Vup[1] = 0;
             DIface.r_spritedesc.Vup[2] = 1;
             DIface.r_spritedesc.Vright[0] = RShared.vpn[1];
-                                            // CrossProduct (r_spritedesc.vup, vpn,
+            // CrossProduct (r_spritedesc.vup, vpn,
             DIface.r_spritedesc.Vright[1] = -RShared.vpn[0]; //  r_spritedesc.vright)
             DIface.r_spritedesc.Vright[2] = 0;
             MathLib.VectorNormalize((Vec3_t*)Unsafe.AsPointer(ref DIface.r_spritedesc.Vright));
             DIface.r_spritedesc.Vpn[0] = -DIface.r_spritedesc.Vright[1];
             DIface.r_spritedesc.Vpn[1] = DIface.r_spritedesc.Vright[0];
             DIface.r_spritedesc.Vpn[2] = 0;
-                        // CrossProduct (r_spritedesc.vright, r_spritedesc.vup,
-                        //  r_spritedesc.vpn)
+            // CrossProduct (r_spritedesc.vright, r_spritedesc.vup,
+            //  r_spritedesc.vpn)
         }
         else if (psprite->Type == SpriteType.Oriented)
         {

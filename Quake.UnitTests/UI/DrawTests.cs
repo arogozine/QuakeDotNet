@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -17,20 +17,20 @@ public sealed unsafe class DrawTests
     {
         DIface.r_pixbytes = 1;
 
-        _buf = (byte*)NativeMemory.AllocZeroed(64 * 64);
+        _buf = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
         Vid.vid.Buffer = _buf;
         Vid.vid.RowBytes = 64;
         Vid.vid.Width = 64;
         Vid.vid.Height = 64;
 
-        _conBuf = (byte*)NativeMemory.AllocZeroed(64 * 64);
+        _conBuf = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
         Vid.vid.ConBuffer = _conBuf;
         Vid.vid.ConRowBytes = 64;
         Vid.vid.ConWidth = 64;
         Vid.vid.ConHeight = 64;
         Vid.vid.Direct = null;
 
-        Draw.draw_chars = (byte*)NativeMemory.AllocZeroed(128 * 16);
+        Draw.draw_chars = NativeMemory.AllocArrayZeroed<byte>(128 * 16);
         Draw.menu_numcachepics = 0;
     }
 
@@ -94,7 +94,7 @@ public sealed unsafe class DrawTests
     public void Pic_CopiesSourceRowsVerbatim()
     {
         int pixelBytes = 4 * 3; // 4 wide, 3 tall
-        byte* buf = (byte*)NativeMemory.AllocZeroed((nuint)(8 + pixelBytes));
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(8 + pixelBytes);
         try
         {
             QPic_t* pic = (QPic_t*)buf;
@@ -121,7 +121,7 @@ public sealed unsafe class DrawTests
     [TestMethod]
     public void Pic_OutOfBoundsCoordinates_ThrowsSysError()
     {
-        byte* buf = (byte*)NativeMemory.AllocZeroed(8 + 4);
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(8 + 4);
         try
         {
             QPic_t* pic = (QPic_t*)buf;
@@ -141,7 +141,7 @@ public sealed unsafe class DrawTests
     {
         int width = 9; // not a multiple of 8 -- exercises the "general" path
         int pixelBytes = width * 1;
-        byte* buf = (byte*)NativeMemory.AllocZeroed((nuint)(8 + pixelBytes));
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(8 + pixelBytes);
         try
         {
             QPic_t* pic = (QPic_t*)buf;
@@ -174,7 +174,7 @@ public sealed unsafe class DrawTests
     public void TransPic_UnwoundPath_Width8Multiple_MatchesGeneralPath()
     {
         int width = 8;
-        byte* buf = (byte*)NativeMemory.AllocZeroed((nuint)(8 + width));
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(8 + width);
         try
         {
             QPic_t* pic = (QPic_t*)buf;
@@ -263,7 +263,7 @@ public sealed unsafe class DrawTests
         // partial-tile-clip logic. r_rectdesc is set directly (internal,
         // see Draw.cs) rather than via Draw_Init, which requires a loaded
         // WAD file.
-        byte* tile = (byte*)NativeMemory.AllocZeroed(4 * 4);
+        byte* tile = NativeMemory.AllocArrayZeroed<byte>(4 * 4);
         for (int i = 0; i < 16; i++)
             tile[i] = (byte)(i + 1);
 
@@ -316,7 +316,7 @@ public sealed unsafe class DrawTests
     public void FadeScreen_OddSizedBuffer_MatchesScalarOriginal()
     {
         const int w = 77, h = 9, rowBytes = 96;
-        byte* buf = (byte*)NativeMemory.AllocZeroed(rowBytes * h);
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(rowBytes * h);
         try
         {
             Random rng = new(1);
@@ -345,7 +345,7 @@ public sealed unsafe class DrawTests
         for (int width = 1; width <= 50; width++)
         {
             const int h = 3;
-            byte* picMem = (byte*)NativeMemory.AllocZeroed((nuint)(8 + width * h));
+            byte* picMem = NativeMemory.AllocArrayZeroed<byte>(8 + width * h);
             try
             {
                 QPic_t* pic = (QPic_t*)picMem;
@@ -391,7 +391,7 @@ public sealed unsafe class DrawTests
             foreach ((int cx, int cy) in new[] { (0, 0), (2, 1), (-3, 2), (20, 18), (4, -2), (1, 3) })
             {
                 const int pw = 6, ph = 5;
-                byte* picMem = (byte*)NativeMemory.AllocZeroed(8 + pw * ph);
+                byte* picMem = NativeMemory.AllocArrayZeroed<byte>(8 + pw * ph);
                 try
                 {
                     QPic_t* pic = (QPic_t*)picMem;
@@ -422,8 +422,8 @@ public sealed unsafe class DrawTests
     public void ConbackStretch8_MatchesOriginalRunningFraction()
     {
         Random rng = new(4);
-        byte* conback = (byte*)NativeMemory.AllocZeroed(320 * 200);
-        byte* big = (byte*)NativeMemory.AllocZeroed(700 * 400);
+        byte* conback = NativeMemory.AllocArrayZeroed<byte>(320 * 200);
+        byte* big = NativeMemory.AllocArrayZeroed<byte>(700 * 400);
         try
         {
             for (int i = 0; i < 320 * 200; i++) conback[i] = (byte)rng.Next(256);

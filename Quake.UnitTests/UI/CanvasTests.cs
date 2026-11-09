@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -20,19 +20,19 @@ public sealed unsafe class CanvasTests
     {
         DIface.r_pixbytes = 1;
 
-        _buf = (byte*)NativeMemory.AllocZeroed(64 * 64);
+        _buf = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
         Vid.vid.Buffer = _buf;
         Vid.vid.RowBytes = 64;
         Vid.vid.Width = 64;
         Vid.vid.Height = 64;
 
-        _conBuf = (byte*)NativeMemory.AllocZeroed(64 * 64);
+        _conBuf = NativeMemory.AllocArrayZeroed<byte>(64 * 64);
         Vid.vid.ConBuffer = _conBuf;
         Vid.vid.ConRowBytes = 64;
         Vid.vid.ConWidth = 64;
         Vid.vid.ConHeight = 64;
 
-        Draw.draw_chars = (byte*)NativeMemory.AllocZeroed(128 * 16);
+        Draw.draw_chars = NativeMemory.AllocArrayZeroed<byte>(128 * 16);
     }
 
     [TestCleanup]

@@ -3,8 +3,8 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -59,8 +59,8 @@ public sealed unsafe class QTests
     [DataRow(0x12345678, 64)]
     public void MemSet_MatchesOriginal_Aligned(int fill, int count)
     {
-        byte* expected = (byte*)NativeMemory.AllocZeroed((nuint)count);
-        byte* actual = (byte*)NativeMemory.AllocZeroed((nuint)count);
+        byte* expected = NativeMemory.AllocArrayZeroed<byte>(count);
+        byte* actual = NativeMemory.AllocArrayZeroed<byte>(count);
         try
         {
             ReferenceMemSet(expected, fill, count);
@@ -80,8 +80,8 @@ public sealed unsafe class QTests
     public void MemSet_MatchesOriginal_UnalignedPointer()
     {
         const int count = 15; // odd count, and we also offset the pointer below
-        byte* buf1 = (byte*)NativeMemory.AllocZeroed((nuint)(count + 1));
-        byte* buf2 = (byte*)NativeMemory.AllocZeroed((nuint)(count + 1));
+        byte* buf1 = NativeMemory.AllocArrayZeroed<byte>(count + 1);
+        byte* buf2 = NativeMemory.AllocArrayZeroed<byte>(count + 1);
         try
         {
             ReferenceMemSet(buf1 + 1, 0xAB, count);
@@ -163,7 +163,7 @@ public sealed unsafe class QTests
     [DataRow(100)]
     public void StrLen_MatchesOriginal_AllLengths(int len)
     {
-        byte* buf = (byte*)NativeMemory.AllocZeroed((nuint)(len + 1));
+        byte* buf = NativeMemory.AllocArrayZeroed<byte>(len + 1);
         try
         {
             for (int i = 0; i < len; i++)

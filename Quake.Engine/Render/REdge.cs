@@ -52,7 +52,7 @@ public static unsafe class REdge
     // edge_tail/edge_aftertail are RShared.cs's, shared with DIface.cs's
     // driver interface; edge_sentinel isn't read anywhere else).
     // Natively allocated so its address is stable.
-    internal static readonly Edge_t* edge_sentinel = (Edge_t*)NativeMemory.AllocZeroed((nuint)sizeof(Edge_t));
+    internal static readonly Edge_t* edge_sentinel = NativeMemory.AllocZeroed<Edge_t>();
 
     // fv
     public static float fv;
@@ -154,7 +154,7 @@ public static unsafe class REdge
         {
             Edge_t* next_edge = edgestoadd->Next;
 
-            edgesearch:
+        edgesearch:
             if (edgelist->U >= edgestoadd->U)
                 goto addedge;
             edgelist = edgelist->Next;
@@ -170,7 +170,7 @@ public static unsafe class REdge
             goto edgesearch;
 
             // insert edgestoadd before edgelist
-            addedge:
+        addedge:
             edgestoadd->Next = edgelist;
             edgestoadd->Prev = edgelist->Prev;
             edgelist->Prev->Next = edgestoadd;
@@ -206,7 +206,7 @@ public static unsafe class REdge
 
         while (true)
         {
-            nextedge:
+        nextedge:
             pedge->U += pedge->UStep;
             if (pedge->U < pedge->Prev->U)
                 goto pushback;
@@ -229,7 +229,7 @@ public static unsafe class REdge
 
             goto nextedge;
 
-            pushback:
+        pushback:
             if (pedge == edgeAfterTail)
                 return;
 
@@ -319,7 +319,7 @@ public static unsafe class REdge
                 goto newtop;
             }
 
-            continue_search:
+        continue_search:
             do
             {
                 surf2 = surf2->Next;
@@ -339,7 +339,7 @@ public static unsafe class REdge
 
             goto gotposition;
 
-            newtop:
+        newtop:
             {
                 // emit a span (obscures current top)
                 int iu = (int)(edge->U >> 20);
@@ -358,7 +358,7 @@ public static unsafe class REdge
                 surf->LastU = iu;
             }
 
-            gotposition:
+        gotposition:
             // insert before surf2
             surf->Next = surf2;
             surf->Prev = surf2->Prev;
@@ -454,7 +454,7 @@ public static unsafe class REdge
                 }
             }
 
-            continue_search:
+        continue_search:
             do
             {
                 surf2 = surf2->Next;
@@ -490,7 +490,7 @@ public static unsafe class REdge
 
             goto gotposition;
 
-            newtop:
+        newtop:
             {
                 // emit a span (obscures current top)
                 int iu = (int)(edge->U >> 20);
@@ -509,7 +509,7 @@ public static unsafe class REdge
                 surf->LastU = iu;
             }
 
-            gotposition:
+        gotposition:
             // insert before surf2
             surf->Next = surf2;
             surf->Prev = surf2->Prev;

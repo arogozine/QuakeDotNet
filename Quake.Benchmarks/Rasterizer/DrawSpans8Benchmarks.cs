@@ -8,7 +8,6 @@ using Quake.Engine;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 
 namespace Quake.Benchmarks;
 
@@ -33,9 +32,9 @@ public unsafe partial class DrawSpans8Benchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _viewbuffer = (byte*)NativeMemory.AllocZeroed((nuint)(ScreenWidth * ScreenHeight));
-        _texture = (byte*)NativeMemory.AllocZeroed((nuint)(CacheWidth * CacheHeight + 4)); // +4: dword texel gather may overread 3 bytes
-        _spans = (ESpan_t*)NativeMemory.Alloc((nuint)(SpanCount * sizeof(ESpan_t)));
+        _viewbuffer = NativeMemory.AllocArrayZeroed<byte>(ScreenWidth * ScreenHeight);
+        _texture = NativeMemory.AllocArrayZeroed<byte>(CacheWidth * CacheHeight + 4); // +4: dword texel gather may overread 3 bytes
+        _spans = NativeMemory.AllocArray<ESpan_t>(SpanCount);
 
         Random rng = new(1234);
         for (int i = 0; i < CacheWidth * CacheHeight; i++)
@@ -138,7 +137,7 @@ public unsafe partial class DrawSpans8Benchmarks
     public void PerspectiveCorrectPerPixel_Stack() => PerspectiveCorrectPerPixel_Stack(&_spans[0]);
 
     [Benchmark]
-    public void FmaOnly()=> FmaOnly(&_spans[0]);
+    public void FmaOnly() => FmaOnly(&_spans[0]);
 
     [Benchmark]
     public void DrawSpans8_Stack() => DrawSpans8_Stack(&_spans[0]);

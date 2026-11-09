@@ -29,14 +29,14 @@ public unsafe class SndMixBenchmarks
     public void Setup()
     {
         Random r = new(4);
-        _p = (int*)NativeMemory.Alloc(Pairs * 2 * 4);
+        _p = NativeMemory.AllocArray<int>(Pairs * 2);
         for (int i = 0; i < Pairs * 2; i++) _p[i] = r.Next(-60000, 60000) * (r.Next(8) == 0 ? 40 : 1);
-        _o16a = (short*)NativeMemory.AllocZeroed(Pairs * 4); _o16b = (short*)NativeMemory.AllocZeroed(Pairs * 4);
-        _o8a = (byte*)NativeMemory.AllocZeroed(Pairs * 2); _o8b = (byte*)NativeMemory.AllocZeroed(Pairs * 2);
-        _pa = (int*)NativeMemory.AllocZeroed(Pairs * 8); _pb = (int*)NativeMemory.AllocZeroed(Pairs * 8);
-        _s16 = (short*)NativeMemory.Alloc(Pairs * 2); _s8 = (sbyte*)NativeMemory.Alloc(Pairs);
+        _o16a = NativeMemory.AllocArrayZeroed<short>(Pairs * 2); _o16b = NativeMemory.AllocArrayZeroed<short>(Pairs * 2);
+        _o8a = NativeMemory.AllocArrayZeroed<byte>(Pairs * 2); _o8b = NativeMemory.AllocArrayZeroed<byte>(Pairs * 2);
+        _pa = NativeMemory.AllocArrayZeroed<int>(Pairs * 2); _pb = NativeMemory.AllocArrayZeroed<int>(Pairs * 2);
+        _s16 = NativeMemory.AllocArray<short>(Pairs); _s8 = NativeMemory.AllocArray<sbyte>(Pairs);
         for (int i = 0; i < Pairs; i++) { _s16[i] = (short)r.Next(-32768, 32768); _s8[i] = (sbyte)r.Next(-128, 128); }
-        _table = (int*)NativeMemory.Alloc(32 * 256 * 4);
+        _table = NativeMemory.AllocArray<int>(32 * 256);
         for (int i = 0; i < 32; i++) for (int j = 0; j < 256; j++) _table[i * 256 + j] = (sbyte)j * i * 8;
 
         O16(); N16(); O8(); N8();
@@ -89,19 +89,19 @@ public unsafe class SndMixBenchmarks
 
     void P8n() => SndMixSimd.Paint8(_pb, _s8, Pairs, (180 >> 3) * 8, (90 >> 3) * 8);
 
-    [Benchmark(Baseline = true)] [BenchmarkCategory("Transfer16")] public void Transfer16_Original() => O16();
+    [Benchmark(Baseline = true)][BenchmarkCategory("Transfer16")] public void Transfer16_Original() => O16();
 
-    [Benchmark] [BenchmarkCategory("Transfer16")] public void Transfer16_Simd() => N16();
+    [Benchmark][BenchmarkCategory("Transfer16")] public void Transfer16_Simd() => N16();
 
-    [Benchmark(Baseline = true)] [BenchmarkCategory("Transfer8")] public void Transfer8_Original() => O8();
+    [Benchmark(Baseline = true)][BenchmarkCategory("Transfer8")] public void Transfer8_Original() => O8();
 
-    [Benchmark] [BenchmarkCategory("Transfer8")] public void Transfer8_Simd() => N8();
+    [Benchmark][BenchmarkCategory("Transfer8")] public void Transfer8_Simd() => N8();
 
-    [Benchmark(Baseline = true)] [BenchmarkCategory("Paint16")] public void Paint16_Original() => P16o();
+    [Benchmark(Baseline = true)][BenchmarkCategory("Paint16")] public void Paint16_Original() => P16o();
 
-    [Benchmark] [BenchmarkCategory("Paint16")] public void Paint16_Simd() => P16n();
+    [Benchmark][BenchmarkCategory("Paint16")] public void Paint16_Simd() => P16n();
 
-    [Benchmark(Baseline = true)] [BenchmarkCategory("Paint8")] public void Paint8_Original() => P8o();
+    [Benchmark(Baseline = true)][BenchmarkCategory("Paint8")] public void Paint8_Original() => P8o();
 
-    [Benchmark] [BenchmarkCategory("Paint8")] public void Paint8_Simd() => P8n();
+    [Benchmark][BenchmarkCategory("Paint8")] public void Paint8_Simd() => P8n();
 }

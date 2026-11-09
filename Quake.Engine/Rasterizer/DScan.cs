@@ -3,7 +3,6 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -445,7 +444,7 @@ public static unsafe class DScan
                     }
 
                     Vector256.Load(idx).AsByte().Store(pdest);
-                    
+
                     count -= 32;
                     pdest += 32;
                 }

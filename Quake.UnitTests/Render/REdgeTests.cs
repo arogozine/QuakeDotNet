@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Runtime.InteropServices;
 using Quake.Engine;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -16,12 +16,12 @@ public sealed unsafe class REdgeTests
     public void Setup()
     {
         // surfaces[0] dummy, [1] background, [2] one real surface.
-        _surfaces = (Surf_t*)NativeMemory.AllocZeroed((nuint)(3 * sizeof(Surf_t)));
+        _surfaces = NativeMemory.AllocArrayZeroed<Surf_t>(3);
         RShared.surfaces = _surfaces;
         RShared.surface_p = &_surfaces[3];
         RShared.surf_max = &_surfaces[3];
 
-        _spanBuf = (ESpan_t*)NativeMemory.AllocZeroed((nuint)(64 * sizeof(ESpan_t)));
+        _spanBuf = NativeMemory.AllocArrayZeroed<ESpan_t>(64);
         REdge.span_p = _spanBuf;
     }
 

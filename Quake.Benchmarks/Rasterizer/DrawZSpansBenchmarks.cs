@@ -32,8 +32,8 @@ public unsafe class DrawZSpansBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _zbuffer = (short*)NativeMemory.AllocZeroed((nuint)(ZWidth * ZHeight * sizeof(short)));
-        _spans = (ESpan_t*)NativeMemory.Alloc((nuint)(SpanCount * sizeof(ESpan_t)));
+        _zbuffer = NativeMemory.AllocArrayZeroed<short>(ZWidth * ZHeight);
+        _spans = NativeMemory.AllocArray<ESpan_t>(SpanCount);
 
         Random rng = new(1234);
 

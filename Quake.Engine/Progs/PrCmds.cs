@@ -5,11 +5,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Numerics;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -57,7 +56,7 @@ public static unsafe class PrCmds
 
     // PF_VarString -- concatenates QC string args [first, pr_argc) into a
     // stable scratch buffer, matching the original's static char out[256].
-    internal static readonly byte* varStringBuf = (byte*)NativeMemory.AllocZeroed(256);
+    internal static readonly byte* varStringBuf = NativeMemory.AllocArrayZeroed<byte>(256);
     public static byte* PF_VarString(int first)
     {
         int len = 0;
@@ -473,7 +472,7 @@ public static unsafe class PrCmds
     }
 
     // #17
-    internal static readonly byte* checkpvs = (byte*)NativeMemory.AllocZeroed(BspFile.MAX_MAP_LEAFS / 8);
+    internal static readonly byte* checkpvs = NativeMemory.AllocArrayZeroed<byte>(BspFile.MAX_MAP_LEAFS / 8);
     public static int c_invis, c_notvis;
 
     private static int NewCheckClient(int check)
@@ -921,13 +920,13 @@ public static unsafe class PrCmds
                 return Sv.datagram;
 
             case (int)MsgDest.One: // reliable to one (msg_entity)
-            {
-                EDict_t* ent = Progs.ProgToEdict(Progs.pr_global_struct->MsgEntity);
-                int entnum = Progs.NumForEdict(ent);
-                if (entnum < 1 || entnum > Svs.maxclients)
-                    Progs.RunError("WriteDest: not a client"u8);
-                return &Svs.clients[entnum - 1].Message;
-            }
+                {
+                    EDict_t* ent = Progs.ProgToEdict(Progs.pr_global_struct->MsgEntity);
+                    int entnum = Progs.NumForEdict(ent);
+                    if (entnum < 1 || entnum > Svs.maxclients)
+                        Progs.RunError("WriteDest: not a client"u8);
+                    return &Svs.clients[entnum - 1].Message;
+                }
 
             case (int)MsgDest.All: // reliable to all
                 return Sv.reliable_datagram;

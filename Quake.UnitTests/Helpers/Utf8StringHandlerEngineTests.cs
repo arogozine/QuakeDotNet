@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
-using System.Globalization;
-using System.Runtime.InteropServices;
 using Quake.Engine;
 using Quake.Engine.Memory;
+using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace Quake.UnitTests;
 
@@ -25,7 +25,7 @@ public sealed unsafe class Utf8StringHandlerEngineTests
     private static byte* CString(string s)
     {
         byte[] bytes = System.Text.Encoding.ASCII.GetBytes(s);
-        byte* p = (byte*)NativeMemory.AllocZeroed((nuint)bytes.Length + 1);
+        byte* p = NativeMemory.AllocArrayZeroed<byte>(bytes.Length + 1);
         bytes.AsSpan().CopyTo(new Span<byte>(p, bytes.Length));
         return p;
     }

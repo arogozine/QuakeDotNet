@@ -86,7 +86,7 @@ public static unsafe class Zone
         buf = TagMalloc(size, 1);
         if (buf == null)
             Sys.Error($"Z_Malloc: failed on allocation of {size} bytes");
-        NativeMemory.Clear(buf, (nuint)size);
+        NativeMemory.Clear((byte*)buf, size);
 
         return buf;
     }

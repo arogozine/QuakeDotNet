@@ -7,6 +7,7 @@ using BenchmarkDotNet.Attributes;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+using Quake.Engine;
 
 namespace Quake.Benchmarks;
 
@@ -26,13 +27,13 @@ public unsafe class WarpScreenBenchmarks
     public void Setup()
     {
         int h = H;
-        _view = (byte*)NativeMemory.AllocZeroed((nuint)(Stride * (h + 2 * Amp2) + 16));
-        _a = (byte*)NativeMemory.AllocZeroed((nuint)(Stride * h)); _b = (byte*)NativeMemory.AllocZeroed((nuint)(Stride * h));
+        _view = NativeMemory.AllocArrayZeroed<byte>(Stride * (h + 2 * Amp2) + 16);
+        _a = NativeMemory.AllocArrayZeroed<byte>(Stride * h); _b = NativeMemory.AllocArrayZeroed<byte>(Stride * h);
         Random r = new(9); for (int i = 0; i < Stride * (h + 2 * Amp2); i++) _view[i] = (byte)r.Next(256);
-        _rowptr = (byte**)NativeMemory.AllocZeroed((nuint)((h + 2 * Amp2) * sizeof(byte*)));
-        _rowoff = (int*)NativeMemory.AllocZeroed((nuint)((h + 2 * Amp2) * 4));
-        _column = (int*)NativeMemory.AllocZeroed((nuint)((W + 2 * Amp2) * 4));
-        _turbBase = (int*)NativeMemory.AllocZeroed((nuint)((2048 + 128) * 4));
+        _rowptr = NativeMemory.AllocPointerArray<byte>(h + 2 * Amp2);
+        _rowoff = NativeMemory.AllocArrayZeroed<int>(h + 2 * Amp2);
+        _column = NativeMemory.AllocArrayZeroed<int>(W + 2 * Amp2);
+        _turbBase = NativeMemory.AllocArrayZeroed<int>(2048 + 128);
         for (int i = 0; i < 2048 + 128; i++) _turbBase[i] = (int)(Amp2 + MathF.Sin(i * 3.14159f * 2 / 128) * Amp2);
         for (int v = 0; v < h + 2 * Amp2; v++) { _rowoff[v] = Stride * v; _rowptr[v] = _view + Stride * v; }
         for (int u = 0; u < W + 2 * Amp2; u++) _column[u] = u;

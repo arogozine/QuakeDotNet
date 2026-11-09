@@ -8,8 +8,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-using System.Runtime.CompilerServices;
-
 namespace Quake.Engine;
 
 /// <summary>
@@ -179,7 +177,7 @@ public static unsafe class World
     {
         InitBoxHull();
 
-        NativeMemory.Clear(sv_areanodes, (nuint)(AREA_NODES * sizeof(AreaNode_t)));
+        NativeMemory.Clear(sv_areanodes, AREA_NODES);
         sv_numareanodes = 0;
         CreateAreaNode(0, Sv.worldmodel->Mins, Sv.worldmodel->Maxs);
     }

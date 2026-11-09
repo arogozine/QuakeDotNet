@@ -6,7 +6,6 @@
 using BenchmarkDotNet.Attributes;
 using Quake.Engine;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 
 namespace Quake.Benchmarks;
 
@@ -19,8 +18,8 @@ public unsafe class Row8Benchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _src = (byte*)NativeMemory.AllocZeroed(128 * 8); _d0 = (byte*)NativeMemory.AllocZeroed(1024 * 8);
-        _d1 = (byte*)NativeMemory.AllocZeroed(1024 * 8); _d2 = (byte*)NativeMemory.AllocZeroed(1024 * 8); _d3 = (byte*)NativeMemory.AllocZeroed(1024 * 8);
+        _src = NativeMemory.AllocArrayZeroed<byte>(128 * 8); _d0 = NativeMemory.AllocArrayZeroed<byte>(1024 * 8);
+        _d1 = NativeMemory.AllocArrayZeroed<byte>(1024 * 8); _d2 = NativeMemory.AllocArrayZeroed<byte>(1024 * 8); _d3 = NativeMemory.AllocArrayZeroed<byte>(1024 * 8);
         Random r = new(2); for (int i = 0; i < 128 * 8; i++) _src[i] = r.Next(2) == 0 ? (byte)0 : (byte)r.Next(1, 256);
         Run(_d0, 0); Run(_d1, 1); Run(_d2, 2); Run(_d3, 3);
         for (int i = 1; i <= 3; i++)

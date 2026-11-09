@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
+using Quake.Engine;
+using Quake.Engine.Memory;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using Quake.Engine;
-using Quake.Engine.Memory;
 using static Quake.UnitTests.TestHelpers;
 
 namespace Quake.UnitTests;
@@ -26,7 +26,7 @@ public sealed unsafe class NetDgrmTests
     public void Setup()
     {
         Sv.host_protocol_datagram_maxsize = QuakeDef.MAX_MARK_V_DATAGRAM;
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
         Cmd.cmd_functions = null;
         MemoryManager.Memory_Init(_buf, Size);
         Cmd.cmd_functions = null;
@@ -43,7 +43,7 @@ public sealed unsafe class NetDgrmTests
         Svs.maxclients = 8;
 
         SizeBuf_t* nm = Net.net_message;
-            Sz.Alloc(nm, Net.NET_MAXMESSAGE);
+        Sz.Alloc(nm, Net.NET_MAXMESSAGE);
 
         // NET_NewQSocket (Net.cs) needs a free-list; a handful of
         // Hunk-allocated qsocket_t's stands in for NET_Init's own pool.
@@ -364,9 +364,9 @@ public sealed unsafe class NetDgrmTests
     {
         Net.ResetSlistForTests();
         pollOrder.Clear();
-        PollProcedure_t* a = (PollProcedure_t*)NativeMemory.AllocZeroed((nuint)sizeof(PollProcedure_t));
-        PollProcedure_t* b = (PollProcedure_t*)NativeMemory.AllocZeroed((nuint)sizeof(PollProcedure_t));
-        PollProcedure_t* later = (PollProcedure_t*)NativeMemory.AllocZeroed((nuint)sizeof(PollProcedure_t));
+        PollProcedure_t* a = NativeMemory.AllocZeroed<PollProcedure_t>();
+        PollProcedure_t* b = NativeMemory.AllocZeroed<PollProcedure_t>();
+        PollProcedure_t* later = NativeMemory.AllocZeroed<PollProcedure_t>();
         try
         {
             a->Procedure = &PollA;

@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 // Copyright (C) 2026 Alexandre Rogozine
 
+using Quake.Engine;
 using System.Runtime.InteropServices;
 using System.Text;
-using Quake.Engine;
-using Quake.Engine.Memory;
 
 namespace Quake.UnitTests;
 
@@ -39,7 +38,7 @@ public sealed unsafe class RealSaveGameTests
     [TestInitialize]
     public void Setup()
     {
-        _buf = (byte*)NativeMemory.Alloc(Size);
+        _buf = NativeMemory.AllocArray<byte>(Size);
 
         // Reset every piece of shared static state Host.Init's call chain
         // touches, matching HostTests' own reset list.
@@ -54,7 +53,7 @@ public sealed unsafe class RealSaveGameTests
         Sv.state = ServerState_t.Loading;
         Sv.num_edicts = 0;
 
-        NativeMemory.Clear(Model.mod_known, (nuint)(Model.mod_numknown * sizeof(Model_t)));
+        NativeMemory.Clear(Model.mod_known, Model.mod_numknown);
         Model.mod_numknown = 0;
         Model.loadmodel = null;
         RMain.r_notexture_mip = null;
@@ -92,7 +91,7 @@ public sealed unsafe class RealSaveGameTests
         Con.con_text = null;
         Host.host_initialized = false; // see HostTests.Teardown
 
-        Svs.clients = (Client_t*)NativeMemory.AllocZeroed((nuint)sizeof(Client_t));
+        Svs.clients = NativeMemory.AllocZeroed<Client_t>();
         Svs.maxclients = 1;
         Svs.maxclientslimit = 1;
 

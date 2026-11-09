@@ -3,10 +3,10 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
+using Quake.Engine.Memory;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
 using static Quake.Engine.QuakeDef;
 
 namespace Quake.Engine;
@@ -2220,15 +2220,15 @@ public static unsafe class Menu
                 break;
 
             case 3:
-            {
-                int count = Com.rogue ? 6 : 2;
-                Cvar.SetValue("teamplay"u8, Host.teamplay->Value + dir);
-                if (Host.teamplay->Value > count)
-                    Cvar.SetValue("teamplay"u8, 0);
-                else if (Host.teamplay->Value < 0)
-                    Cvar.SetValue("teamplay"u8, count);
-                break;
-            }
+                {
+                    int count = Com.rogue ? 6 : 2;
+                    Cvar.SetValue("teamplay"u8, Host.teamplay->Value + dir);
+                    if (Host.teamplay->Value > count)
+                        Cvar.SetValue("teamplay"u8, 0);
+                    else if (Host.teamplay->Value < 0)
+                        Cvar.SetValue("teamplay"u8, count);
+                    break;
+                }
 
             case 4:
                 Cvar.SetValue("skill"u8, Host.skill->Value + dir);
@@ -2249,30 +2249,30 @@ public static unsafe class Menu
                 break;
 
             case 7:
-            {
-                startepisode += dir;
-                // MED 01/06/97 added hipnotic count
-                // PGM 01/07/97 added rogue count
-                // PGM 03/02/97 added 1 for dmatch episode
-                int count = Com.hipnotic ? 6 : Com.rogue ? 4 : Com.registered_cvar->Value != 0 ? 7 : 2;
-                if (startepisode < 0) startepisode = count - 1;
-                if (startepisode >= count) startepisode = 0;
-                startlevel = 0;
-                break;
-            }
+                {
+                    startepisode += dir;
+                    // MED 01/06/97 added hipnotic count
+                    // PGM 01/07/97 added rogue count
+                    // PGM 03/02/97 added 1 for dmatch episode
+                    int count = Com.hipnotic ? 6 : Com.rogue ? 4 : Com.registered_cvar->Value != 0 ? 7 : 2;
+                    if (startepisode < 0) startepisode = count - 1;
+                    if (startepisode >= count) startepisode = 0;
+                    startlevel = 0;
+                    break;
+                }
 
             case 8:
-            {
-                startlevel += dir;
-                // MED 01/06/97 added hipnotic episodes
-                // PGM 01/06/97 added hipnotic episodes
-                int count = Com.hipnotic ? hipnoticepisodes[startepisode].Levels
-                    : Com.rogue ? rogueepisodes[startepisode].Levels
-                    : episodes[startepisode].Levels;
-                if (startlevel < 0) startlevel = count - 1;
-                if (startlevel >= count) startlevel = 0;
-                break;
-            }
+                {
+                    startlevel += dir;
+                    // MED 01/06/97 added hipnotic episodes
+                    // PGM 01/06/97 added hipnotic episodes
+                    int count = Com.hipnotic ? hipnoticepisodes[startepisode].Levels
+                        : Com.rogue ? rogueepisodes[startepisode].Levels
+                        : episodes[startepisode].Levels;
+                    if (startlevel < 0) startlevel = count - 1;
+                    if (startlevel >= count) startlevel = 0;
+                    break;
+                }
         }
     }
 

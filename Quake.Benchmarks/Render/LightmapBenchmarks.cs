@@ -20,7 +20,7 @@ public unsafe class LightmapBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _a = (uint*)NativeMemory.AllocZeroed(324 * 4 + 64); _b = (uint*)NativeMemory.AllocZeroed(324 * 4 + 64); _lm = (byte*)NativeMemory.AllocZeroed(324 + 16);
+        _a = NativeMemory.AllocArrayZeroed<uint>(324 + 16); _b = NativeMemory.AllocArrayZeroed<uint>(324 + 16); _lm = NativeMemory.AllocArrayZeroed<byte>(324 + 16);
         Random r = new(3); for (int i = 0; i < 324; i++) _lm[i] = (byte)r.Next(256);
         for (int i = 0; i < 324; i++) _a[i] = _b[i] = (uint)r.Next(0, 60000);
         AddO(); AddN(); BoundO(); BoundN();

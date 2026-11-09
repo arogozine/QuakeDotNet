@@ -30,13 +30,13 @@ public static unsafe class RSky
     public static int r_skydirect; // not used? (original comment)
 
     // TODO (original comment): clean up these routines
-    internal static readonly byte* bottomsky = (byte*)NativeMemory.AllocZeroed(128 * 131);
-    internal static readonly byte* bottommask = (byte*)NativeMemory.AllocZeroed(128 * 131);
+    internal static readonly byte* bottomsky = NativeMemory.AllocArrayZeroed<byte>(128 * 131);
+    internal static readonly byte* bottommask = NativeMemory.AllocArrayZeroed<byte>(128 * 131);
 
     // newsky and topsky both pack in here, 128 bytes of newsky on the left
     // of each scan, 128 bytes of topsky on the right, because the low-level
     // drawers need 256-byte scan widths.
-    internal static readonly byte* newsky = (byte*)NativeMemory.AllocZeroed(128 * 256);
+    internal static readonly byte* newsky = NativeMemory.AllocArrayZeroed<byte>(128 * 256);
 
     private static int xlast = -1, ylast = -1;
 

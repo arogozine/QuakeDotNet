@@ -3,11 +3,9 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
+using Quake.Engine.Memory;
 using System.Runtime.InteropServices;
 using System.Text;
-using Quake.Engine.Memory;
 
 namespace Quake.Engine;
 
@@ -129,7 +127,7 @@ public static unsafe class RPart
 
         Con.Printf($"Reading {name}...\n");
 
-        byte* buf = (byte*)NativeMemory.Alloc((nuint)len);
+        byte* buf = NativeMemory.AllocArray<byte>(len);
         Sys.FileRead((int)fileHandle, buf, len);
         Sys.FileClose((int)fileHandle);
 

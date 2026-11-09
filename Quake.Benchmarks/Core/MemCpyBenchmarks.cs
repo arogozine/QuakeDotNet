@@ -3,8 +3,8 @@
 // Copyright (C) 2026 Alexandre Rogozine
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
+using System.Runtime.InteropServices;
 using Quake.Engine;
 
 namespace Quake.Benchmarks;
@@ -25,8 +25,8 @@ public unsafe class MemCpyBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _src = (byte*)NativeMemory.Alloc((nuint)Count);
-        _dst = (byte*)NativeMemory.Alloc((nuint)Count);
+        _src = NativeMemory.AllocArray<byte>(Count);
+        _dst = NativeMemory.AllocArray<byte>(Count);
 
         Random rng = new(1234);
         for (int i = 0; i < Count; i++)

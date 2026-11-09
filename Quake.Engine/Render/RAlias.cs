@@ -4,10 +4,8 @@
 // Ported to C#/.NET; original source licensed under the GNU General Public License, version 2.
 
 using System.Numerics;
-using System.Runtime.InteropServices;
-using Quake.Engine.Memory;
-
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Quake.Engine;
 
@@ -23,7 +21,7 @@ namespace Quake.Engine;
 public static unsafe class RAlias
 {
     private const int LIGHT_MIN = 5; // lowest light value we'll allow, to
-                                      // avoid the need for inner-loop light clamping
+                                     // avoid the need for inner-loop light clamping
 
     // ptriangles -- r_alias.c's own global; unused by this step's own code
     // (only ever read/written by r_aclip.c/d_polyse.c in the original), kept
@@ -71,7 +69,7 @@ public static unsafe class RAlias
     // entity_rotation (persists across calls between SetUpTransform and the
     // per-vertex transform functions, so a native buffer rather than a
     // stackalloc local).
-    public static readonly float* aliastransform = (float*)NativeMemory.AllocZeroed(3 * 4 * sizeof(float));
+    public static readonly float* aliastransform = NativeMemory.AllocArrayZeroed<float>(3 * 4);
 
     private struct AEdge_t
     {
