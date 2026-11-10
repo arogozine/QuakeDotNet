@@ -60,7 +60,9 @@ public static unsafe class Program
             try
             {
                 if (VidWindow.Window != null)
+                {
                     VidWindow.Shutdown();
+                }
             }
             catch (Exception shutdownEx)
             {
@@ -124,7 +126,9 @@ public static unsafe class Program
         {
             int t = heapsizeParm + 1;
             if (t < Com.com_argc)
+            {
                 heapSizeKb = Q.Atoi(Com.com_argv[t]);
+            }
         }
 
         MemoryManager.AllocateHostMemory(heapSizeKb);
@@ -157,7 +161,9 @@ public static unsafe class Program
             // in VidWindow.Init.
             NativeWindow.ProcessWindowEvents(false);
             if (!VidWindow.Window.Exists)
+            {
                 break;
+            }
 
             // VID_Update's vid_mode poll -- see CheckModeChange's own comment.
             VidWindow.CheckModeChange();

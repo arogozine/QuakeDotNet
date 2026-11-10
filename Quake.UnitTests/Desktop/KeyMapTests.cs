@@ -11,7 +11,7 @@ namespace Quake.UnitTests;
 // vid_win.c's MapKey/scantokey[] equivalent (Quake.Desktop/KeyMap.cs): pure
 // GLFW keycode -> Quake keynum lookup, no window needed.
 [TestClass]
-public sealed unsafe class KeyMapTests
+public sealed class KeyMapTests
 {
     [TestMethod]
     public void Letters_MapToLowercaseAscii()

@@ -20,7 +20,7 @@ namespace Quake.Benchmarks;
 [MemoryDiagnoser]
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
-public unsafe class ServerVectorBenchmarks
+public class ServerVectorBenchmarks
 {
     #region Setup / Teardown
 
@@ -33,7 +33,7 @@ public unsafe class ServerVectorBenchmarks
     public void Setup()
     {
         Random rng = new(99);
-        Vector3 Rand() => new((float)(rng.NextDouble() * 2000 - 1000), (float)(rng.NextDouble() * 2000 - 1000), (float)(rng.NextDouble() * 2000 - 1000));
+        Vector3 Rand() => new((float)((rng.NextDouble() * 2000) - 1000), (float)((rng.NextDouble() * 2000) - 1000), (float)((rng.NextDouble() * 2000) - 1000));
         _a = new Vector3[Count];
         _b = new Vector3[Count];
         _c = new Vector3[Count];
@@ -127,7 +127,10 @@ public unsafe class ServerVectorBenchmarks
             float frac = _frac[n];
             Vector3 mid = default;
             for (int i = 0; i < 3; i++)
-                mid[i] = p1[i] + frac * (p2[i] - p1[i]);
+            {
+                mid[i] = p1[i] + (frac * (p2[i] - p1[i]));
+            }
+
             sink += mid.X + mid.Y + mid.Z;
         }
         return sink;
@@ -142,7 +145,7 @@ public unsafe class ServerVectorBenchmarks
         {
             Vector3 p1 = _a[n], p2 = _b[n];
             float frac = _frac[n];
-            Vector3 mid = p1 + frac * (p2 - p1);
+            Vector3 mid = p1 + (frac * (p2 - p1));
             sink += mid.X + mid.Y + mid.Z;
         }
         return sink;
@@ -153,9 +156,14 @@ public unsafe class ServerVectorBenchmarks
         const float STOP_EPSILON = 0.1f;
         int blocked = 0;
         if (normal[2] > 0)
+        {
             blocked |= 1;
+        }
+
         if (normal[2] == 0)
+        {
             blocked |= 2;
+        }
 
         float backoff = Vector3.Dot(@in, normal) * overbounce;
 
@@ -164,7 +172,9 @@ public unsafe class ServerVectorBenchmarks
             float change = normal[i] * backoff;
             @out[i] = @in[i] - change;
             if (@out[i] > -STOP_EPSILON && @out[i] < STOP_EPSILON)
+            {
                 @out[i] = 0;
+            }
         }
 
         return blocked;

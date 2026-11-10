@@ -126,7 +126,7 @@ public sealed unsafe class RSurfTests
 
         // ambient=0 -> raw 0, inverted: (255*256-0)>>2, clamped to floor 1<<6=64
         // since (255*256)>>2 = 16320, well above the floor, verify the actual formula result.
-        int expected = (255 * 256 - 0) >> (8 - Vid.VID_CBITS);
+        int expected = ((255 * 256) - 0) >> (8 - Vid.VID_CBITS);
         Assert.AreEqual((uint)expected, RSurf.blocklights[0]);
     }
 
@@ -156,7 +156,9 @@ public sealed unsafe class RSurfTests
                 prowdest += rowbytes;
             }
             if (psource >= sourcemax)
+            {
                 psource -= stepback;
+            }
         }
     }
 
@@ -172,9 +174,20 @@ public sealed unsafe class RSurfTests
         byte* destB = NativeMemory.AllocArrayZeroed<byte>(16 * hb * 16 * nv);
         try
         {
-            for (int i = 0; i < 16384; i++) colormap[i] = (byte)rng.Next(256);
-            for (int i = 0; i < texW * texH; i++) source[i] = (byte)rng.Next(256);
-            for (int i = 0; i < (hb + 1) * (nv + 1); i++) lights[i] = (uint)rng.Next(64, 16321);
+            for (int i = 0; i < 16384; i++)
+            {
+                colormap[i] = (byte)rng.Next(256);
+            }
+
+            for (int i = 0; i < texW * texH; i++)
+            {
+                source[i] = (byte)rng.Next(256);
+            }
+
+            for (int i = 0; i < (hb + 1) * (nv + 1); i++)
+            {
+                lights[i] = (uint)rng.Next(64, 16321);
+            }
 
             Vid.vid.Colormap = colormap;
             int lw = hb + 1;
@@ -192,17 +205,17 @@ public sealed unsafe class RSurfTests
                 RSurf.r_numvblocks = nv;
                 RSurf.r_lightwidth = lw;
                 RSurf.r_source = source;
-                RSurf.r_sourcemax = source + texW * count * nv - texW; // force a wrap
+                RSurf.r_sourcemax = source + (texW * count * nv) - texW; // force a wrap
                 RSurf.r_stepback = texW * 2;
 
                 for (int u = 0; u < hb; u++)
                 {
-                    ReferenceBlock8(shift, count, source + u * count, destA + u * count, colormap, lights + u, lw, nv,
+                    ReferenceBlock8(shift, count, source + (u * count), destA + (u * count), colormap, lights + u, lw, nv,
                         texW, rowbytes, RSurf.r_sourcemax, RSurf.r_stepback);
 
                     RSurf.r_lightptr = lights + u;
-                    RSurf.prowdestbase = destB + u * count;
-                    RSurf.pbasesource = source + u * count;
+                    RSurf.prowdestbase = destB + (u * count);
+                    RSurf.pbasesource = source + (u * count);
                     switch (mip)
                     {
                         case 0: RSurf.DrawSurfaceBlock8_mip0(); break;

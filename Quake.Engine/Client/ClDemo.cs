@@ -54,14 +54,18 @@ public static unsafe class ClDemo
     public static void StopPlayback()
     {
         if (!demoplayback)
+        {
             return;
+        }
 
         Sys.FileClose(demofile);
         demoplayback = false;
         demofile = -1;
         Cls.state = CActive.Disconnected;
         if (Cls.timedemo)
+        {
             FinishTimeDemo();
+        }
     }
 
     /*
@@ -74,11 +78,13 @@ public static unsafe class ClDemo
     public static void NextDemo()
     {
         if (demonum == -1)
+        {
             return; // don't play demos
+        }
 
         Screen.BeginLoadingPlaque();
 
-        byte* current = demos + demonum * MAX_DEMONAME;
+        byte* current = demos + (demonum * MAX_DEMONAME);
         if (*current == 0 || demonum == MAX_DEMOS)
         {
             demonum = 0;
@@ -137,15 +143,22 @@ public static unsafe class ClDemo
                 if (Cls.timedemo)
                 {
                     if (Host.host_framecount == Cls.td_lastframe)
+                    {
                         return 0; // already read this frame's message
+                    }
+
                     Cls.td_lastframe = Host.host_framecount;
                     // if this is the second frame, grab the real td_starttime
                     // so the bogus time on the first frame doesn't count
                     if (Host.host_framecount == Cls.td_startframe + 1)
+                    {
                         Cls.td_starttime = (float)Host.realtime;
+                    }
                 }
                 else if (Cl.time <= Cl.mtime[0])
+                {
                     return 0; // don't need another message yet
+                }
             }
 
             int cursize;
@@ -161,7 +174,9 @@ public static unsafe class ClDemo
 
             Net.net_message->CurSize = Com.LittleLong(cursize);
             if (Net.net_message->CurSize > MAX_MSGLEN)
+            {
                 Sys.Error("Demo message > MAX_MSGLEN"u8);
+            }
 
             int r = Sys.FileRead(demofile, Net.net_message->Data, Net.net_message->CurSize);
             if (r != Net.net_message->CurSize)
@@ -179,17 +194,25 @@ public static unsafe class ClDemo
             ret = Net.GetMessage(Cls.netcon);
 
             if (ret != 1 && ret != 2)
+            {
                 return ret;
+            }
 
             // discard nop keepalive message
             if (Net.net_message->CurSize == 1 && Net.net_message->Data[0] == (int)Svc.Nop)
+            {
                 Con.Printf("<-- server to client keepalive\n"u8);
+            }
             else
+            {
                 break;
+            }
         }
 
         if (demorecording)
+        {
             WriteDemoMessage();
+        }
 
         return ret;
     }
@@ -204,7 +227,9 @@ public static unsafe class ClDemo
     public static void Stop_f()
     {
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         if (!demorecording)
         {
@@ -235,7 +260,9 @@ public static unsafe class ClDemo
     public static void Record_f()
     {
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         int c = Cmd.Argc();
         if (c != 2 && c != 3 && c != 4)
@@ -263,7 +290,9 @@ public static unsafe class ClDemo
             Con.Printf($"Forcing CD track to {forcetrack}\n");
         }
         else
+        {
             track = -1;
+        }
 
         byte* name = stackalloc byte[QuakeDef.MAX_OSPATH];
         Q.StrCpy(name, Com.com_gamedir);
@@ -310,7 +339,9 @@ public static unsafe class ClDemo
     public static void PlayDemo_f()
     {
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         if (Cmd.Argc() != 2)
         {
@@ -344,13 +375,19 @@ public static unsafe class ClDemo
         while ((c = ReadDemoByte()) != '\n')
         {
             if (c == '-')
+            {
                 neg = true;
+            }
             else
-                forcetrack = forcetrack * 10 + (c - '0');
+            {
+                forcetrack = (forcetrack * 10) + (c - '0');
+            }
         }
 
         if (neg)
+        {
             forcetrack = -forcetrack;
+        }
         // ZOID, fscanf is evil
     }
 
@@ -367,7 +404,10 @@ public static unsafe class ClDemo
         int frames = (Host.host_framecount - Cls.td_startframe) - 1;
         float time = (float)(Host.realtime - Cls.td_starttime);
         if (time == 0)
+        {
             time = 1;
+        }
+
         Con.Printf($"{frames} frames {time,5:F1} seconds {frames / time,5:F1} fps\n");
     }
 
@@ -381,7 +421,9 @@ public static unsafe class ClDemo
     public static void TimeDemo_f()
     {
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         if (Cmd.Argc() != 2)
         {

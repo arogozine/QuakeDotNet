@@ -58,7 +58,9 @@ public static unsafe class AliasModel
             pframe[j].LightNormalIndex = pinframe[j].LightNormalIndex;
 
             for (int k = 0; k < 3; k++)
+            {
                 pframe[j].V[k] = pinframe[j].V[k];
+            }
         }
 
         pinframe += numv;
@@ -75,7 +77,7 @@ public static unsafe class AliasModel
         int numframes = Com.LittleLong(pingroup->NumFrames);
 
         MAliasGroup_t* paliasgroup = (MAliasGroup_t*)Hunk.AllocName(
-            sizeof(MAliasGroup_t) + (numframes - 1) * sizeof(MAliasGroupFrameDesc_t), Model.loadname);
+            sizeof(MAliasGroup_t) + ((numframes - 1) * sizeof(MAliasGroupFrameDesc_t)), Model.loadname);
 
         paliasgroup->NumFrames = numframes;
 
@@ -98,7 +100,9 @@ public static unsafe class AliasModel
         {
             *poutintervals = Com.LittleFloat(pin_intervals->Interval);
             if (*poutintervals <= 0.0f)
+            {
                 Sys.Error("Mod_LoadAliasGroup: interval<=0"u8);
+            }
 
             poutintervals++;
             pin_intervals++;
@@ -140,7 +144,7 @@ public static unsafe class AliasModel
         int numskins = Com.LittleLong(pinskingroup->NumSkins);
 
         MAliasSkinGroup_t* paliasskingroup = (MAliasSkinGroup_t*)Hunk.AllocName(
-            sizeof(MAliasSkinGroup_t) + (numskins - 1) * sizeof(MAliasSkinDesc_t), Model.loadname);
+            sizeof(MAliasSkinGroup_t) + ((numskins - 1) * sizeof(MAliasSkinDesc_t)), Model.loadname);
 
         paliasskingroup->NumSkins = numskins;
 
@@ -156,7 +160,9 @@ public static unsafe class AliasModel
         {
             *poutskinintervals = Com.LittleFloat(pinskinintervals->Interval);
             if (*poutskinintervals <= 0)
+            {
                 Sys.Error("Mod_LoadAliasSkinGroup: interval<=0"u8);
+            }
 
             poutskinintervals++;
             pinskinintervals++;
@@ -166,7 +172,9 @@ public static unsafe class AliasModel
 
         MAliasSkinDesc_t* skindescs = &paliasskingroup->SkinDescs;
         for (int i = 0; i < numskins; i++)
+        {
             ptemp = LoadAliasSkin(ptemp, &skindescs[i].Skin, skinsize, pheader);
+        }
 
         return ptemp;
     }
@@ -180,22 +188,26 @@ public static unsafe class AliasModel
 
         int version = Com.LittleLong(pinmodel->Version);
         if (version != ALIAS_VERSION)
+        {
             Sys.Error($"{mod->Name} has wrong version number ({version} should be {ALIAS_VERSION})");
+        }
 
         // allocate space for a working header, plus all the data except the
         // frames, skin and group info
         int numframes0 = Com.LittleLong(pinmodel->NumFrames);
-        int size = sizeof(AliasHdr_t) + (numframes0 - 1) * sizeof(MAliasFrameDesc_t)
+        int size = sizeof(AliasHdr_t) + ((numframes0 - 1) * sizeof(MAliasFrameDesc_t))
                  + sizeof(Mdl_t)
-                 + Com.LittleLong(pinmodel->NumVerts) * sizeof(StVert_t)
-                 + Com.LittleLong(pinmodel->NumTris) * sizeof(MTriangle_t);
+                 + (Com.LittleLong(pinmodel->NumVerts) * sizeof(StVert_t))
+                 + (Com.LittleLong(pinmodel->NumTris) * sizeof(MTriangle_t));
 
         AliasHdr_t* pheader = (AliasHdr_t*)Hunk.AllocName(size, Model.loadname);
-        Mdl_t* pmodel = (Mdl_t*)((byte*)(pheader + 1) + (numframes0 - 1) * sizeof(MAliasFrameDesc_t));
+        Mdl_t* pmodel = (Mdl_t*)((byte*)(pheader + 1) + ((numframes0 - 1) * sizeof(MAliasFrameDesc_t)));
 
         mod->Flags = Com.LittleLong(pinmodel->Flags);
         if (ModelFlags.IsNoLerp(mod->Name)) // Mod_Flags_Refresh_f (model.c, Mark_V)
+        {
             mod->Flags |= ModelFlags.MOD_NOLERP;
+        }
 
         // endian-adjust and copy the data, starting with the alias model header
         pmodel->BoundingRadius = Com.LittleFloat(pinmodel->BoundingRadius);
@@ -204,20 +216,28 @@ public static unsafe class AliasModel
         pmodel->SkinHeight = Com.LittleLong(pinmodel->SkinHeight);
 
         if (pmodel->SkinHeight > DIface.MAX_LBM_HEIGHT)
+        {
             Sys.Error($"model {mod->Name} has a skin taller than {DIface.MAX_LBM_HEIGHT}");
+        }
 
         pmodel->NumVerts = Com.LittleLong(pinmodel->NumVerts);
 
         if (pmodel->NumVerts <= 0)
+        {
             Sys.Error($"model {mod->Name} has no vertices");
+        }
 
         if (pmodel->NumVerts > RLocal.MAXALIASVERTS)
+        {
             Sys.Error($"model {mod->Name} has too many vertices");
+        }
 
         pmodel->NumTris = Com.LittleLong(pinmodel->NumTris);
 
         if (pmodel->NumTris <= 0)
+        {
             Sys.Error($"model {mod->Name} has no triangles");
+        }
 
         pmodel->NumFrames = Com.LittleLong(pinmodel->NumFrames);
         pmodel->Size = Com.LittleFloat(pinmodel->Size) * RLocal.ALIAS_BASE_SIZE_RATIO;
@@ -235,7 +255,9 @@ public static unsafe class AliasModel
         int numframes = pmodel->NumFrames;
 
         if ((pmodel->SkinWidth & 0x03) != 0)
+        {
             Sys.Error("Mod_LoadAliasModel: skinwidth not multiple of 4"u8);
+        }
 
         pheader->Model = (int)((byte*)pmodel - (byte*)pheader);
 
@@ -243,7 +265,9 @@ public static unsafe class AliasModel
         int skinsize = pmodel->SkinHeight * pmodel->SkinWidth;
 
         if (numskins < 1)
+        {
             Sys.Error($"Mod_LoadAliasModel: Invalid # of skins: {numskins}");
+        }
 
         DAliasSkinType_t* pskintype = (DAliasSkinType_t*)(pinmodel + 1);
 
@@ -286,12 +310,16 @@ public static unsafe class AliasModel
             ptri[i].FacesFront = Com.LittleLong(pintriangles[i].FacesFront);
 
             for (int j = 0; j < 3; j++)
+            {
                 ptri[i].VertIndex[j] = Com.LittleLong(pintriangles[i].VertIndex[j]);
+            }
         }
 
         // load the frames
         if (numframes < 1)
+        {
             Sys.Error($"Mod_LoadAliasModel: Invalid # of frames: {numframes}");
+        }
 
         DAliasFrameType_t* pframetype = (DAliasFrameType_t*)(pintriangles + pmodel->NumTris);
 
@@ -320,7 +348,10 @@ public static unsafe class AliasModel
 
         Cache.Alloc(&mod->Cache, total, Model.loadname);
         if (mod->Cache.Data == null)
+        {
             return;
+        }
+
         Q.MemCpy(mod->Cache.Data, pheader, total);
 
         Hunk.FreeToLowMark(start);

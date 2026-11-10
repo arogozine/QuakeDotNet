@@ -29,35 +29,46 @@ public static unsafe class RAclip
         {
             scale = (RLocal.ALIAS_Z_CLIP_PLANE - pav0->Z) / (pav1->Z - pav0->Z);
 
-            avout = *pav0 + (*pav1 - *pav0) * scale;
+            avout = *pav0 + ((*pav1 - *pav0) * scale);
             avout.Z = RLocal.ALIAS_Z_CLIP_PLANE;
 
-            @out->V[2] = float.ConvertToIntegerNative<int>(pfv0->V[2] + (pfv1->V[2] - pfv0->V[2]) * scale);
-            @out->V[3] = float.ConvertToIntegerNative<int>(pfv0->V[3] + (pfv1->V[3] - pfv0->V[3]) * scale);
-            @out->V[4] = float.ConvertToIntegerNative<int>(pfv0->V[4] + (pfv1->V[4] - pfv0->V[4]) * scale);
+            @out->V[2] = float.ConvertToIntegerNative<int>(pfv0->V[2] + ((pfv1->V[2] - pfv0->V[2]) * scale));
+            @out->V[3] = float.ConvertToIntegerNative<int>(pfv0->V[3] + ((pfv1->V[3] - pfv0->V[3]) * scale));
+            @out->V[4] = float.ConvertToIntegerNative<int>(pfv0->V[4] + ((pfv1->V[4] - pfv0->V[4]) * scale));
         }
         else
         {
             scale = (RLocal.ALIAS_Z_CLIP_PLANE - pav1->Z) / (pav0->Z - pav1->Z);
 
-            avout = *pav1 + (*pav0 - *pav1) * scale;
+            avout = *pav1 + ((*pav0 - *pav1) * scale);
             avout.Z = RLocal.ALIAS_Z_CLIP_PLANE;
 
-            @out->V[2] = float.ConvertToIntegerNative<int>(pfv1->V[2] + (pfv0->V[2] - pfv1->V[2]) * scale);
-            @out->V[3] = float.ConvertToIntegerNative<int>(pfv1->V[3] + (pfv0->V[3] - pfv1->V[3]) * scale);
-            @out->V[4] = float.ConvertToIntegerNative<int>(pfv1->V[4] + (pfv0->V[4] - pfv1->V[4]) * scale);
+            @out->V[2] = float.ConvertToIntegerNative<int>(pfv1->V[2] + ((pfv0->V[2] - pfv1->V[2]) * scale));
+            @out->V[3] = float.ConvertToIntegerNative<int>(pfv1->V[3] + ((pfv0->V[3] - pfv1->V[3]) * scale));
+            @out->V[4] = float.ConvertToIntegerNative<int>(pfv1->V[4] + ((pfv0->V[4] - pfv1->V[4]) * scale));
         }
 
         RAlias.ProjectFinalVert(@out, &avout);
 
         if (@out->V[0] < RShared.r_refdef->AliasVrect.X)
+        {
             @out->Flags |= DIface.ALIAS_LEFT_CLIP;
+        }
+
         if (@out->V[1] < RShared.r_refdef->AliasVrect.Y)
+        {
             @out->Flags |= DIface.ALIAS_TOP_CLIP;
+        }
+
         if (@out->V[0] > RShared.r_refdef->AliasVrectRight)
+        {
             @out->Flags |= DIface.ALIAS_RIGHT_CLIP;
+        }
+
         if (@out->V[1] > RShared.r_refdef->AliasVrectBottom)
+        {
             @out->Flags |= DIface.ALIAS_BOTTOM_CLIP;
+        }
     }
 
     // R_Alias_clip_left
@@ -68,13 +79,17 @@ public static unsafe class RAclip
         {
             scale = (RShared.r_refdef->AliasVrect.X - pfv0->V[0]) / (float)(pfv1->V[0] - pfv0->V[0]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + (pfv1->V[i] - pfv0->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + ((pfv1->V[i] - pfv0->V[i]) * scale) + 0.5);
+            }
         }
         else
         {
             scale = (RShared.r_refdef->AliasVrect.X - pfv1->V[0]) / (float)(pfv0->V[0] - pfv1->V[0]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + (pfv0->V[i] - pfv1->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + ((pfv0->V[i] - pfv1->V[i]) * scale) + 0.5);
+            }
         }
     }
 
@@ -86,13 +101,17 @@ public static unsafe class RAclip
         {
             scale = (RShared.r_refdef->AliasVrectRight - pfv0->V[0]) / (float)(pfv1->V[0] - pfv0->V[0]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + (pfv1->V[i] - pfv0->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + ((pfv1->V[i] - pfv0->V[i]) * scale) + 0.5);
+            }
         }
         else
         {
             scale = (RShared.r_refdef->AliasVrectRight - pfv1->V[0]) / (float)(pfv0->V[0] - pfv1->V[0]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + (pfv0->V[i] - pfv1->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + ((pfv0->V[i] - pfv1->V[i]) * scale) + 0.5);
+            }
         }
     }
 
@@ -104,13 +123,17 @@ public static unsafe class RAclip
         {
             scale = (RShared.r_refdef->AliasVrect.Y - pfv0->V[1]) / (float)(pfv1->V[1] - pfv0->V[1]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + (pfv1->V[i] - pfv0->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + ((pfv1->V[i] - pfv0->V[i]) * scale) + 0.5);
+            }
         }
         else
         {
             scale = (RShared.r_refdef->AliasVrect.Y - pfv1->V[1]) / (float)(pfv0->V[1] - pfv1->V[1]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + (pfv0->V[i] - pfv1->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + ((pfv0->V[i] - pfv1->V[i]) * scale) + 0.5);
+            }
         }
     }
 
@@ -122,14 +145,18 @@ public static unsafe class RAclip
         {
             scale = (RShared.r_refdef->AliasVrectBottom - pfv0->V[1]) / (float)(pfv1->V[1] - pfv0->V[1]);
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + (pfv1->V[i] - pfv0->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv0->V[i] + ((pfv1->V[i] - pfv0->V[i]) * scale) + 0.5);
+            }
         }
         else
         {
             scale = (RShared.r_refdef->AliasVrectBottom - pfv1->V[1]) / (float)(pfv0->V[1] - pfv1->V[1]);
 
             for (int i = 0; i < 6; i++)
-                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + (pfv0->V[i] - pfv1->V[i]) * scale + 0.5);
+            {
+                @out->V[i] = double.ConvertToIntegerNative<int>(pfv1->V[i] + ((pfv0->V[i] - pfv1->V[i]) * scale) + 0.5);
+            }
         }
     }
 
@@ -145,19 +172,34 @@ public static unsafe class RAclip
             int flags = in_[i].Flags & flag;
 
             if (flags != 0 && oldflags != 0)
+            {
                 continue;
+            }
+
             if ((oldflags ^ flags) != 0)
             {
                 clip(&in_[j], &in_[i], &out_[k]);
                 out_[k].Flags = 0;
                 if (out_[k].V[0] < RShared.r_refdef->AliasVrect.X)
+                {
                     out_[k].Flags |= DIface.ALIAS_LEFT_CLIP;
+                }
+
                 if (out_[k].V[1] < RShared.r_refdef->AliasVrect.Y)
+                {
                     out_[k].Flags |= DIface.ALIAS_TOP_CLIP;
+                }
+
                 if (out_[k].V[0] > RShared.r_refdef->AliasVrectRight)
+                {
                     out_[k].Flags |= DIface.ALIAS_RIGHT_CLIP;
+                }
+
                 if (out_[k].V[1] > RShared.r_refdef->AliasVrectBottom)
+                {
                     out_[k].Flags |= DIface.ALIAS_BOTTOM_CLIP;
+                }
+
                 k++;
             }
             if (flags == 0)
@@ -190,7 +232,9 @@ public static unsafe class RAclip
                 fv0[i] = RAlias.pfinalverts[ptri->VertIndex[i]];
 
                 if (ptri->FacesFront == 0 && (fv0[i].Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     fv0[i].V[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
             }
         }
 
@@ -202,11 +246,15 @@ public static unsafe class RAclip
         if ((clipflags & DIface.ALIAS_Z_CLIP) != 0)
         {
             for (int i = 0; i < 3; i++)
+            {
                 av[i] = RAlias.pauxverts[ptri->VertIndex[i]];
+            }
 
             k = AliasClip(fv0, fv1, DIface.ALIAS_Z_CLIP, 3, &ClipZ);
             if (k == 0)
+            {
                 return;
+            }
 
             pingpong = 1;
             clipflags = fv1[0].Flags | fv1[1].Flags | fv1[2].Flags;
@@ -219,49 +267,69 @@ public static unsafe class RAclip
 
         if ((clipflags & DIface.ALIAS_LEFT_CLIP) != 0)
         {
-            k = AliasClip(fv + pingpong * 8, fv + (pingpong ^ 1) * 8, DIface.ALIAS_LEFT_CLIP, k, &ClipLeft);
+            k = AliasClip(fv + (pingpong * 8), fv + ((pingpong ^ 1) * 8), DIface.ALIAS_LEFT_CLIP, k, &ClipLeft);
             if (k == 0)
+            {
                 return;
+            }
+
             pingpong ^= 1;
         }
 
         if ((clipflags & DIface.ALIAS_RIGHT_CLIP) != 0)
         {
-            k = AliasClip(fv + pingpong * 8, fv + (pingpong ^ 1) * 8, DIface.ALIAS_RIGHT_CLIP, k, &ClipRight);
+            k = AliasClip(fv + (pingpong * 8), fv + ((pingpong ^ 1) * 8), DIface.ALIAS_RIGHT_CLIP, k, &ClipRight);
             if (k == 0)
+            {
                 return;
+            }
+
             pingpong ^= 1;
         }
 
         if ((clipflags & DIface.ALIAS_BOTTOM_CLIP) != 0)
         {
-            k = AliasClip(fv + pingpong * 8, fv + (pingpong ^ 1) * 8, DIface.ALIAS_BOTTOM_CLIP, k, &ClipBottom);
+            k = AliasClip(fv + (pingpong * 8), fv + ((pingpong ^ 1) * 8), DIface.ALIAS_BOTTOM_CLIP, k, &ClipBottom);
             if (k == 0)
+            {
                 return;
+            }
+
             pingpong ^= 1;
         }
 
         if ((clipflags & DIface.ALIAS_TOP_CLIP) != 0)
         {
-            k = AliasClip(fv + pingpong * 8, fv + (pingpong ^ 1) * 8, DIface.ALIAS_TOP_CLIP, k, &ClipTop);
+            k = AliasClip(fv + (pingpong * 8), fv + ((pingpong ^ 1) * 8), DIface.ALIAS_TOP_CLIP, k, &ClipTop);
             if (k == 0)
+            {
                 return;
+            }
+
             pingpong ^= 1;
         }
 
-        FinalVert_t* fvPing = fv + pingpong * 8;
+        FinalVert_t* fvPing = fv + (pingpong * 8);
 
         for (int i = 0; i < k; i++)
         {
             if (fvPing[i].V[0] < RShared.r_refdef->AliasVrect.X)
+            {
                 fvPing[i].V[0] = RShared.r_refdef->AliasVrect.X;
+            }
             else if (fvPing[i].V[0] > RShared.r_refdef->AliasVrectRight)
+            {
                 fvPing[i].V[0] = RShared.r_refdef->AliasVrectRight;
+            }
 
             if (fvPing[i].V[1] < RShared.r_refdef->AliasVrect.Y)
+            {
                 fvPing[i].V[1] = RShared.r_refdef->AliasVrect.Y;
+            }
             else if (fvPing[i].V[1] > RShared.r_refdef->AliasVrectBottom)
+            {
                 fvPing[i].V[1] = RShared.r_refdef->AliasVrectBottom;
+            }
 
             fvPing[i].Flags = 0;
         }

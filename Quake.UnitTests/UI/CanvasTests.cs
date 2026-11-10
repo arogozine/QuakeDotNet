@@ -166,11 +166,13 @@ public sealed unsafe class CanvasTests
 
         // virtual (1,2) 2x1 -> physical x 5..8, y 5..6
         for (int y = 0; y < 64; y++)
+        {
             for (int x = 0; x < 64; x++)
             {
                 bool inside = x >= 5 && x < 9 && y >= 5 && y < 7;
-                Assert.AreEqual(inside ? (byte)7 : (byte)0, _buf[y * 64 + x], $"({x},{y})");
+                Assert.AreEqual(inside ? (byte)7 : (byte)0, _buf[(y * 64) + x], $"({x},{y})");
             }
+        }
     }
 
     [TestMethod]
@@ -180,9 +182,9 @@ public sealed unsafe class CanvasTests
 
         Draw.Fill(20, 20, 10, 10, 9); // physical 60..90 overflows the 64x64 buffer
 
-        Assert.AreEqual((byte)9, _buf[63 * 64 + 63]);
-        Assert.AreEqual((byte)9, _buf[60 * 64 + 60]);
-        Assert.AreEqual((byte)0, _buf[59 * 64 + 60]);
+        Assert.AreEqual((byte)9, _buf[(63 * 64) + 63]);
+        Assert.AreEqual((byte)9, _buf[(60 * 64) + 60]);
+        Assert.AreEqual((byte)0, _buf[(59 * 64) + 60]);
     }
 
     [TestMethod]
@@ -199,13 +201,13 @@ public sealed unsafe class CanvasTests
 
         Draw.Pic(0, 0, (QPic_t*)pic);
 
-        Assert.AreEqual((byte)1, _buf[1 * 64 + 1]);
-        Assert.AreEqual((byte)1, _buf[2 * 64 + 2]);
-        Assert.AreEqual((byte)2, _buf[1 * 64 + 3]);
-        Assert.AreEqual((byte)2, _buf[2 * 64 + 4]);
-        Assert.AreEqual((byte)3, _buf[3 * 64 + 1]);
-        Assert.AreEqual((byte)4, _buf[4 * 64 + 4]);
-        Assert.AreEqual((byte)0, _buf[1 * 64 + 5]); // past the 4x4 block
+        Assert.AreEqual((byte)1, _buf[(1 * 64) + 1]);
+        Assert.AreEqual((byte)1, _buf[(2 * 64) + 2]);
+        Assert.AreEqual((byte)2, _buf[(1 * 64) + 3]);
+        Assert.AreEqual((byte)2, _buf[(2 * 64) + 4]);
+        Assert.AreEqual((byte)3, _buf[(3 * 64) + 1]);
+        Assert.AreEqual((byte)4, _buf[(4 * 64) + 4]);
+        Assert.AreEqual((byte)0, _buf[(1 * 64) + 5]); // past the 4x4 block
         Assert.AreEqual((byte)0, _buf[0]);          // before the origin
     }
 
@@ -220,8 +222,8 @@ public sealed unsafe class CanvasTests
         Canvas.Scale = 2;
         Draw.Pic(31, 31, (QPic_t*)pic); // physical 62..65 -> clipped at 64
 
-        Assert.AreEqual((byte)5, _buf[63 * 64 + 63]);
-        Assert.AreEqual((byte)5, _buf[62 * 64 + 62]);
+        Assert.AreEqual((byte)5, _buf[(63 * 64) + 63]);
+        Assert.AreEqual((byte)5, _buf[(62 * 64) + 62]);
     }
 
     [TestMethod]
@@ -262,8 +264,13 @@ public sealed unsafe class CanvasTests
     public void Character_Scaled_ClippedAtTopDrawsVisibleRowsOnly()
     {
         for (int row = 0; row < 8; row++)
+        {
             for (int col = 0; col < 8; col++)
-                Draw.draw_chars[row * 128 + col] = 0xAB;
+            {
+                Draw.draw_chars[(row * 128) + col] = 0xAB;
+            }
+        }
+
         Canvas.Scale = 2;
 
         Draw.Character(0, -3, 0); // 5 visible source rows -> 10 physical rows
@@ -276,12 +283,17 @@ public sealed unsafe class CanvasTests
     public void Character_Scaled_OffscreenAboveReturns()
     {
         for (int i = 0; i < 8; i++)
+        {
             Draw.draw_chars[i] = 0xAA;
+        }
+
         Canvas.Scale = 2;
 
         Draw.Character(0, -8, 0);
 
         for (int i = 0; i < 64; i++)
+        {
             Assert.AreEqual((byte)0, _conBuf[i]);
+        }
     }
 }

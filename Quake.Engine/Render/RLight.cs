@@ -41,7 +41,9 @@ public static unsafe class RLight
     public static void MarkLights(DLight_t* light, int bit, MNode_t* node)
     {
         if (node->Contents < 0)
+        {
             return;
+        }
 
         MPlane_t* splitplane = node->Plane;
         float dist = Vector3.Dot(light->Origin, splitplane->Normal) - splitplane->Dist;
@@ -85,7 +87,10 @@ public static unsafe class RLight
         {
             DLight_t* l = &ClEntities.cl_dlights[i];
             if (l->Die < Cl.time || l->Radius == 0)
+            {
                 continue;
+            }
+
             MarkLights(l, 1 << i, Cl.worldmodel->Nodes);
         }
     }
@@ -94,7 +99,9 @@ public static unsafe class RLight
     public static int RecursiveLightPoint(MNode_t* node, Vec3_t start, Vec3_t end)
     {
         if (node->Contents < 0)
+        {
             return -1; // didn't hit anything
+        }
 
         // calculate mid point
 
@@ -105,42 +112,56 @@ public static unsafe class RLight
         int side = front < 0 ? 1 : 0;
 
         if ((back < 0 ? 1 : 0) == side)
+        {
             return RecursiveLightPoint(node->Children[side], start, end);
+        }
 
         float frac = front / (front - back);
-        Vec3_t mid = start + (end - start) * frac;
+        Vec3_t mid = start + ((end - start) * frac);
 
         // go down front side
         int r = RecursiveLightPoint(node->Children[side], start, mid);
         if (r >= 0)
+        {
             return r; // hit something
+        }
 
         if ((back < 0 ? 1 : 0) == side)
+        {
             return -1; // didn't hit anything
+        }
 
         // check for impact on this node
         MSurface_t* surf = Cl.worldmodel->Surfaces + node->FirstSurface;
         for (int i = 0; i < node->NumSurfaces; i++, surf++)
         {
             if ((surf->Flags & Surf.DRAWTILED) != 0)
+            {
                 continue; // no lightmaps
+            }
 
             MTexInfo_t* tex = surf->TexInfo;
 
-            int s = (int)(mid[0] * tex->Vecs[0] + mid[1] * tex->Vecs[1] + mid[2] * tex->Vecs[2] + tex->Vecs[3]);
-            int t = (int)(mid[0] * tex->Vecs[4] + mid[1] * tex->Vecs[5] + mid[2] * tex->Vecs[6] + tex->Vecs[7]);
+            int s = (int)((mid[0] * tex->Vecs[0]) + (mid[1] * tex->Vecs[1]) + (mid[2] * tex->Vecs[2]) + tex->Vecs[3]);
+            int t = (int)((mid[0] * tex->Vecs[4]) + (mid[1] * tex->Vecs[5]) + (mid[2] * tex->Vecs[6]) + tex->Vecs[7]);
 
             if (s < surf->TextureMins[0] || t < surf->TextureMins[1])
+            {
                 continue;
+            }
 
             int ds = s - surf->TextureMins[0];
             int dt = t - surf->TextureMins[1];
 
             if (ds > surf->Extents[0] || dt > surf->Extents[1])
+            {
                 continue;
+            }
 
             if (surf->Samples == null)
+            {
                 return 0;
+            }
 
             ds >>= 4;
             dt >>= 4;
@@ -148,7 +169,7 @@ public static unsafe class RLight
             byte* lightmap = surf->Samples;
             r = 0;
 
-            lightmap += dt * ((surf->Extents[0] >> 4) + 1) + ds;
+            lightmap += (dt * ((surf->Extents[0] >> 4) + 1)) + ds;
 
             for (int maps = 0; maps < BspFile.MAXLIGHTMAPS && surf->Styles[maps] != 255; maps++)
             {
@@ -170,7 +191,9 @@ public static unsafe class RLight
     public static int LightPoint(Vec3_t* p)
     {
         if (Cl.worldmodel->LightData == null)
+        {
             return 255;
+        }
 
         Vec3_t end = *p;
         end[2] = (*p)[2] - 8192;  //johnfitz -- was 2048
@@ -178,10 +201,14 @@ public static unsafe class RLight
         int r = RecursiveLightPoint(Cl.worldmodel->Nodes, *p, end);
 
         if (r == -1)
+        {
             r = 0;
+        }
 
         if (r < RShared.r_refdef->AmbientLight)
+        {
             r = RShared.r_refdef->AmbientLight;
+        }
 
         return r;
     }

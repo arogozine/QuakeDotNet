@@ -21,9 +21,16 @@ public unsafe class TransPicBenchmarks
     public void Setup()
     {
         _src = NativeMemory.AllocArray<byte>(Width * H); _a = NativeMemory.AllocArrayZeroed<byte>(Width * H); _b = NativeMemory.AllocArrayZeroed<byte>(Width * H);
-        Random r = new(1); for (int i = 0; i < Width * H; i++) _src[i] = r.Next(3) == 0 ? (byte)255 : (byte)r.Next(255);
+        Random r = new(1); for (int i = 0; i < Width * H; i++)
+        {
+            _src[i] = r.Next(3) == 0 ? (byte)255 : (byte)r.Next(255);
+        }
+
         Orig(); New();
-        if (!new ReadOnlySpan<byte>(_a, Width * H).SequenceEqual(new ReadOnlySpan<byte>(_b, Width * H))) throw new Exception("mismatch");
+        if (!new ReadOnlySpan<byte>(_a, Width * H).SequenceEqual(new ReadOnlySpan<byte>(_b, Width * H)))
+        {
+            throw new Exception("mismatch");
+        }
     }
 
     [GlobalCleanup] public void Cleanup() { NativeMemory.Free(_src); NativeMemory.Free(_a); NativeMemory.Free(_b); }
@@ -33,11 +40,23 @@ public unsafe class TransPicBenchmarks
     void Orig()
     {
         for (int v = 0; v < H; v++)
+        {
             for (int u = 0; u < Width; u += 8)
-                for (int k = 0; k < 8; k++) { byte t = _src[v * Width + u + k]; if (t != 255) _a[v * Width + u + k] = t; }
+            {
+                for (int k = 0; k < 8; k++) { byte t = _src[(v * Width) + u + k]; if (t != 255)
+                    {
+                        _a[(v * Width) + u + k] = t;
+                    }
+                }
+            }
+        }
     }
 
-    void New() { for (int v = 0; v < H; v++) DrawSimd.TransRow(_b + v * Width, _src + v * Width, Width, 255); }
+    void New() { for (int v = 0; v < H; v++)
+        {
+            DrawSimd.TransRow(_b + (v * Width), _src + (v * Width), Width, 255);
+        }
+    }
 
     [Benchmark(Baseline = true)] public void Original() => Orig();
 

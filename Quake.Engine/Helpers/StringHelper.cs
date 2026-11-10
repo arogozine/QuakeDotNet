@@ -22,6 +22,8 @@ internal static unsafe class StringHelper
     {
         int l = Q.StrLen(buf);
         if (l != 0)
+        {
             buf[l - 1] = 0;
+        }
     }
 }

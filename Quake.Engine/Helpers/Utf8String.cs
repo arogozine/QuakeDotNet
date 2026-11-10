@@ -21,7 +21,10 @@ public unsafe readonly struct Utf8String
             byte* index = _str;
             int i = 0;
 
-            while (*index++ != 0) i++;
+            while (*index++ != 0)
+            {
+                i++;
+            }
 
             return i;
         }
@@ -77,13 +80,22 @@ public unsafe readonly struct Utf8String
     private static bool ContentEquals(byte* a, byte* b)
     {
         if (a == b)
+        {
             return true;
+        }
+
         if (a == null || b == null)
+        {
             return false;
+        }
+
         while (*a == *b)
         {
             if (*a == 0)
+            {
                 return true;
+            }
+
             a++;
             b++;
         }
@@ -95,10 +107,16 @@ public unsafe readonly struct Utf8String
     public override int GetHashCode()
     {
         if (_str == null)
+        {
             return 0;
+        }
+
         HashCode h = default;
         for (byte* p = _str; *p != 0; p++)
+        {
             h.Add(*p);
+        }
+
         return h.ToHashCode();
     }
 

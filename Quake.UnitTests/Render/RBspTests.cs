@@ -111,7 +111,9 @@ public sealed unsafe class RBspTests
     public void RecursiveWorldNode_ClipFlagsRejectNodeOutsideFrustum()
     {
         for (int i = 0; i < 4; i++)
+        {
             RMain.view_clipplanes[i] = default;
+        }
 
         // Plane 0: require x >= 100 to not be rejected.
         RMain.view_clipplanes[0].Normal[0] = 1;
@@ -128,7 +130,9 @@ public sealed unsafe class RBspTests
         node.Contents = 0;
         node.VisFrame = RMain.r_visframecount;
         for (int i = 0; i < 6; i++)
+        {
             node.MinMaxs[i] = 0; // a box at the origin, entirely < x=100
+        }
 
         RBsp.RecursiveWorldNode(&node, 0b1); // only clip against plane 0
 
@@ -150,7 +154,11 @@ public sealed unsafe class RBspTests
         float[] savedRot = [rot[0], rot[1], rot[2], rot[3], rot[4], rot[5], rot[6], rot[7], rot[8]];
         try
         {
-            for (int i = 0; i < 9; i++) rot[i] = (i % 4 == 0) ? 1f : 0f; // identity
+            for (int i = 0; i < 9; i++)
+            {
+                rot[i] = (i % 4 == 0) ? 1f : 0f; // identity
+            }
+
             RMain.r_entorigin = default;
 
             MPlane_t plane = default;
@@ -191,7 +199,10 @@ public sealed unsafe class RBspTests
             RBsp.pbverts = savedVerts; RBsp.pbedges = savedEdges;
             RBsp.numbverts = savedNumV; RBsp.numbedges = savedNumE;
             RMain.r_entorigin = savedOrigin;
-            for (int i = 0; i < 9; i++) rot[i] = savedRot[i];
+            for (int i = 0; i < 9; i++)
+            {
+                rot[i] = savedRot[i];
+            }
         }
     }
 }

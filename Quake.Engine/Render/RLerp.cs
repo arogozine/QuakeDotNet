@@ -55,13 +55,15 @@ public static unsafe class RLerp
             float fullinterval = pintervals[numframes - 1];
 
             double time = Cl.time + e->SyncBase;
-            float targettime = (float)(time - (int)(time / fullinterval) * fullinterval);
+            float targettime = (float)(time - ((int)(time / fullinterval) * fullinterval));
 
             int j;
             for (j = 0; j < numframes - 1; j++)
             {
                 if (pintervals[j] > targettime)
+                {
                     break;
+                }
             }
 
             MAliasGroupFrameDesc_t* groupframes = &paliasgroup->Frames;
@@ -150,16 +152,23 @@ public static unsafe class RLerp
             float blend = Math.Clamp(((float)Cl.time - e->MoveLerpStart) / 0.1f, 0, 1);
 
             // translation
-            e->Origin = e->PreviousOrigin + (e->CurrentOrigin - e->PreviousOrigin) * blend;
+            e->Origin = e->PreviousOrigin + ((e->CurrentOrigin - e->PreviousOrigin) * blend);
 
             // rotation
             Vec3_t d = e->CurrentAngles - e->PreviousAngles;
             for (int i = 0; i < 3; i++)
             {
-                if (d[i] > 180) d[i] -= 360;
-                if (d[i] < -180) d[i] += 360;
+                if (d[i] > 180)
+                {
+                    d[i] -= 360;
+                }
+
+                if (d[i] < -180)
+                {
+                    d[i] += 360;
+                }
             }
-            e->Angles = e->PreviousAngles + d * blend;
+            e->Angles = e->PreviousAngles + (d * blend);
         }
         // else: don't lerp -- origin/angles already hold the unlerped values
     }

@@ -208,16 +208,16 @@ public static unsafe class RAlias
         float* basepts = stackalloc float[8 * 3];
 
         // x worldspace coordinates
-        basepts[0 * 3 + 0] = basepts[1 * 3 + 0] = basepts[2 * 3 + 0] = basepts[3 * 3 + 0] = pframedesc->BboxMin.V[0];
-        basepts[4 * 3 + 0] = basepts[5 * 3 + 0] = basepts[6 * 3 + 0] = basepts[7 * 3 + 0] = pframedesc->BboxMax.V[0];
+        basepts[(0 * 3) + 0] = basepts[(1 * 3) + 0] = basepts[(2 * 3) + 0] = basepts[(3 * 3) + 0] = pframedesc->BboxMin.V[0];
+        basepts[(4 * 3) + 0] = basepts[(5 * 3) + 0] = basepts[(6 * 3) + 0] = basepts[(7 * 3) + 0] = pframedesc->BboxMax.V[0];
 
         // y worldspace coordinates
-        basepts[0 * 3 + 1] = basepts[3 * 3 + 1] = basepts[5 * 3 + 1] = basepts[6 * 3 + 1] = pframedesc->BboxMin.V[1];
-        basepts[1 * 3 + 1] = basepts[2 * 3 + 1] = basepts[4 * 3 + 1] = basepts[7 * 3 + 1] = pframedesc->BboxMax.V[1];
+        basepts[(0 * 3) + 1] = basepts[(3 * 3) + 1] = basepts[(5 * 3) + 1] = basepts[(6 * 3) + 1] = pframedesc->BboxMin.V[1];
+        basepts[(1 * 3) + 1] = basepts[(2 * 3) + 1] = basepts[(4 * 3) + 1] = basepts[(7 * 3) + 1] = pframedesc->BboxMax.V[1];
 
         // z worldspace coordinates
-        basepts[0 * 3 + 2] = basepts[1 * 3 + 2] = basepts[4 * 3 + 2] = basepts[5 * 3 + 2] = pframedesc->BboxMin.V[2];
-        basepts[2 * 3 + 2] = basepts[3 * 3 + 2] = basepts[6 * 3 + 2] = basepts[7 * 3 + 2] = pframedesc->BboxMax.V[2];
+        basepts[(0 * 3) + 2] = basepts[(1 * 3) + 2] = basepts[(4 * 3) + 2] = basepts[(5 * 3) + 2] = pframedesc->BboxMin.V[2];
+        basepts[(2 * 3) + 2] = basepts[(3 * 3) + 2] = basepts[(6 * 3) + 2] = basepts[(7 * 3) + 2] = pframedesc->BboxMax.V[2];
 
         bool zclipped = false;
         bool zfullyclipped = true;
@@ -242,14 +242,19 @@ public static unsafe class RAlias
             else
             {
                 if (vz < minz)
+                {
                     minz = (int)vz;
+                }
+
                 viewpts[i].Flags = 0;
                 zfullyclipped = false;
             }
         }
 
         if (zfullyclipped)
+        {
             return false; // everything was near-z-clipped
+        }
 
         int numv = 8;
 
@@ -268,7 +273,7 @@ public static unsafe class RAlias
                 if ((pv0->Flags ^ pv1->Flags) != 0)
                 {
                     float frac = (RLocal.ALIAS_Z_CLIP_PLANE - pa0->Z) / (pa1->Z - pa0->Z);
-                    Vector3 interp = *pa0 + (*pa1 - *pa0) * frac;
+                    Vector3 interp = *pa0 + ((*pa1 - *pa0) * frac);
                     interp.Z = RLocal.ALIAS_Z_CLIP_PLANE;
                     viewaux[numv] = interp;
                     viewpts[numv].Flags = 0;
@@ -286,39 +291,56 @@ public static unsafe class RAlias
         {
             // we don't need to bother with vertices that were z-clipped
             if ((viewpts[i].Flags & DIface.ALIAS_Z_CLIP) != 0)
+            {
                 continue;
+            }
 
             Vector3 va = viewaux[i];
             float zi = 1.0f / va.Z;
 
             // FIXME (original comment): do with chop mode in ASM, or convert to float
-            float v0 = va.X * RMain.aliasxscale * zi + RMain.aliasxcenter;
-            float v1 = va.Y * RMain.aliasyscale * zi + RMain.aliasycenter;
+            float v0 = (va.X * RMain.aliasxscale * zi) + RMain.aliasxcenter;
+            float v1 = (va.Y * RMain.aliasyscale * zi) + RMain.aliasycenter;
 
             int flags = 0;
 
             if (v0 < RShared.r_refdef->FVrectx)
+            {
                 flags |= DIface.ALIAS_LEFT_CLIP;
+            }
+
             if (v1 < RShared.r_refdef->FVrecty)
+            {
                 flags |= DIface.ALIAS_TOP_CLIP;
+            }
+
             if (v0 > RShared.r_refdef->FVrectRight)
+            {
                 flags |= DIface.ALIAS_RIGHT_CLIP;
+            }
+
             if (v1 > RShared.r_refdef->FVrectBottom)
+            {
                 flags |= DIface.ALIAS_BOTTOM_CLIP;
+            }
 
             anyclip |= flags;
             allclip &= flags;
         }
 
         if (allclip != 0)
+        {
             return false; // trivial reject off one side
+        }
 
         currententity->TrivialAccept = (anyclip == 0 ? 1 : 0) & (zclipped ? 0 : 1);
 
         if (currententity->TrivialAccept != 0)
         {
-            if (minz > RMain.r_aliastransition + pmdl->Size * RMain.r_resfudge)
+            if (minz > RMain.r_aliastransition + (pmdl->Size * RMain.r_resfudge))
+            {
                 currententity->TrivialAccept |= 2;
+            }
         }
 
         return true;
@@ -331,9 +353,9 @@ public static unsafe class RAlias
         float i0 = in_[0], i1 = in_[1], i2 = in_[2];
 
         *out_ = new Vector3(
-            i0 * aliastransform[0] + i1 * aliastransform[1] + i2 * aliastransform[2] + aliastransform[3],
-            i0 * aliastransform[4] + i1 * aliastransform[5] + i2 * aliastransform[6] + aliastransform[7],
-            i0 * aliastransform[8] + i1 * aliastransform[9] + i2 * aliastransform[10] + aliastransform[11]);
+            (i0 * aliastransform[0]) + (i1 * aliastransform[1]) + (i2 * aliastransform[2]) + aliastransform[3],
+            (i0 * aliastransform[4]) + (i1 * aliastransform[5]) + (i2 * aliastransform[6]) + aliastransform[7],
+            (i0 * aliastransform[8]) + (i1 * aliastransform[9]) + (i2 * aliastransform[10]) + aliastransform[11]);
     }
 
     // R_AliasPreparePoints
@@ -349,23 +371,41 @@ public static unsafe class RAlias
         for (int i = 0; i < r_anumverts; i++, fv++, av++, r_apverts++, lv++, pstverts++)
         {
             if (r_alerping)
+            {
                 TransformFinalVertLerp(fv, av, lv, pstverts);
+            }
             else
+            {
                 TransformFinalVert(fv, av, r_apverts, pstverts);
+            }
+
             if (av->Z < RLocal.ALIAS_Z_CLIP_PLANE)
+            {
                 fv->Flags |= DIface.ALIAS_Z_CLIP;
+            }
             else
             {
                 ProjectFinalVert(fv, av);
 
                 if (fv->V[0] < RShared.r_refdef->AliasVrect.X)
+                {
                     fv->Flags |= DIface.ALIAS_LEFT_CLIP;
+                }
+
                 if (fv->V[1] < RShared.r_refdef->AliasVrect.Y)
+                {
                     fv->Flags |= DIface.ALIAS_TOP_CLIP;
+                }
+
                 if (fv->V[0] > RShared.r_refdef->AliasVrectRight)
+                {
                     fv->Flags |= DIface.ALIAS_RIGHT_CLIP;
+                }
+
                 if (fv->V[1] > RShared.r_refdef->AliasVrectBottom)
+                {
                     fv->Flags |= DIface.ALIAS_BOTTOM_CLIP;
+                }
             }
         }
 
@@ -380,7 +420,9 @@ public static unsafe class RAlias
             FinalVert_t* pfv2 = &pfinalverts[ptri->VertIndex[2]];
 
             if ((pfv0->Flags & pfv1->Flags & pfv2->Flags & (DIface.ALIAS_XY_CLIP_MASK | DIface.ALIAS_Z_CLIP)) != 0)
+            {
                 continue; // completely clipped
+            }
 
             if (((pfv0->Flags | pfv1->Flags | pfv2->Flags) & (DIface.ALIAS_XY_CLIP_MASK | DIface.ALIAS_Z_CLIP)) == 0)
             {
@@ -422,25 +464,25 @@ public static unsafe class RAlias
         float* rotationmatrix = stackalloc float[3 * 4];
         float* t2matrix = stackalloc float[3 * 4];
 
-        tmatrix[0 * 4 + 0] = pmdl->Scale[0];
-        tmatrix[1 * 4 + 1] = pmdl->Scale[1];
-        tmatrix[2 * 4 + 2] = pmdl->Scale[2];
+        tmatrix[(0 * 4) + 0] = pmdl->Scale[0];
+        tmatrix[(1 * 4) + 1] = pmdl->Scale[1];
+        tmatrix[(2 * 4) + 2] = pmdl->Scale[2];
 
-        tmatrix[0 * 4 + 3] = pmdl->ScaleOrigin[0];
-        tmatrix[1 * 4 + 3] = pmdl->ScaleOrigin[1];
-        tmatrix[2 * 4 + 3] = pmdl->ScaleOrigin[2];
+        tmatrix[(0 * 4) + 3] = pmdl->ScaleOrigin[0];
+        tmatrix[(1 * 4) + 3] = pmdl->ScaleOrigin[1];
+        tmatrix[(2 * 4) + 3] = pmdl->ScaleOrigin[2];
 
         // TODO (original comment): can do this with simple matrix rearrangement
         for (int i = 0; i < 3; i++)
         {
-            t2matrix[i * 4 + 0] = alias_forward[i];
-            t2matrix[i * 4 + 1] = -alias_right[i];
-            t2matrix[i * 4 + 2] = alias_up[i];
+            t2matrix[(i * 4) + 0] = alias_forward[i];
+            t2matrix[(i * 4) + 1] = -alias_right[i];
+            t2matrix[(i * 4) + 2] = alias_up[i];
         }
 
-        t2matrix[0 * 4 + 3] = -RShared.modelorg[0];
-        t2matrix[1 * 4 + 3] = -RShared.modelorg[1];
-        t2matrix[2 * 4 + 3] = -RShared.modelorg[2];
+        t2matrix[(0 * 4) + 3] = -RShared.modelorg[0];
+        t2matrix[(1 * 4) + 3] = -RShared.modelorg[1];
+        t2matrix[(2 * 4) + 3] = -RShared.modelorg[2];
 
         // FIXME (original comment): can do more efficiently than full concatenation
         MathLib.R_ConcatTransforms(t2matrix, tmatrix, rotationmatrix);
@@ -462,9 +504,9 @@ public static unsafe class RAlias
         {
             for (int i = 0; i < 4; i++)
             {
-                aliastransform[0 * 4 + i] *= RMain.aliasxscale * (1.0f / ((float)0x8000 * 0x10000));
-                aliastransform[1 * 4 + i] *= RMain.aliasyscale * (1.0f / ((float)0x8000 * 0x10000));
-                aliastransform[2 * 4 + i] *= 1.0f / ((float)0x8000 * 0x10000);
+                aliastransform[(0 * 4) + i] *= RMain.aliasxscale * (1.0f / ((float)0x8000 * 0x10000));
+                aliastransform[(1 * 4) + i] *= RMain.aliasyscale * (1.0f / ((float)0x8000 * 0x10000));
+                aliastransform[(2 * 4) + i] *= 1.0f / ((float)0x8000 * 0x10000);
             }
         }
     }
@@ -486,9 +528,9 @@ public static unsafe class RAlias
         float v0 = pverts->V[0], v1 = pverts->V[1], v2 = pverts->V[2];
 
         *av = new Vector3(
-            v0 * aliastransform[0] + v1 * aliastransform[1] + v2 * aliastransform[2] + aliastransform[3],
-            v0 * aliastransform[4] + v1 * aliastransform[5] + v2 * aliastransform[6] + aliastransform[7],
-            v0 * aliastransform[8] + v1 * aliastransform[9] + v2 * aliastransform[10] + aliastransform[11]);
+            (v0 * aliastransform[0]) + (v1 * aliastransform[1]) + (v2 * aliastransform[2]) + aliastransform[3],
+            (v0 * aliastransform[4]) + (v1 * aliastransform[5]) + (v2 * aliastransform[6]) + aliastransform[7],
+            (v0 * aliastransform[8]) + (v1 * aliastransform[9]) + (v2 * aliastransform[10]) + aliastransform[11]);
 
         fv->V[2] = pstverts->S;
         fv->V[3] = pstverts->T;
@@ -506,7 +548,9 @@ public static unsafe class RAlias
             // clamp; because we limited the minimum ambient and shading light, we
             // don't have to clamp low light, just bright
             if (temp < 0)
+            {
                 temp = 0;
+            }
         }
 
         fv->V[4] = temp;
@@ -520,9 +564,9 @@ public static unsafe class RAlias
         float v0 = pverts->V.X, v1 = pverts->V.Y, v2 = pverts->V.Z;
 
         *av = new Vector3(
-            v0 * aliastransform[0] + v1 * aliastransform[1] + v2 * aliastransform[2] + aliastransform[3],
-            v0 * aliastransform[4] + v1 * aliastransform[5] + v2 * aliastransform[6] + aliastransform[7],
-            v0 * aliastransform[8] + v1 * aliastransform[9] + v2 * aliastransform[10] + aliastransform[11]);
+            (v0 * aliastransform[0]) + (v1 * aliastransform[1]) + (v2 * aliastransform[2]) + aliastransform[3],
+            (v0 * aliastransform[4]) + (v1 * aliastransform[5]) + (v2 * aliastransform[6]) + aliastransform[7],
+            (v0 * aliastransform[8]) + (v1 * aliastransform[9]) + (v2 * aliastransform[10]) + aliastransform[11]);
 
         fv->V[2] = pstverts->S;
         fv->V[3] = pstverts->T;
@@ -542,7 +586,9 @@ public static unsafe class RAlias
         {
             temp += (int)(r_shadelight * lightcos);
             if (temp < 0)
+            {
                 temp = 0;
+            }
         }
 
         lightcos = Vector3.Dot(r_avertexnormals[pverts->LastLightNormal], r_plightvec) * (1.0f - pverts->Blend);
@@ -550,7 +596,9 @@ public static unsafe class RAlias
         {
             temp += (int)(r_shadelight * lightcos);
             if (temp < 0)
+            {
                 temp = 0;
+            }
         }
 
         return temp;
@@ -579,8 +627,8 @@ public static unsafe class RAlias
         {
             // transform and project
             Vector3 t = lerping
-                ? lverts->V.X * col0 + lverts->V.Y * col1 + lverts->V.Z * col2 + col3
-                : pverts->V[0] * col0 + pverts->V[1] * col1 + pverts->V[2] * col2 + col3;
+                ? (lverts->V.X * col0) + (lverts->V.Y * col1) + (lverts->V.Z * col2) + col3
+                : (pverts->V[0] * col0) + (pverts->V[1] * col1) + (pverts->V[2] * col2) + col3;
             float zi = 1.0f / t.Z;
 
             // x, y, and z are scaled down by 1/2**31 in the transform, so 1/z is
@@ -610,7 +658,9 @@ public static unsafe class RAlias
                 temp += (int)(r_shadelight * lightcos);
 
                 if (temp < 0)
+                {
                     temp = 0;
+                }
             }
 
             fv->V[4] = temp;
@@ -625,8 +675,8 @@ public static unsafe class RAlias
 
         fv->V[5] = float.ConvertToIntegerNative<int>(zi * ziscale);
 
-        fv->V[0] = float.ConvertToIntegerNative<int>(av->X * RMain.aliasxscale * zi + RMain.aliasxcenter);
-        fv->V[1] = float.ConvertToIntegerNative<int>(av->Y * RMain.aliasyscale * zi + RMain.aliasycenter);
+        fv->V[0] = float.ConvertToIntegerNative<int>((av->X * RMain.aliasxscale * zi) + RMain.aliasxcenter);
+        fv->V[1] = float.ConvertToIntegerNative<int>((av->Y * RMain.aliasyscale * zi) + RMain.aliasycenter);
     }
 
     // R_AliasPrepareUnclippedPoints
@@ -640,7 +690,9 @@ public static unsafe class RAlias
         TransformAndProjectFinalVerts(fv, pstverts);
 
         if (DIface.r_affinetridesc.DrawType != 0)
+        {
             DPolyse.PolysetDrawFinalVerts(fv, r_anumverts);
+        }
 
         DIface.r_affinetridesc.PFinalVerts = pfinalverts;
         DIface.r_affinetridesc.PTriangles = (MTriangle_t*)((byte*)paliashdr + paliashdr->Triangles);
@@ -675,13 +727,15 @@ public static unsafe class RAlias
 
             // when loading in Mod_LoadAliasSkinGroup, we guaranteed all interval
             // values are positive, so we don't have to worry about division by 0
-            float skintargettime = (float)(skintime - (int)(skintime / fullskininterval) * fullskininterval);
+            float skintargettime = (float)(skintime - ((int)(skintime / fullskininterval) * fullskininterval));
 
             int i;
             for (i = 0; i < numskins - 1; i++)
             {
                 if (pskinintervals[i] > skintargettime)
+                {
                     break;
+                }
             }
 
             MAliasSkinDesc_t* skindescs = &paliasskingroup->SkinDescs;
@@ -703,17 +757,23 @@ public static unsafe class RAlias
         r_ambientlight = plighting->AmbientLight;
 
         if (r_ambientlight < LIGHT_MIN)
+        {
             r_ambientlight = LIGHT_MIN;
+        }
 
         r_ambientlight = (255 - r_ambientlight) << Vid.VID_CBITS;
 
         if (r_ambientlight < LIGHT_MIN)
+        {
             r_ambientlight = LIGHT_MIN;
+        }
 
         r_shadelight = plighting->ShadeLight;
 
         if (r_shadelight < 0)
+        {
             r_shadelight = 0;
+        }
 
         r_shadelight *= Vid.VID_GRADES;
 
@@ -762,9 +822,9 @@ public static unsafe class RAlias
         // perform the lerp
         for (int i = 0; i < pmdl->NumVerts; i++, currverts++, lastverts++, lv++)
         {
-            lv->V.X = currverts->V[0] * blend + lastverts->V[0] * (1.0f - blend);
-            lv->V.Y = currverts->V[1] * blend + lastverts->V[1] * (1.0f - blend);
-            lv->V.Z = currverts->V[2] * blend + lastverts->V[2] * (1.0f - blend);
+            lv->V.X = (currverts->V[0] * blend) + (lastverts->V[0] * (1.0f - blend));
+            lv->V.Y = (currverts->V[1] * blend) + (lastverts->V[1] * (1.0f - blend));
+            lv->V.Z = (currverts->V[2] * blend) + (lastverts->V[2] * (1.0f - blend));
             lv->CurrLightNormal = currverts->LightNormalIndex;
             lv->LastLightNormal = lastverts->LightNormalIndex;
             lv->Blend = blend;
@@ -808,7 +868,9 @@ public static unsafe class RAlias
         SetupLighting(plighting);
 
         if (currententity->ColorMap == null)
+        {
             Sys.Error("R_AliasDrawModel: !currententity->colormap"u8);
+        }
 
         DIface.r_affinetridesc.DrawType = currententity->TrivialAccept == 3 && DIface.r_recursiveaffinetriangles ? 1 : 0;
 
@@ -823,14 +885,22 @@ public static unsafe class RAlias
 
         Entity_t* viewent = Cl.viewent;
         if (currententity != viewent)
+        {
             ziscale = (float)0x8000 * (float)0x10000;
+        }
         else
+        {
             ziscale = (float)0x8000 * (float)0x10000 * 3.0f;
+        }
 
         if (currententity->TrivialAccept != 0)
+        {
             PrepareUnclippedPoints();
+        }
         else
+        {
             PreparePoints();
+        }
     }
 
 }

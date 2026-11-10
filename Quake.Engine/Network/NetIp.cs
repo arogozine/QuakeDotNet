@@ -74,7 +74,10 @@ public static unsafe class NetIp
     {
         int n = Math.Min(s.Length, maxLen);
         for (int i = 0; i < n; i++)
+        {
             dest[i] = (byte)s[i];
+        }
+
         dest[n] = 0;
     }
 
@@ -87,7 +90,10 @@ public static unsafe class NetIp
         a.Family = AF_INET;
         byte[] b = ep.Address.GetAddressBytes();
         if (b.Length != 4)
+        {
             b = new byte[4];
+        }
+
         a.AddrNet = BitConverter.ToUInt32(b, 0);
         a.PortNet = (ushort)IPAddress.HostToNetworkOrder((short)ep.Port);
         return a;
@@ -108,7 +114,9 @@ public static unsafe class NetIp
     public static int Init()
     {
         if (Com.CheckParm("-noudp"u8) != 0)
+        {
             return -1;
+        }
 
         // determine my name
         string hostName;
@@ -131,11 +139,16 @@ public static unsafe class NetIp
             {
                 byte* ipArg = Com.com_argv[i + 1];
                 if (!IPAddress.TryParse(CStr.ToString(ipArg), out myAddr!))
+                {
                     Sys.Error($"{ipArg} is not a valid IP address");
+                }
+
                 my_tcpip_address = ipArg;
             }
             else
+            {
                 Sys.Error("NET_Init: you must specify an IP address after -ip"u8);
+            }
         }
         else
         {
@@ -174,14 +187,23 @@ public static unsafe class NetIp
         if (state)
         {
             if (net_acceptsocket != -1)
+            {
                 return;
+            }
+
             if ((net_acceptsocket = OpenSocket(Net.net_hostport)) == -1)
+            {
                 Sys.Error("WINS_Listen: Unable to open accept socket\n"u8);
+            }
+
             return;
         }
 
         if (net_acceptsocket == -1)
+        {
             return;
+        }
+
         CloseSocket(net_acceptsocket);
         net_acceptsocket = -1;
     }
@@ -210,7 +232,9 @@ public static unsafe class NetIp
     public static int CloseSocket(int socket)
     {
         if (socket == net_broadcastsocket)
+        {
             net_broadcastsocket = 0;
+        }
 
         if (sockets.Remove(socket, out Socket? sock))
         {
@@ -243,35 +267,52 @@ public static unsafe class NetIp
             int num = 0, digits = 0;
             while (idx < s.Length && s[idx] is >= '0' and <= '9')
             {
-                num = num * 10 + (s[idx] - '0');
+                num = (num * 10) + (s[idx] - '0');
                 idx++;
                 if (++digits > 3)
+                {
                     return -1;
+                }
             }
             if (idx < s.Length && s[idx] != '.' && s[idx] != ':' && (s[idx] is < '0' or > '9'))
+            {
                 return -1;
+            }
+
             if (num is < 0 or > 255)
+            {
                 return -1;
+            }
+
             octets.Add(num);
         }
 
         if (octets.Count > 4)
+        {
             octets = octets[^4..];
+        }
 
         int port = Net.net_hostport;
         if (idx < s.Length && s[idx] == ':')
         {
             if (!int.TryParse(s[(idx + 1)..], out port))
+            {
                 port = Net.net_hostport;
+            }
         }
 
         byte[] baseOctets = myAddr.GetAddressBytes();
         if (baseOctets.Length != 4)
+        {
             baseOctets = new byte[4];
+        }
+
         byte[] result = (byte[])baseOctets.Clone();
         int fillStart = 4 - octets.Count;
         for (int i = 0; i < octets.Count; i++)
+        {
             result[fillStart + i] = (byte)octets[i];
+        }
 
         *hostaddr = FromEndPoint(new IPEndPoint(new IPAddress(result), port));
         return 0;
@@ -287,9 +328,15 @@ public static unsafe class NetIp
     public static int CheckNewConnections()
     {
         if (net_acceptsocket == -1)
+        {
             return -1;
+        }
+
         if (sockets.TryGetValue(net_acceptsocket, out Socket? sock) && sock.Available > 0)
+        {
             return net_acceptsocket;
+        }
+
         return -1;
     }
 
@@ -297,10 +344,14 @@ public static unsafe class NetIp
     public static int Read(int socket, byte* buf, int len, QSockAddr_t* addr)
     {
         if (!sockets.TryGetValue(socket, out Socket? sock))
+        {
             return -1;
+        }
 
         if (sock.Available == 0)
+        {
             return 0;
+        }
 
         EndPoint remote = new IPEndPoint(IPAddress.Any, 0);
         int ret;
@@ -318,7 +369,9 @@ public static unsafe class NetIp
         }
 
         if (addr != null)
+        {
             *addr = FromEndPoint((IPEndPoint)remote);
+        }
 
         return ret;
     }
@@ -326,7 +379,10 @@ public static unsafe class NetIp
     private static int MakeSocketBroadcastCapable(int socket)
     {
         if (!sockets.TryGetValue(socket, out Socket? sock))
+        {
             return -1;
+        }
+
         try { sock.EnableBroadcast = true; }
         catch { return -1; }
         net_broadcastsocket = socket;
@@ -339,7 +395,10 @@ public static unsafe class NetIp
         if (socket != net_broadcastsocket)
         {
             if (net_broadcastsocket != 0)
+            {
                 Sys.Error("Attempted to use multiple broadcasts sockets\n"u8);
+            }
+
             if (MakeSocketBroadcastCapable(socket) == -1)
             {
                 Con.Printf("Unable to make socket broadcast capable\n"u8);
@@ -354,7 +413,9 @@ public static unsafe class NetIp
     public static int Write(int socket, byte* buf, int len, QSockAddr_t* addr)
     {
         if (!sockets.TryGetValue(socket, out Socket? sock))
+        {
             return -1;
+        }
 
         IPEndPoint ep = ToEndPoint(*addr);
         try
@@ -383,7 +444,9 @@ public static unsafe class NetIp
         {
             *addr = FromEndPoint(ep);
             if (addr->AddrNet == 0 || Equals(ep.Address, IPAddress.Loopback))
+            {
                 addr->AddrNet = BitConverter.ToUInt32(myAddr.GetAddressBytes(), 0);
+            }
         }
         return 0;
     }
@@ -412,14 +475,19 @@ public static unsafe class NetIp
     {
         string name = CStr.ToString(nameBytes);
         if (name.Length > 0 && name[0] is >= '0' and <= '9')
+        {
             return PartialIPAddress(name, addr);
+        }
 
         try
         {
             IPAddress[] addrs = Dns.GetHostAddresses(name);
             IPAddress? v4 = Array.Find(addrs, a => a.AddressFamily == AddressFamily.InterNetwork);
             if (v4 == null)
+            {
                 return -1;
+            }
+
             *addr = FromEndPoint(new IPEndPoint(v4, Net.net_hostport));
             return 0;
         }
@@ -433,11 +501,20 @@ public static unsafe class NetIp
     public static int AddrCompare(QSockAddr_t* addr1, QSockAddr_t* addr2)
     {
         if (addr1->Family != addr2->Family)
+        {
             return -1;
+        }
+
         if (addr1->AddrNet != addr2->AddrNet)
+        {
             return -1;
+        }
+
         if (addr1->PortNet != addr2->PortNet)
+        {
             return 1;
+        }
+
         return 0;
     }
 

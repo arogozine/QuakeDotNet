@@ -128,7 +128,10 @@ public static unsafe class Screen
         while (*str != 0)
         {
             if (*str == (byte)'\n')
+            {
                 scr_center_lines++;
+            }
+
             str++;
         }
     }
@@ -147,7 +150,7 @@ public static unsafe class Screen
 
         scr_copytop = 1;
         int s = Canvas.Scale;
-        Draw.TileClear(0, y * s + Canvas.OriginY, (int)Vid.vid.Width, 8 * scr_erase_lines * s);
+        Draw.TileClear(0, (y * s) + Canvas.OriginY, (int)Vid.vid.Width, 8 * scr_erase_lines * s);
     }
 
     // SCR_DrawCenterString
@@ -169,23 +172,35 @@ public static unsafe class Screen
             // scan the width of the line
             int l;
             for (l = 0; l < 40; l++)
+            {
                 if (start[l] == (byte)'\n' || start[l] == 0)
+                {
                     break;
-            int x = (Canvas.Width - l * 8) / 2;
+                }
+            }
+
+            int x = (Canvas.Width - (l * 8)) / 2;
             for (int j = 0; j < l; j++, x += 8)
             {
                 Draw.Character(x, y, start[j]);
                 if (remaining-- == 0)
+                {
                     return;
+                }
             }
 
             y += 8;
 
             while (*start != 0 && *start != (byte)'\n')
+            {
                 start++;
+            }
 
             if (*start == 0)
+            {
                 break;
+            }
+
             start++; // skip the \n
         }
     }
@@ -195,14 +210,21 @@ public static unsafe class Screen
     {
         scr_copytop = 1;
         if (scr_center_lines > scr_erase_lines)
+        {
             scr_erase_lines = scr_center_lines;
+        }
 
         scr_centertime_off -= Host.host_frametime;
 
         if (scr_centertime_off <= 0 && Cl.intermission == 0)
+        {
             return;
+        }
+
         if (Keys.key_dest != KeyDest.Game)
+        {
             return;
+        }
 
         DrawCenterString();
     }
@@ -213,7 +235,9 @@ public static unsafe class Screen
     public static float CalcFov(float fov_x, float width, float height)
     {
         if (fov_x < 1 || fov_x > 179)
+        {
             Sys.Error($"Bad fov: {fov_x:F6}");
+        }
 
         float x = width / MathF.Tan(fov_x / 360 * MathLib.M_PI);
         float a = MathF.Atan(height / x);
@@ -249,15 +273,25 @@ public static unsafe class Screen
 
         // bound viewsize
         if (scr_viewsize->Value < 30)
+        {
             Cvar.Set("viewsize"u8, "30"u8);
+        }
+
         if (scr_viewsize->Value > 120)
+        {
             Cvar.Set("viewsize"u8, "120"u8);
+        }
 
         // bound field of view
         if (scr_fov->Value < 10)
+        {
             Cvar.Set("fov"u8, "10"u8);
+        }
+
         if (scr_fov->Value > 170)
+        {
             Cvar.Set("fov"u8, "170"u8);
+        }
 
         // r_refdef->fov_x = scr_fov.value -- widened to Hor+ (CalcHorPlusFov's
         // own comment), based on the whole framebuffer's displayed aspect
@@ -274,11 +308,17 @@ public static unsafe class Screen
         float size = Cl.intermission != 0 ? 120 : scr_viewsize->Value;
 
         if (size >= 120)
+        {
             Sbar.sb_lines = 0; // no status bar at all
+        }
         else if (size >= 110)
+        {
             Sbar.sb_lines = 24; // no inventory
+        }
         else
+        {
             Sbar.sb_lines = 24 + 16 + 8;
+        }
 
         // these calculations mirror those in R_Init() for r_refdef, but take
         // no account of water warping
@@ -297,7 +337,9 @@ public static unsafe class Screen
         // guard against going from one mode to another that's less than half
         // the vertical resolution
         if (scr_con_current > Vid.vid.ConHeight)
+        {
             scr_con_current = Vid.vid.ConHeight;
+        }
 
         // notify the refresh of the change
         RMain.ViewChanged(&vrect, sbPhysLines, Vid.vid.Aspect);
@@ -366,10 +408,14 @@ public static unsafe class Screen
     public static void DrawRam()
     {
         if (scr_showram->Value == 0)
+        {
             return;
+        }
 
         if (!DSurf.r_cache_thrash)
+        {
             return;
+        }
 
         Canvas.Set(CanvasType.Default);
         Draw.Pic(scr_vrect->X + 32, scr_vrect->Y, scr_ram);
@@ -381,7 +427,9 @@ public static unsafe class Screen
     public static void DrawTurtle()
     {
         if (scr_showturtle->Value == 0)
+        {
             return;
+        }
 
         if (Host.host_frametime < 0.1f)
         {
@@ -391,7 +439,9 @@ public static unsafe class Screen
 
         turtleCount++;
         if (turtleCount < 3)
+        {
             return;
+        }
 
         Canvas.Set(CanvasType.Default);
         Draw.Pic(scr_vrect->X, scr_vrect->Y, scr_turtle);
@@ -401,9 +451,14 @@ public static unsafe class Screen
     public static void DrawNet()
     {
         if (Host.realtime - Cls.last_received_message < 0.3)
+        {
             return;
+        }
+
         if (ClDemo.demoplayback)
+        {
             return;
+        }
 
         Canvas.Set(CanvasType.Default);
         Draw.Pic(scr_vrect->X + 64, scr_vrect->Y, scr_net);
@@ -414,10 +469,14 @@ public static unsafe class Screen
     public static void DrawPause()
     {
         if (scr_showpause->Value == 0) // turn off for screenshots
+        {
             return;
+        }
 
         if (!Cl.paused)
+        {
             return;
+        }
 
         QPic_t* pic = Draw.CachePic("gfx/pause.lmp"u8);
         Canvas.Set(CanvasType.Menu);
@@ -428,7 +487,9 @@ public static unsafe class Screen
     public static void DrawLoading()
     {
         if (!scr_drawloading)
+        {
             return;
+        }
 
         QPic_t* pic = Draw.CachePic("gfx/loading.lmp"u8);
         Canvas.Set(CanvasType.Menu);
@@ -443,7 +504,9 @@ public static unsafe class Screen
         Con.CheckResize(((int)Vid.vid.ConWidth >> 3) - 2);
 
         if (scr_drawloading)
+        {
             return; // never a console with loading plaque
+        }
 
         // decide on the height of the console
         Con.con_forcedup = Cl.worldmodel == null || Cls.signon != Cls.SIGNONS;
@@ -454,21 +517,29 @@ public static unsafe class Screen
             scr_con_current = scr_conlines;
         }
         else if (Keys.key_dest == KeyDest.Console)
+        {
             scr_conlines = Vid.vid.ConHeight / 2; // half screen
+        }
         else
+        {
             scr_conlines = 0; // none visible
+        }
 
         if (scr_conlines < scr_con_current)
         {
             scr_con_current -= scr_conspeed->Value * Host.host_frametime;
             if (scr_conlines > scr_con_current)
+            {
                 scr_con_current = scr_conlines;
+            }
         }
         else if (scr_conlines > scr_con_current)
         {
             scr_con_current += scr_conspeed->Value * Host.host_frametime;
             if (scr_conlines < scr_con_current)
+            {
                 scr_con_current = scr_conlines;
+            }
         }
 
         if (clearconsole++ < Vid.vid.NumPages)
@@ -484,7 +555,9 @@ public static unsafe class Screen
             Draw.TileClear(0, 0, (int)Vid.vid.Width, Con.con_notifylines * Canvas.ConScale);
         }
         else
+        {
             Con.con_notifylines = 0;
+        }
     }
 
     // SCR_DrawConsole
@@ -501,7 +574,9 @@ public static unsafe class Screen
         else
         {
             if (Keys.key_dest == KeyDest.Game || Keys.key_dest == KeyDest.Message)
+            {
                 Con.DrawNotify(); // only draw notify in game
+            }
         }
     }
 
@@ -516,7 +591,7 @@ public static unsafe class Screen
     // WritePCXfile
     public static void WritePCXfile(byte* filename, byte* data, int width, int height, int rowbytes, byte* palette)
     {
-        Pcx_t* pcx = (Pcx_t*)Hunk.TempAlloc(width * height * 2 + 1000);
+        Pcx_t* pcx = (Pcx_t*)Hunk.TempAlloc((width * height * 2) + 1000);
         if (pcx == null)
         {
             Con.Printf("SCR_ScreenShot_f: not enough memory\n"u8);
@@ -547,7 +622,9 @@ public static unsafe class Screen
             for (int j = 0; j < width; j++)
             {
                 if ((*data & 0xc0) != 0xc0)
+                {
                     *pack++ = *data++;
+                }
                 else
                 {
                     *pack++ = 0xc1;
@@ -561,7 +638,9 @@ public static unsafe class Screen
         // write the palette
         *pack++ = 0x0c; // palette ID byte
         for (int i = 0; i < 768; i++)
+        {
             *pack++ = *palette++;
+        }
 
         // write output file
         int length = (int)(pack - (byte*)pcx);
@@ -580,12 +659,14 @@ public static unsafe class Screen
         int i;
         for (i = 0; i <= 99; i++)
         {
-            pcxname[5] = (byte)(i / 10 + '0');
-            pcxname[6] = (byte)(i % 10 + '0');
+            pcxname[5] = (byte)((i / 10) + '0');
+            pcxname[6] = (byte)((i % 10) + '0');
             int written = FormatCheckname(checkname, QuakeDef.MAX_OSPATH, Com.com_gamedir, pcxname);
             checkname[written] = 0;
             if (Sys.FileTime(checkname) == -1)
+            {
                 break; // file doesn't exist
+            }
         }
         if (i == 100)
         {
@@ -609,11 +690,20 @@ public static unsafe class Screen
     {
         int n = 0;
         for (int k = 0; gamedir[k] != 0 && n < destSize - 1; k++)
+        {
             dest[n++] = gamedir[k];
+        }
+
         if (n < destSize - 1)
+        {
             dest[n++] = (byte)'/';
+        }
+
         for (int k = 0; name[k] != 0 && n < destSize - 1; k++)
+        {
             dest[n++] = name[k];
+        }
+
         return n;
     }
 
@@ -625,9 +715,14 @@ public static unsafe class Screen
         SndDma.StopAllSounds(true);
 
         if (Cls.state != CActive.Connected)
+        {
             return;
+        }
+
         if (Cls.signon != Cls.SIGNONS)
+        {
             return;
+        }
 
         // redraw with no console and the loading plaque
         Con.ClearNotify();
@@ -670,19 +765,31 @@ public static unsafe class Screen
         {
             int l;
             for (l = 0; l < 40; l++)
+            {
                 if (start[l] == (byte)'\n' || start[l] == 0)
+                {
                     break;
-            int x = (Canvas.Width - l * 8) / 2;
+                }
+            }
+
+            int x = (Canvas.Width - (l * 8)) / 2;
             for (int j = 0; j < l; j++, x += 8)
+            {
                 Draw.Character(x, y, start[j]);
+            }
 
             y += 8;
 
             while (*start != 0 && *start != (byte)'\n')
+            {
                 start++;
+            }
 
             if (*start == 0)
+            {
                 break;
+            }
+
             start++; // skip the \n
         }
     }
@@ -698,7 +805,9 @@ public static unsafe class Screen
     public static bool ModalMessage(Utf8String text)
     {
         if (Cls.state == CActive.Dedicated)
+        {
             return true;
+        }
 
         scr_notifystring = text;
 
@@ -732,7 +841,9 @@ public static unsafe class Screen
         scr_centertime_off = 0;
 
         for (int i = 0; i < 20 && scr_conlines != scr_con_current; i++)
+        {
             UpdateScreen();
+        }
 
         Cl.cshifts[0].Percent = 0; // no area contents palette on next frame
 
@@ -753,7 +864,9 @@ public static unsafe class Screen
     public static void UpdateScreen()
     {
         if (scr_skipupdate || block_drawing)
+        {
             return;
+        }
 
         scr_copytop = 0;
         scr_copyeverything = 0;
@@ -766,20 +879,28 @@ public static unsafe class Screen
                 Con.Printf("load failed.\n"u8);
             }
             else
+            {
                 return;
+            }
         }
 
         if (Cls.state == CActive.Dedicated)
+        {
             return; // stdout only
+        }
 
         if (!scr_initialized || !Con.con_initialized)
+        {
             return; // not initialized yet
+        }
 
         Canvas.Set(CanvasType.Default);
 
         // UI scale (window size or scr_*scale cvars changed)
         if (Canvas.Update())
+        {
             Vid.vid.RecalcRefdef = 1;
+        }
 
         if (scr_viewsize->Value != oldscr_viewsize)
         {

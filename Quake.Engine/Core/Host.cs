@@ -85,36 +85,57 @@ public static unsafe partial class Host
         {
             Cls.state = CActive.Dedicated;
             if (i != Com.com_argc - 1)
+            {
                 Svs.maxclients = Q.Atoi(Com.com_argv[i + 1]);
+            }
             else
+            {
                 Svs.maxclients = 8;
+            }
         }
         else
+        {
             Cls.state = CActive.Disconnected;
+        }
 
         i = Com.CheckParm("-listen"u8);
         if (i != 0)
         {
             if (Cls.state == CActive.Dedicated)
+            {
                 Sys.Error("Only one of -dedicated or -listen can be specified"u8);
+            }
+
             if (i != Com.com_argc - 1)
+            {
                 Svs.maxclients = Q.Atoi(Com.com_argv[i + 1]);
+            }
             else
+            {
                 Svs.maxclients = 8;
+            }
         }
 
         if (Svs.maxclients < 1)
+        {
             Svs.maxclients = 8;
+        }
         else if (Svs.maxclients > QuakeDef.MAX_SCOREBOARD)
+        {
             Svs.maxclients = QuakeDef.MAX_SCOREBOARD;
+        }
 
         Svs.maxclientslimit = Svs.maxclients < 4 ? 4 : Svs.maxclients;
         Svs.AllocateClients(); // svs.clients = Hunk_AllocName(...)
 
         if (Svs.maxclients > 1)
+        {
             Cvar.SetValue("deathmatch"u8, 1.0f);
+        }
         else
+        {
             Cvar.SetValue("deathmatch"u8, 0.0f);
+        }
     }
 
     /*
@@ -187,11 +208,15 @@ public static unsafe partial class Host
         {
             RMisc.host_basepal = (byte*)Com.LoadHunkFile("gfx/palette.lmp"u8);
             if (RMisc.host_basepal == null)
+            {
                 Sys.Error("Couldn't load gfx/palette.lmp"u8);
+            }
 
             host_colormap = (byte*)Com.LoadHunkFile("gfx/colormap.lmp"u8);
             if (host_colormap == null)
+            {
                 Sys.Error("Couldn't load gfx/colormap.lmp"u8);
+            }
 
             // IN_Init/VID_Init -- OpenTK display layer, per open_tk.md.
             // Host_Init has no display-backend knowledge of its own (Rule 5);
@@ -257,7 +282,9 @@ public static unsafe partial class Host
         DSurf.FlushCaches();
         Model.ClearAll();
         if (host_hunklevel != 0)
+        {
             Hunk.FreeToLowMark(host_hunklevel);
+        }
 
         Cls.signon = 0;
         // memset(&sv, 0, sizeof(sv))/memset(&cl, 0, sizeof(cl)) -- there's no
@@ -367,15 +394,23 @@ public static unsafe partial class Host
         Con.DPrintf($"Host_EndGame: {s}\n");
 
         if (Sv.active)
+        {
             ShutdownServer(false);
+        }
 
         if (Cls.state == CActive.Dedicated)
+        {
             Sys.Error($"Host_EndGame: {s}\n"); // dedicated servers exit
+        }
 
         if (ClDemo.demonum != -1)
+        {
             ClDemo.NextDemo();
+        }
         else
+        {
             ClMain.Disconnect();
+        }
 
         throw new QuakeHostAbortException();
     }
@@ -391,7 +426,10 @@ public static unsafe partial class Host
     public static void Error(scoped ReadOnlySpan<byte> s)
     {
         if (inerror)
+        {
             Sys.Error("Host_Error: recursively entered"u8);
+        }
+
         inerror = true;
 
         // The original clears inerror right before longjmp; here the throw
@@ -413,10 +451,14 @@ public static unsafe partial class Host
             Con.Printf($"Host_Error: {s}\n");
 
             if (Sv.active)
+            {
                 ShutdownServer(false);
+            }
 
             if (Cls.state == CActive.Dedicated)
+            {
                 Sys.Error($"Host_Error: {s}\n"); // dedicated servers exit
+            }
 
             ClMain.Disconnect();
             ClDemo.demonum = -1;
@@ -433,7 +475,10 @@ public static unsafe partial class Host
     public static void Error([InterpolatedStringHandlerArgument] scoped ref Utf8StringHandler error)
     {
         if (inerror)
+        {
             Sys.Error("Host_Error: recursively entered"u8);
+        }
+
         inerror = true;
 
         // The original clears inerror right before longjmp; here the throw
@@ -453,10 +498,14 @@ public static unsafe partial class Host
             Con.Printf($"Host_Error: {s}\n");
 
             if (Sv.active)
+            {
                 ShutdownServer(false);
+            }
 
             if (Cls.state == CActive.Dedicated)
+            {
                 Sys.Error($"Host_Error: {s}\n"); // dedicated servers exit
+            }
 
             ClMain.Disconnect();
             ClDemo.demonum = -1;
@@ -481,19 +530,28 @@ public static unsafe partial class Host
         realtime += time;
 
         if (!Cls.timedemo && realtime - oldrealtime < 1.0 / 72.0)
+        {
             return false; // framerate is too high
+        }
 
         host_frametime = (float)(realtime - oldrealtime);
         oldrealtime = realtime;
 
         if (host_framerate->Value > 0)
+        {
             host_frametime = host_framerate->Value;
+        }
         else
         { // don't allow really long or short frames
             if (host_frametime > 0.1f)
+            {
                 host_frametime = 0.1f;
+            }
+
             if (host_frametime < 0.001f)
+            {
                 host_frametime = 0.001f;
+            }
         }
 
         return true;
@@ -512,7 +570,10 @@ public static unsafe partial class Host
         {
             byte* cmd = Sys.ConsoleInput();
             if (cmd == null)
+            {
                 break;
+            }
+
             Cmd.AddText(cmd);
         }
     }
@@ -542,7 +603,9 @@ public static unsafe partial class Host
         // move things around and think
         // always pause in single player if in console or menus
         if (!Sv.paused && (Svs.maxclients > 1 || Keys.key_dest == KeyDest.Game))
+        {
             SvPhys.Physics();
+        }
 
         // send all messages to the clients
         Sv.SendClientMessages();
@@ -595,7 +658,10 @@ public static unsafe partial class Host
         {
             Client_t* client = &Svs.clients[i];
             if (!client->Active)
+            {
                 continue;
+            }
+
             Msg.WriteByte(&client->Message, (int)Svc.UpdateName);
             Msg.WriteByte(&client->Message, (int)(Svs.host_client - Svs.clients));
             Msg.WriteString(&client->Message, null);
@@ -618,13 +684,17 @@ public static unsafe partial class Host
     public static void ShutdownServer(bool crash)
     {
         if (!Sv.active)
+        {
             return;
+        }
 
         Sv.active = false;
 
         // stop all client sounds immediately
         if (Cls.state == CActive.Connected)
+        {
             ClMain.Disconnect();
+        }
 
         // flush any pending messages - like the score!!!
         double start = Sys.FloatTime();
@@ -650,7 +720,9 @@ public static unsafe partial class Host
                 }
             }
             if ((Sys.FloatTime() - start) > 3.0)
+            {
                 break;
+            }
         } while (count != 0);
 
         // make sure all the clients know we're disconnecting
@@ -662,13 +734,17 @@ public static unsafe partial class Host
         Msg.WriteByte(&buf, (int)Svc.Disconnect);
         count = Net.SendToAll(&buf, 5);
         if (count != 0)
+        {
             Con.Printf($"Host_ShutdownServer: NET_SendToAll failed for {count} clients\n");
+        }
 
         for (int i = 0; i < Svs.maxclients; i++)
         {
             Svs.host_client = &Svs.clients[i];
             if (Svs.host_client->Active)
+            {
                 DropClient(crash);
+            }
         }
 
         // clear structures
@@ -689,7 +765,9 @@ public static unsafe partial class Host
     {
         // dedicated servers never initialise the keys/cvars worth saving
         if (!host_initialized || Cls.state == CActive.Dedicated)
+        {
             return;
+        }
 
         byte* path = stackalloc byte[QuakeDef.MAX_OSPATH];
         Q.StrCpy(path, Com.com_gamedir);
@@ -760,7 +838,9 @@ public static unsafe partial class Host
 
         // decide the simulation time
         if (!FilterTime(time))
+        {
             return; // don't run too fast, or packets will flood out
+        }
 
         // process console commands
         Cmd.BufExecute();
@@ -769,7 +849,9 @@ public static unsafe partial class Host
 
         // if running the server locally, make intentions now
         if (Sv.active)
+        {
             ClMain.SendCmd();
+        }
 
         //-------------------
         // server operations
@@ -778,7 +860,9 @@ public static unsafe partial class Host
         GetConsoleCommands();
 
         if (Sv.active)
+        {
             ServerFrame();
+        }
 
         //-------------------
         // client operations
@@ -787,13 +871,17 @@ public static unsafe partial class Host
         // if running the server remotely, send intentions now after the
         // incoming messages have been read
         if (!Sv.active)
+        {
             ClMain.SendCmd();
+        }
 
         host_time += host_frametime;
 
         // fetch results from server
         if (Cls.state == CActive.Connected)
+        {
             ClMain.ReadFromServer();
+        }
 
         // update video
         Screen.UpdateScreen();

@@ -24,12 +24,14 @@ internal static unsafe class RSurfSimd
             {
                 Vector128<ushort> w = Vector128.WidenLower(Vector128.CreateScalarUnsafe(*(ulong*)(lightmap + i)).AsByte());
                 Vector256<uint> d = Vector256.Create(Vector128.WidenLower(w), Vector128.WidenUpper(w));
-                (Vector256.Load(blocklights + i) + d * sv).Store(blocklights + i);
+                (Vector256.Load(blocklights + i) + (d * sv)).Store(blocklights + i);
             }
         }
 
         for (; i < size; i++)
+        {
             blocklights[i] += lightmap[i] * scale;
+        }
     }
 
     // for (i < size) { t = (int)(255*256 - blocklights[i]) >> shift; if (t < 64) t = 64; blocklights[i] = t; }
@@ -48,9 +50,12 @@ internal static unsafe class RSurfSimd
 
         for (; i < size; i++)
         {
-            int t = (int)(255 * 256 - blocklights[i]) >> shift;
+            int t = (int)((255 * 256) - blocklights[i]) >> shift;
             if (t < (1 << 6))
+            {
                 t = 1 << 6;
+            }
+
             blocklights[i] = (uint)t;
         }
     }
@@ -63,9 +68,11 @@ internal static unsafe class RSurfSimd
 
         for (int t = 0; t < tmax; t++)
         {
-            int td = float.ConvertToIntegerNative<int>(local1 - t * 16);
+            int td = float.ConvertToIntegerNative<int>(local1 - (t * 16));
             if (td < 0)
+            {
                 td = -td;
+            }
 
             int s = 0;
             if (Vector256.IsHardwareAccelerated)
@@ -81,23 +88,33 @@ internal static unsafe class RSurfSimd
                     Vector256<float> dist = Vector256.ConvertToSingle(big + Vector256.ShiftRightArithmetic(small, 1));
                     Vector256<int> add = Vector256.ConvertToInt32Native((radV - dist) * Vector256.Create(256f));
                     Vector256<int> mask = Vector256.LessThan(dist, minV).AsInt32();
-                    uint* dst = blocklights + t * smax + s;
+                    uint* dst = blocklights + (t * smax) + s;
                     (Vector256.Load(dst) + (add & mask).AsUInt32()).Store(dst);
                 }
             }
 
             for (; s < smax; s++)
             {
-                int sd = float.ConvertToIntegerNative<int>(local0 - s * 16);
+                int sd = float.ConvertToIntegerNative<int>(local0 - (s * 16));
                 if (sd < 0)
+                {
                     sd = -sd;
+                }
+
                 float dist;
                 if (sd > td)
+                {
                     dist = sd + (td >> 1);
+                }
                 else
+                {
                     dist = td + (sd >> 1);
+                }
+
                 if (dist < minlight)
-                    blocklights[t * smax + s] += float.ConvertToIntegerNative<uint>((rad - dist) * 256);
+                {
+                    blocklights[(t * smax) + s] += float.ConvertToIntegerNative<uint>((rad - dist) * 256);
+                }
             }
         }
     }

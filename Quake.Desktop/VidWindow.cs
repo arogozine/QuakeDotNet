@@ -259,7 +259,9 @@ public static unsafe class VidWindow
     private static void AllocBuffers(int width, int height)
     {
         if (Vid.vid.Buffer != null)
+        {
             NativeMemory.Free(Vid.vid.Buffer);
+        }
 
         if (videoBuffer != null)
         {
@@ -378,7 +380,9 @@ public static unsafe class VidWindow
         // only the windowed case compares dimensions.
         if (fullscreen == IsFullscreen &&
             (fullscreen || (width == (int)Vid.vid.Width && height == (int)Vid.vid.Height)))
+        {
             return;
+        }
 
         Vector2i bufferSize = SetWindowGeometry(fullscreen, width, height);
         IsFullscreen = fullscreen;
@@ -471,7 +475,9 @@ public static unsafe class VidWindow
 
         if (fullscreen != IsFullscreen ||
             (!fullscreen && (width != (int)Vid.vid.Width || height != (int)Vid.vid.Height)))
+        {
             SetMode(fullscreen, width, height);
+        }
     }
 
     /*
@@ -484,9 +490,13 @@ public static unsafe class VidWindow
         int nummodes = DisplayModeSource.GetModeList().Count;
 
         if (nummodes == 1)
+        {
             Con.Printf($"{nummodes} video mode is available\n");
+        }
         else
+        {
             Con.Printf($"{nummodes} video modes are available\n");
+        }
     }
 
     // VID_GetExtModeDescription -- the fullscreen entry is the desktop
@@ -518,9 +528,13 @@ public static unsafe class VidWindow
         int modenum = Q.Atoi(Cmd.Argv(1));
 
         if (modenum < 0 || modenum >= modes.Count)
+        {
             Con.Printf("Bad mode\n"u8);
+        }
         else
+        {
             Con.Printf($"{modes[modenum]} windowed\n");
+        }
     }
 
     /*
@@ -533,7 +547,9 @@ public static unsafe class VidWindow
         List<DisplayMode> modes = DisplayModeSource.GetModeList();
 
         for (int i = 0; i < modes.Count; i++)
+        {
             Con.Printf($"{i,2}: {modes[i]} windowed\n");
+        }
 
         Con.Printf($"{DesktopMode()} fullscreen (desktop)\n");
     }
@@ -568,7 +584,9 @@ public static unsafe class VidWindow
         // we only support minimizing windows; if you're fullscreen,
         // switch to windowed first
         if (!IsFullscreen)
+        {
             Window.WindowState = WindowState.Minimized;
+        }
     }
 
     // Not in the original (vid_win.c blits straight into GDI/MGL surfaces,
@@ -624,7 +642,10 @@ public static unsafe class VidWindow
         GL.LinkProgram(shaderProgram);
         GL.GetProgram(shaderProgram, GetProgramParameterName.LinkStatus, out int linked);
         if (linked == 0)
+        {
             throw new InvalidOperationException(GL.GetProgramInfoLog(shaderProgram));
+        }
+
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
 
@@ -655,7 +676,9 @@ public static unsafe class VidWindow
     {
         GL.GetShader(shader, ShaderParameter.CompileStatus, out int success);
         if (success == 0)
+        {
             throw new InvalidOperationException(GL.GetShaderInfoLog(shader));
+        }
     }
 
     /*

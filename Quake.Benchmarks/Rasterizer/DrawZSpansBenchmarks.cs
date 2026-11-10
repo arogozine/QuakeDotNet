@@ -95,14 +95,14 @@ public unsafe class DrawZSpansBenchmarks
 
         do
         {
-            short* pdest = pzbuffer + zwidth * pspan->V + pspan->U;
+            short* pdest = pzbuffer + (zwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
             float du = pspan->U;
             float dv = pspan->V;
 
-            double zi = d_ziorigin + dv * d_zistepv + du * d_zistepu;
+            double zi = d_ziorigin + (dv * d_zistepv) + (du * d_zistepu);
             int izi = (int)(zi * 0x8000 * 0x10000);
 
             if (((nint)pdest & 0x02) != 0)
@@ -127,8 +127,9 @@ public unsafe class DrawZSpansBenchmarks
             }
 
             if ((count & 1) != 0)
+            {
                 *pdest = (short)(izi >> 16);
-
+            }
         } while ((pspan = pspan->PNext) != null);
     }
 
@@ -143,14 +144,14 @@ public unsafe class DrawZSpansBenchmarks
 
         do
         {
-            short* pdest = pzbuffer + zwidth * pspan->V + pspan->U;
+            short* pdest = pzbuffer + (zwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
             float du = pspan->U;
             float dv = pspan->V;
 
-            double zi = d_ziorigin + dv * d_zistepv + du * d_zistepu;
+            double zi = d_ziorigin + (dv * d_zistepv) + (du * d_zistepu);
             int izi = double.ConvertToInteger<int>(zi * 0x8000 * 0x10000);
 
             if (((nint)pdest & 0x02) != 0)
@@ -193,8 +194,9 @@ public unsafe class DrawZSpansBenchmarks
             }
 
             if ((count & 1) != 0)
+            {
                 *pdest = (short)(izi >> 16);
-
+            }
         } while ((pspan = pspan->PNext) != null);
     }
 
@@ -209,7 +211,7 @@ public unsafe class DrawZSpansBenchmarks
 
         do
         {
-            short* pdest = pzbuffer + zwidth * pspan->V + pspan->U;
+            short* pdest = pzbuffer + (zwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -259,8 +261,9 @@ public unsafe class DrawZSpansBenchmarks
             }
 
             if ((count & 1) != 0)
+            {
                 *pdest = (short)(izi >> 16);
-
+            }
         } while ((pspan = pspan->PNext) != null);
     }
 
@@ -277,7 +280,7 @@ public unsafe class DrawZSpansBenchmarks
 
             do
             {
-                short* pdest = pzbuffer + zwidth * pspan->V + pspan->U;
+                short* pdest = pzbuffer + (zwidth * pspan->V) + pspan->U;
 
                 int count = pspan->Count;
 
@@ -324,8 +327,9 @@ public unsafe class DrawZSpansBenchmarks
                 }
 
                 if ((count & 1) != 0)
+                {
                     *pdest = (short)(izi >> 16);
-
+                }
             } while ((pspan = pspan->PNext) != null);
         }
     }

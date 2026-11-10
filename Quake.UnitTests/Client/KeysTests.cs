@@ -112,7 +112,9 @@ public sealed unsafe class KeysTests
         plainInvokeCount = 0;
         Cmd.AddCommand(Ansi("keytest_plain"), &PlainCommand_f);
         fixed (byte* binding = "keytest_plain"u8)
+        {
             Keys.SetBinding(Keys.K_F1, binding);
+        }
 
         Keys.Event(Keys.K_F1, true);
         Cmd.BufExecute();
@@ -126,7 +128,9 @@ public sealed unsafe class KeysTests
         lastButtonArg = null;
         Cmd.AddCommand(Ansi("+testbtn"), &ButtonDownCommand_f);
         fixed (byte* binding = "+testbtn"u8)
+        {
             Keys.SetBinding(Keys.K_MOUSE1, binding);
+        }
 
         Keys.Event(Keys.K_MOUSE1, true);
         Cmd.BufExecute();
@@ -140,7 +144,9 @@ public sealed unsafe class KeysTests
         lastButtonArg = null;
         Cmd.AddCommand(Ansi("-testbtn"), &ButtonUpCommand_f);
         fixed (byte* binding = "+testbtn"u8)
+        {
             Keys.SetBinding(Keys.K_MOUSE2, binding);
+        }
 
         // key-up doesn't need a matching down first for the button-command
         // path: Key_Event's up branch fires unconditionally off keybindings,
@@ -233,7 +239,9 @@ public sealed unsafe class KeysTests
         plainInvokeCount = 0;
         Cmd.AddCommand(Ansi("keytest_plain"), &PlainCommand_f);
         fixed (byte* binding = "keytest_plain"u8)
+        {
             Keys.SetBinding(Keys.K_MWHEELUP, binding);
+        }
 
         Keys.Event(Keys.K_MWHEELUP, true);
         Keys.Event(Keys.K_MWHEELUP, false);
@@ -266,7 +274,9 @@ public sealed unsafe class KeysTests
         lastButtonArg = null;
         Cmd.AddCommand(Ansi("+testbtn"), &ButtonDownCommand_f);
         fixed (byte* binding = "+testbtn"u8)
+        {
             Keys.SetBinding(Keys.K_MOUSE4, binding);
+        }
 
         Keys.Event(Keys.K_MOUSE4, true);
         Cmd.BufExecute();
@@ -293,7 +303,9 @@ public sealed unsafe class KeysTests
         lastButtonArg = null;
         Cmd.AddCommand(Ansi("-testbtn"), &ButtonUpCommand_f);
         fixed (byte* binding = "+testbtn"u8)
+        {
             Keys.SetBinding('w', binding);
+        }
 
         Keys.Event('w', true);
         Keys.ReleaseAll();
@@ -329,7 +341,9 @@ public sealed unsafe class KeysTests
         lastButtonArg = null;
         Cmd.AddCommand(Ansi("-testbtn"), &ButtonUpCommand_f);
         fixed (byte* binding = "+testbtn"u8)
+        {
             Keys.SetBinding('A', binding);
+        }
 
         // keys.c: key-up also checks keybindings[keyshift[key]]
         Keys.Event('a', false);

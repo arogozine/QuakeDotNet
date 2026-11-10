@@ -59,7 +59,10 @@ public sealed unsafe class SvTests
     public void Teardown()
     {
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
+
         NativeMemory.Free(_buf);
     }
 
@@ -235,7 +238,9 @@ public sealed unsafe class SvTests
         Client_t* client = &Svs.clients[0];
         client->NetConnection = MakeSocket();
         for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+        {
             client->spawn_parms[i] = i + 1;
+        }
 
         Sv.ConnectClient(0);
 
@@ -245,7 +250,9 @@ public sealed unsafe class SvTests
         Assert.IsTrue(client->Edict == Progs.EdictNum(1));
         Assert.IsTrue(client->SendSignon);
         for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+        {
             Assert.AreEqual(i + 1f, client->spawn_parms[i]);
+        }
     }
 
     [TestMethod]

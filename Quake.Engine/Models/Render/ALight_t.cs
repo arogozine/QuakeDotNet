@@ -9,7 +9,7 @@ namespace Quake.Engine;
 
 // alight_t
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct ALight_t
+public struct ALight_t
 {
     public int AmbientLight;
     public int ShadeLight;

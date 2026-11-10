@@ -12,7 +12,10 @@ public sealed unsafe class RLightTests
     public void Setup()
     {
         for (int i = 0; i < QuakeDef.MAX_LIGHTSTYLES; i++)
+        {
             ClLightStyle.cl_lightstyle[i] = default;
+        }
+
         new Span<int>(RShared.d_lightstylevalue, 256).Clear();
         RMain.r_dlightframecount = 0;
     }

@@ -25,13 +25,17 @@ public static unsafe class ClMain
     public static void ClearState()
     {
         if (!Sv.active)
+        {
             Host.ClearMemory();
+        }
 
         ResetClientState();
 
         // Mark V CL_ClearState -- if not running a server, restore datagram cap for the client
         if (!Sv.active)
+        {
             Sv.host_protocol_datagram_maxsize = QuakeDef.MAX_MARK_V_DATAGRAM;
+        }
 
         SizeBuf_t* msg = Cls.message;
         Sz.Clear(msg);
@@ -49,7 +53,10 @@ public static unsafe class ClMain
         // allocate the efrags and chain together into a free list
         Cl.free_efrags = &ClEntities.cl_efrags[0];
         for (int i = 0; i < ClEntities.MAX_EFRAGS - 1; i++)
+        {
             ClEntities.cl_efrags[i].EntNext = &ClEntities.cl_efrags[i + 1];
+        }
+
         ClEntities.cl_efrags[ClEntities.MAX_EFRAGS - 1].EntNext = null;
     }
 
@@ -121,11 +128,15 @@ public static unsafe class ClMain
         SndDma.StopAllSounds(true);
 
         if (ClDemo.demoplayback)
+        {
             ClDemo.StopPlayback();
+        }
         else if (Cls.state == CActive.Connected)
         {
             if (ClDemo.demorecording)
+            {
                 ClDemo.Stop_f();
+            }
 
             Con.DPrintf("Sending (int)Clc.Disconnect\n"u8);
             SizeBuf_t* msg = Cls.message;
@@ -148,7 +159,9 @@ public static unsafe class ClMain
             // pool and surfaces as "Loop_Connect: no qsocket available" ->
             // Host_Error on the very next reconnect.
             if (Sv.active)
+            {
                 Host.ShutdownServer(false);
+            }
         }
 
         ClDemo.demoplayback = false;
@@ -169,15 +182,23 @@ public static unsafe class ClMain
     public static void EstablishConnection(Utf8String host)
     {
         if (Cls.state == CActive.Dedicated)
+        {
             return;
+        }
+
         if (ClDemo.demoplayback)
+        {
             return;
+        }
 
         Disconnect();
 
         Cls.netcon = Net.Connect(host);
         if (Cls.netcon == null)
+        {
             Host.Error("CL_Connect: connect failed\n"u8);
+        }
+
         Con.DPrintf($"CL_EstablishConnection: connected to {host}\n");
 
         ClDemo.demonum = -1; // not in the demo loop now
@@ -240,11 +261,15 @@ public static unsafe class ClMain
         {
             DLight_t* dl = &ClEntities.cl_dlights[i];
             if (dl->Die < Cl.time || dl->Radius == 0)
+            {
                 continue;
+            }
 
             dl->Radius -= time * dl->Decay;
             if (dl->Radius < 0)
+            {
                 dl->Radius = 0;
+            }
         }
     }
 
@@ -280,13 +305,19 @@ public static unsafe class ClMain
         if (frac < 0)
         {
             if (frac < -0.01f)
+            {
                 Cl.time = Cl.mtime[1];
+            }
+
             frac = 0;
         }
         else if (frac > 1)
         {
             if (frac > 1.01f)
+            {
                 Cl.time = Cl.mtime[0];
+            }
+
             frac = 1;
         }
 
@@ -305,7 +336,7 @@ public static unsafe class ClMain
         ClEntities.cl_numvisedicts = 0;
 
         // interpolate player info
-        Cl.velocity = Cl.mvelocity[1] + frac * (Cl.mvelocity[0] - Cl.mvelocity[1]);
+        Cl.velocity = Cl.mvelocity[1] + (frac * (Cl.mvelocity[0] - Cl.mvelocity[1]));
 
         if (ClDemo.demoplayback)
         {
@@ -313,9 +344,16 @@ public static unsafe class ClMain
             for (int j = 0; j < 3; j++)
             {
                 float d = Cl.mviewangles[0][j] - Cl.mviewangles[1][j];
-                if (d > 180) d -= 360;
-                else if (d < -180) d += 360;
-                Cl.viewangles[j] = Cl.mviewangles[1][j] + frac * d;
+                if (d > 180)
+                {
+                    d -= 360;
+                }
+                else if (d < -180)
+                {
+                    d += 360;
+                }
+
+                Cl.viewangles[j] = Cl.mviewangles[1][j] + (frac * d);
             }
         }
 
@@ -330,7 +368,10 @@ public static unsafe class ClMain
             {
                 // empty slot
                 if (ent->ForceLink)
+                {
                     REfrag.RemoveEfrags(ent); // just became empty
+                }
+
                 continue;
             }
 
@@ -368,26 +409,39 @@ public static unsafe class ClMain
 
                 // johnfitz -- don't cl_lerp entities that will be r_lerped
                 if (RMain.r_lerpmove->Value != 0 && (ent->LerpFlags & LerpFlags.MOVESTEP) != 0)
+                {
                     f = 1;
+                }
 
                 // interpolate the origin and angles
                 for (int j = 0; j < 3; j++)
                 {
-                    ent->Origin[j] = ent->MsgOrigins[1][j] + f * delta[j];
+                    ent->Origin[j] = ent->MsgOrigins[1][j] + (f * delta[j]);
 
                     float d = ent->MsgAngles[0][j] - ent->MsgAngles[1][j];
-                    if (d > 180) d -= 360;
-                    else if (d < -180) d += 360;
-                    ent->Angles[j] = ent->MsgAngles[1][j] + f * d;
+                    if (d > 180)
+                    {
+                        d -= 360;
+                    }
+                    else if (d < -180)
+                    {
+                        d += 360;
+                    }
+
+                    ent->Angles[j] = ent->MsgAngles[1][j] + (f * d);
                 }
             }
 
             // rotate binary objects locally
             if ((ent->Model->Flags & ModelFlags.EF_ROTATE) != 0)
+            {
                 ent->Angles[1] = bobjrotate;
+            }
 
             if ((ent->Effects & Sv.EF_BRIGHTFIELD) != 0)
+            {
                 RPart.EntityParticles(ent);
+            }
 
             if ((ent->Effects & Sv.EF_MUZZLEFLASH) != 0)
             {
@@ -395,9 +449,13 @@ public static unsafe class ClMain
                 if (RMain.r_lerpmodels->Value != 2)
                 {
                     if (i == Cl.viewentity)
+                    {
                         Cl.viewent->LerpFlags |= LerpFlags.RESETANIM | LerpFlags.RESETANIM2; // no lerping for two frames
+                    }
                     else
+                    {
                         ent->LerpFlags |= LerpFlags.RESETANIM | LerpFlags.RESETANIM2; // no lerping for two frames
+                    }
                 }
 
                 DLight_t* muzzleDl = AllocDlight(i);
@@ -427,13 +485,21 @@ public static unsafe class ClMain
             }
 
             if ((ent->Model->Flags & ModelFlags.EF_GIB) != 0)
+            {
                 RPart.RocketTrail(oldorg, ent->Origin, 2);
+            }
             else if ((ent->Model->Flags & ModelFlags.EF_ZOMGIB) != 0)
+            {
                 RPart.RocketTrail(oldorg, ent->Origin, 4);
+            }
             else if ((ent->Model->Flags & ModelFlags.EF_TRACER) != 0)
+            {
                 RPart.RocketTrail(oldorg, ent->Origin, 3);
+            }
             else if ((ent->Model->Flags & ModelFlags.EF_TRACER2) != 0)
+            {
                 RPart.RocketTrail(oldorg, ent->Origin, 5);
+            }
             else if ((ent->Model->Flags & ModelFlags.EF_ROCKET) != 0)
             {
                 RPart.RocketTrail(oldorg, ent->Origin, 0);
@@ -443,14 +509,20 @@ public static unsafe class ClMain
                 dl->Die = (float)Cl.time + 0.01f;
             }
             else if ((ent->Model->Flags & ModelFlags.EF_GRENADE) != 0)
+            {
                 RPart.RocketTrail(oldorg, ent->Origin, 1);
+            }
             else if ((ent->Model->Flags & ModelFlags.EF_TRACER3) != 0)
+            {
                 RPart.RocketTrail(oldorg, ent->Origin, 6);
+            }
 
             ent->ForceLink = false;
 
             if (i == Cl.viewentity && Chase.chase_active->Value == 0)
+            {
                 continue;
+            }
 
             if (ClEntities.cl_numvisedicts < ClEntities.MAX_VISEDICTS)
             {
@@ -480,9 +552,13 @@ public static unsafe class ClMain
         {
             // Mark V CL_SendMove -- 16-bit angles unless PROTOCOL_NETQUAKE
             if (Cl.protocol == Protocol.PROTOCOL_NETQUAKE)
+            {
                 Msg.WriteAngle(&buf, Cl.viewangles[i]);
+            }
             else
+            {
                 Msg.WriteAngle16(&buf, Cl.viewangles[i]);
+            }
         }
 
         Msg.WriteShort(&buf, (int)cmd->ForwardMove);
@@ -492,11 +568,17 @@ public static unsafe class ClMain
         // send button bits
         int bits = 0;
         if ((ClInput.in_attack->State & 3) != 0)
+        {
             bits |= 1;
+        }
+
         ClInput.in_attack->State &= ~2;
 
         if ((ClInput.in_jump->State & 3) != 0)
+        {
             bits |= 2;
+        }
+
         ClInput.in_jump->State &= ~2;
 
         Msg.WriteByte(&buf, bits);
@@ -506,13 +588,17 @@ public static unsafe class ClMain
 
         // deliver the message
         if (ClDemo.demoplayback)
+        {
             return;
+        }
 
         // always dump the first two messages, because it may contain
         // leftover inputs from the last level
         Cl.movemessages++;
         if (Cl.movemessages <= 2)
+        {
             return;
+        }
 
         if (Net.SendUnreliableMessage(Cls.netcon, &buf) == -1)
         {
@@ -529,7 +615,9 @@ public static unsafe class ClMain
     public static void SendCmd()
     {
         if (Cls.state != CActive.Connected)
+        {
             return;
+        }
 
         if (Cls.signon == Cls.SIGNONS)
         {
@@ -551,7 +639,9 @@ public static unsafe class ClMain
 
         // send the reliable message
         if (msg->CurSize == 0)
+        {
             return; // no message at all
+        }
 
         if (!Net.CanSendMessage(Cls.netcon))
         {
@@ -560,7 +650,9 @@ public static unsafe class ClMain
         }
 
         if (Net.SendMessage(Cls.netcon, msg) == -1)
+        {
             Host.Error("CL_WriteToServer: lost server connection"u8);
+        }
 
         Sz.Clear(msg);
     }
@@ -585,16 +677,23 @@ public static unsafe class ClMain
             // the original does.
             ret = ClDemo.GetMessage();
             if (ret == -1)
+            {
                 Host.Error("CL_ReadFromServer: lost server connection"u8);
+            }
+
             if (ret == 0)
+            {
                 break;
+            }
 
             Cls.last_received_message = Host.realtime;
             ClParse.ParseServerMessage();
         } while (ret != 0 && Cls.state == CActive.Connected);
 
         if (Cl.cl_shownet->Value != 0)
+        {
             Con.Printf("\n"u8);
+        }
 
         RelinkEntities();
         ClTEnt.UpdateTEnts();

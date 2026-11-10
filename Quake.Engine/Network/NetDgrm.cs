@@ -115,7 +115,9 @@ public static unsafe class NetDgrm
         sock->CanSend = false;
 
         if (NetIp.Write(sock->Socket, (byte*)packetBuffer, (int)packetLen, &sock->Addr) == -1)
+        {
             return -1;
+        }
 
         sock->LastSendTime = Net.net_time;
         packetsSent++;
@@ -145,7 +147,9 @@ public static unsafe class NetDgrm
         sock->SendNext = false;
 
         if (NetIp.Write(sock->Socket, (byte*)packetBuffer, (int)packetLen, &sock->Addr) == -1)
+        {
             return -1;
+        }
 
         sock->LastSendTime = Net.net_time;
         packetsSent++;
@@ -175,7 +179,9 @@ public static unsafe class NetDgrm
         sock->SendNext = false;
 
         if (NetIp.Write(sock->Socket, (byte*)packetBuffer, (int)packetLen, &sock->Addr) == -1)
+        {
             return -1;
+        }
 
         sock->LastSendTime = Net.net_time;
         packetsReSent++;
@@ -186,7 +192,9 @@ public static unsafe class NetDgrm
     public static bool CanSendMessage(QSocket_t* sock)
     {
         if (sock->SendNext)
+        {
             SendMessageNext(sock);
+        }
 
         return sock->CanSend;
     }
@@ -201,7 +209,9 @@ public static unsafe class NetDgrm
         Q.MemCpy(packetBuffer->Data, data->Data, data->CurSize);
 
         if (NetIp.Write(sock->Socket, (byte*)packetBuffer, packetLen, &sock->Addr) == -1)
+        {
             return -1;
+        }
 
         packetsSent++;
         return 1;
@@ -215,8 +225,12 @@ public static unsafe class NetDgrm
     public static int GetMessage(QSocket_t* sock)
     {
         if (!sock->CanSend)
+        {
             if ((Net.net_time - sock->LastSendTime) > 1.0)
+            {
                 ReSendMessage(sock);
+            }
+        }
 
         int ret = 0;
 
@@ -227,7 +241,9 @@ public static unsafe class NetDgrm
             length = (uint)NetIp.Read(sock->Socket, (byte*)packetBuffer, NET_HEADERSIZE + Sv.host_protocol_datagram_maxsize, &readaddr);
 
             if (length == 0)
+            {
                 break;
+            }
 
             if (unchecked((int)length) == -1)
             {
@@ -236,7 +252,9 @@ public static unsafe class NetDgrm
             }
 
             if (NetIp.AddrCompare(&readaddr, &sock->Addr) != 0)
+            {
                 continue; // forged/stray packet
+            }
 
             if (length < NET_HEADERSIZE)
             {
@@ -252,7 +270,9 @@ public static unsafe class NetDgrm
             uint msgLength = rawLength & NETFLAG_LENGTH_MASK;
 
             if ((flags & NETFLAG_CTL) != 0)
+            {
                 continue;
+            }
 
             packetsReceived++;
 
@@ -282,11 +302,18 @@ public static unsafe class NetDgrm
             if ((flags & NETFLAG_ACK) != 0)
             {
                 if (sequence != sock->SendSequence - 1)
+                {
                     continue; // stale ACK
+                }
+
                 if (sequence == sock->AckSequence)
+                {
                     sock->AckSequence++;
+                }
                 else
+                {
                     continue; // duplicate ACK
+                }
 
                 sock->SendMessageLength -= Sv.host_protocol_datagram_maxsize;
                 if (sock->SendMessageLength > 0)
@@ -336,7 +363,9 @@ public static unsafe class NetDgrm
         }
 
         if (sock->SendNext)
+        {
             SendMessageNext(sock);
+        }
 
         return ret;
     }
@@ -349,7 +378,9 @@ public static unsafe class NetDgrm
     public static int Init()
     {
         if (Com.CheckParm("-nolan"u8) != 0)
+        {
             return -1;
+        }
 
         int csock = NetIp.Init();
         return csock;
@@ -370,7 +401,9 @@ public static unsafe class NetDgrm
         int controlSock = Net.net_drivers[Net.net_driverlevel].ControlSock;
 
         if (Net.hostCacheCount == Net.HOSTCACHESIZE)
+        {
             return;
+        }
 
         NetIp.GetSocketAddr(controlSock, &myaddr);
         if (xmit)
@@ -390,41 +423,64 @@ public static unsafe class NetDgrm
         while ((ret = NetIp.Read(controlSock, Nm->Data, Nm->MaxSize, &readaddr)) > 0)
         {
             if (ret < sizeof(int))
+            {
                 continue;
+            }
+
             Nm->CurSize = ret;
 
             // don't answer our own query
             if (NetIp.AddrCompare(&readaddr, &myaddr) >= 0)
+            {
                 continue;
+            }
 
             // is the cache full?
             if (Net.hostCacheCount == Net.HOSTCACHESIZE)
+            {
                 continue;
+            }
 
             BeginReadingNetMessage();
             int control = Com.BigLong(*(int*)Nm->Data);
             Msg.ReadLong();
             if (control == -1)
+            {
                 continue;
+            }
+
             if ((control & ~(int)NETFLAG_LENGTH_MASK) != unchecked((int)NETFLAG_CTL))
+            {
                 continue;
+            }
+
             if ((control & (int)NETFLAG_LENGTH_MASK) != ret)
+            {
                 continue;
+            }
 
             if (Msg.ReadByte() != (int)NetControlReply.ServerInfo)
+            {
                 continue;
+            }
 
             NetIp.GetAddrFromName(Msg.ReadString(), &readaddr);
             // search the cache for this server
             HostCache_t* hc = Net.hostcache;
             int n;
             for (n = 0; n < Net.hostCacheCount; n++)
+            {
                 if (NetIp.AddrCompare(&readaddr, &hc[n].Addr) == 0)
+                {
                     break;
+                }
+            }
 
             // is it already there?
             if (n < Net.hostCacheCount)
+            {
                 continue;
+            }
 
             // add it
             Net.hostCacheCount++;
@@ -448,7 +504,10 @@ public static unsafe class NetDgrm
             for (int i = 0; i < Net.hostCacheCount; i++)
             {
                 if (i == n)
+                {
                     continue;
+                }
+
                 if (Q.StrCaseCmp(hc[n].Name, hc[i].Name) == 0)
                 {
                     i = Q.StrLen(hc[n].Name);
@@ -458,7 +517,10 @@ public static unsafe class NetDgrm
                         hc[n].Name[i + 1] = 0;
                     }
                     else
+                    {
                         hc[n].Name[i - 1]++;
+                    }
+
                     i = -1;
                 }
             }
@@ -472,7 +534,10 @@ public static unsafe class NetDgrm
         string s = NetIp.AddrToString(addr);
         int len = Math.Min(s.Length, 31);
         for (int k = 0; k < len; k++)
+        {
             dest[k] = (byte)s[k];
+        }
+
         dest[len] = 0;
     }
 
@@ -488,32 +553,47 @@ public static unsafe class NetDgrm
     {
         int acceptsock = NetIp.CheckNewConnections();
         if (acceptsock == -1)
+        {
             return null;
+        }
 
         Sz.Clear(Nm);
 
         QSockAddr_t clientaddr;
         int len = NetIp.Read(acceptsock, Nm->Data, Nm->MaxSize, &clientaddr);
         if (len < sizeof(int))
+        {
             return null;
+        }
+
         Nm->CurSize = len;
 
         BeginReadingNetMessage();
         int control = Com.BigLong(*(int*)Net.net_message->Data);
         Msg.ReadLong();
         if (control == -1)
+        {
             return null;
+        }
+
         if ((control & ~(int)NETFLAG_LENGTH_MASK) != unchecked((int)NETFLAG_CTL))
+        {
             return null;
+        }
+
         if ((control & (int)NETFLAG_LENGTH_MASK) != len)
+        {
             return null;
+        }
 
         int command = Msg.ReadByte();
 
         if (command == (int)NetControlRequest.ServerInfo)
         {
             if (Q.StrCmp(Msg.ReadString(), "QUAKE"u8) != 0)
+            {
                 return null;
+            }
 
             Sz.Clear(Nm);
             Msg.WriteLong(Nm, 0);
@@ -545,11 +625,15 @@ public static unsafe class NetDgrm
                 {
                     activeNumber++;
                     if (activeNumber == playerNumber)
+                    {
                         break;
+                    }
                 }
             }
             if (clientNumber == Svs.maxclients)
+            {
                 return null;
+            }
 
             Sz.Clear(Nm);
             SizeBuf_t* nmp = Nm;
@@ -575,16 +659,24 @@ public static unsafe class NetDgrm
             {
                 var = Cvar.FindVar(prevCvarName);
                 if (var == null)
+                {
                     return null;
+                }
+
                 var = var->Next;
             }
             else
+            {
                 var = Cvar.cvar_vars;
+            }
 
             while (var != null)
             {
                 if (var->Server)
+                {
                     break;
+                }
+
                 var = var->Next;
             }
 
@@ -604,10 +696,14 @@ public static unsafe class NetDgrm
         }
 
         if (command != (int)NetControlRequest.Connect)
+        {
             return null;
+        }
 
         if (Q.StrCmp(Msg.ReadString(), "QUAKE"u8) != 0)
+        {
             return null;
+        }
 
         if (Msg.ReadByte() != NET_PROTOCOL_VERSION)
         {
@@ -626,7 +722,10 @@ public static unsafe class NetDgrm
         for (QSocket_t* s = Net.net_activeSockets; s != null; s = s->Next)
         {
             if (s->Driver != Net.net_driverlevel)
+            {
                 continue;
+            }
+
             int ret = NetIp.AddrCompare(&clientaddr, &s->Addr);
             if (ret >= 0)
             {
@@ -713,11 +812,15 @@ public static unsafe class NetDgrm
     {
         QSockAddr_t sendaddr;
         if (NetIp.GetAddrFromName(host, &sendaddr) == -1)
+        {
             return null;
+        }
 
         int newsock = NetIp.OpenSocket(0);
         if (newsock == -1)
+        {
             return null;
+        }
 
         QSocket_t* sock = Net.NewQSocket();
         if (sock == null)
@@ -790,7 +893,9 @@ public static unsafe class NetDgrm
             while (ret == 0 && (Net.SetNetTime() - startTime) < 2.5);
 
             if (ret != 0)
+            {
                 break;
+            }
 
             Con.Printf("still trying...\n"u8);
             startTime = Net.SetNetTime();

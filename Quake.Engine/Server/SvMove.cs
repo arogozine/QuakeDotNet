@@ -34,13 +34,17 @@ public static unsafe class SvMove
         // the corners must be within 16 of the midpoint
         start[2] = mins[2] - 1;
         for (int x = 0; x <= 1; x++)
+        {
             for (int y = 0; y <= 1; y++)
             {
                 start[0] = x != 0 ? maxs[0] : mins[0];
                 start[1] = y != 0 ? maxs[1] : mins[1];
                 if (World.PointContents(start) != (int)Contents.Solid)
+                {
                     goto realcheck;
+                }
             }
+        }
 
         c_yes++;
         return true; // we got out easy
@@ -54,16 +58,20 @@ public static unsafe class SvMove
         // the midpoint must be within 16 of the bottom
         start[0] = stop[0] = (mins[0] + maxs[0]) * 0.5f;
         start[1] = stop[1] = (mins[1] + maxs[1]) * 0.5f;
-        stop[2] = start[2] - 2 * SvPhys.STEPSIZE;
+        stop[2] = start[2] - (2 * SvPhys.STEPSIZE);
         Trace_t trace = World.Move(start, MathLib.vec3_origin, MathLib.vec3_origin, stop, (int)ClipMoveType.NoMonsters, ent);
 
         if (trace.Fraction == 1)
+        {
             return false;
+        }
+
         float mid = trace.EndPos[2];
         float bottom = mid;
 
         // the corners must be within 16 of the midpoint
         for (int x = 0; x <= 1; x++)
+        {
             for (int y = 0; y <= 1; y++)
             {
                 start[0] = stop[0] = x != 0 ? maxs[0] : mins[0];
@@ -72,10 +80,16 @@ public static unsafe class SvMove
                 trace = World.Move(start, MathLib.vec3_origin, MathLib.vec3_origin, stop, (int)ClipMoveType.NoMonsters, ent);
 
                 if (trace.Fraction != 1 && trace.EndPos[2] > bottom)
+                {
                     bottom = trace.EndPos[2];
+                }
+
                 if (trace.Fraction == 1 || mid - trace.EndPos[2] > SvPhys.STEPSIZE)
+                {
                     return false;
+                }
             }
+        }
 
         c_yes++;
         return true;
@@ -101,25 +115,37 @@ public static unsafe class SvMove
                 {
                     float dz = ent->V.Origin[2] - Progs.ProgToEdict(ent->V.Enemy)->V.Origin[2];
                     if (dz > 40)
+                    {
                         neworg[2] -= 8;
+                    }
+
                     if (dz < 30)
+                    {
                         neworg[2] += 8;
+                    }
                 }
                 Trace_t trace = World.Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, neworg, (int)ClipMoveType.Normal, ent);
 
                 if (trace.Fraction == 1)
                 {
                     if (((int)ent->V.Flags & SvPhys.FL_SWIM) != 0 && World.PointContents(trace.EndPos) == (int)Contents.Empty)
+                    {
                         return false; // swim monster left water
+                    }
 
                     ent->V.Origin = trace.EndPos;
                     if (relink)
+                    {
                         World.LinkEdict(ent, true);
+                    }
+
                     return true;
                 }
 
                 if (enemy == Sv.edicts)
+                {
                     break;
+                }
             }
 
             return false;
@@ -133,14 +159,18 @@ public static unsafe class SvMove
         Trace_t downtrace = World.Move(neworg, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.Normal, ent);
 
         if (downtrace.AllSolid)
+        {
             return false;
+        }
 
         if (downtrace.StartSolid)
         {
             neworg[2] -= SvPhys.STEPSIZE;
             downtrace = World.Move(neworg, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.Normal, ent);
             if (downtrace.AllSolid || downtrace.StartSolid)
+            {
                 return false;
+            }
         }
         if (downtrace.Fraction == 1)
         {
@@ -149,7 +179,10 @@ public static unsafe class SvMove
             {
                 ent->V.Origin = ent->V.Origin + move;
                 if (relink)
+                {
                     World.LinkEdict(ent, true);
+                }
+
                 ent->V.Flags = (int)ent->V.Flags & ~SvPhys.FL_ONGROUND;
                 return true;
             }
@@ -166,7 +199,10 @@ public static unsafe class SvMove
             { // entity had floor mostly pulled out from underneath it
                 // and is trying to correct
                 if (relink)
+                {
                     World.LinkEdict(ent, true);
+                }
+
                 return true;
             }
             ent->V.Origin = oldorg;
@@ -174,12 +210,18 @@ public static unsafe class SvMove
         }
 
         if (((int)ent->V.Flags & SvPhys.FL_PARTIALGROUND) != 0)
+        {
             ent->V.Flags = (int)ent->V.Flags & ~SvPhys.FL_PARTIALGROUND;
+        }
+
         ent->V.GroundEntity = Progs.EdictToProg(downtrace.Ent);
 
         // the move is ok
         if (relink)
+        {
             World.LinkEdict(ent, true);
+        }
+
         return true;
     }
 
@@ -193,27 +235,38 @@ public static unsafe class SvMove
         float speed = ent->V.YawSpeed;
 
         if (current == ideal)
+        {
             return;
+        }
+
         float move = ideal - current;
         if (ideal > current)
         {
             if (move >= 180)
+            {
                 move -= 360;
+            }
         }
         else
         {
             if (move <= -180)
+            {
                 move += 360;
+            }
         }
         if (move > 0)
         {
             if (move > speed)
+            {
                 move = speed;
+            }
         }
         else
         {
             if (move < -speed)
+            {
                 move = -speed;
+            }
         }
 
         ent->V.Angles[1] = MathLib.anglemod(current + move);
@@ -265,18 +318,30 @@ public static unsafe class SvMove
 
         float d1, d2;
         if (deltax > 10)
+        {
             d1 = 0;
+        }
         else if (deltax < -10)
+        {
             d1 = 180;
+        }
         else
+        {
             d1 = DI_NODIR;
+        }
 
         if (deltay < -10)
+        {
             d2 = 270;
+        }
         else if (deltay > 10)
+        {
             d2 = 90;
+        }
         else
+        {
             d2 = DI_NODIR;
+        }
 
         // try direct route
         if (d1 != DI_NODIR && d2 != DI_NODIR)
@@ -284,7 +349,9 @@ public static unsafe class SvMove
             float tdir = d1 == 0 ? (d2 == 90 ? 45 : 315) : (d2 == 90 ? 135 : 215);
 
             if (tdir != turnaround && StepDirection(actor, tdir, dist))
+            {
                 return;
+            }
         }
 
         // try other directions
@@ -296,37 +363,55 @@ public static unsafe class SvMove
         }
 
         if (d1 != DI_NODIR && d1 != turnaround && StepDirection(actor, d1, dist))
+        {
             return;
+        }
 
         if (d2 != DI_NODIR && d2 != turnaround && StepDirection(actor, d2, dist))
+        {
             return;
+        }
 
         // there is no direct path to the player, so pick another direction
         if (olddir != DI_NODIR && StepDirection(actor, olddir, dist))
+        {
             return;
+        }
 
         if ((Q.Rand() & 1) != 0) // randomly determine direction of search
         {
             for (float tdir = 0; tdir <= 315; tdir += 45)
+            {
                 if (tdir != turnaround && StepDirection(actor, tdir, dist))
+                {
                     return;
+                }
+            }
         }
         else
         {
             for (float tdir = 315; tdir >= 0; tdir -= 45)
+            {
                 if (tdir != turnaround && StepDirection(actor, tdir, dist))
+                {
                     return;
+                }
+            }
         }
 
         if (turnaround != DI_NODIR && StepDirection(actor, turnaround, dist))
+        {
             return;
+        }
 
         actor->V.IdealYaw = olddir; // can't move
 
         // if a bridge was pulled out from underneath a monster, it may not
         // have a valid standing position at all
         if (!CheckBottom(actor))
+        {
             FixCheckBottom(actor);
+        }
     }
 
     // SV_CloseEnough
@@ -335,9 +420,14 @@ public static unsafe class SvMove
         for (int i = 0; i < 3; i++)
         {
             if (goal->V.AbsMin[i] > ent->V.AbsMax[i] + dist)
+            {
                 return false;
+            }
+
             if (goal->V.AbsMax[i] < ent->V.AbsMin[i] - dist)
+            {
                 return false;
+            }
         }
         return true;
     }
@@ -357,7 +447,9 @@ public static unsafe class SvMove
 
         // if the next step hits the enemy, return immediately
         if (Progs.ProgToEdict(ent->V.Enemy) != Sv.edicts && CloseEnough(ent, goal, dist))
+        {
             return;
+        }
 
         // bump around...
         if ((Q.Rand() & 3) == 1 || !StepDirection(ent, ent->V.IdealYaw, dist))

@@ -172,20 +172,24 @@ public static unsafe class RMain
     */
     public static void InitTextures()
     {
-        r_notexture_mip = (Texture_t*)Hunk.AllocName(sizeof(Texture_t) + 16 * 16 + 8 * 8 + 4 * 4 + 2 * 2, "notexture"u8);
+        r_notexture_mip = (Texture_t*)Hunk.AllocName(sizeof(Texture_t) + (16 * 16) + (8 * 8) + (4 * 4) + (2 * 2), "notexture"u8);
 
         r_notexture_mip->Width = r_notexture_mip->Height = 16;
         r_notexture_mip->Offsets[0] = (uint)sizeof(Texture_t);
-        r_notexture_mip->Offsets[1] = r_notexture_mip->Offsets[0] + 16 * 16;
-        r_notexture_mip->Offsets[2] = r_notexture_mip->Offsets[1] + 8 * 8;
-        r_notexture_mip->Offsets[3] = r_notexture_mip->Offsets[2] + 4 * 4;
+        r_notexture_mip->Offsets[1] = r_notexture_mip->Offsets[0] + (16 * 16);
+        r_notexture_mip->Offsets[2] = r_notexture_mip->Offsets[1] + (8 * 8);
+        r_notexture_mip->Offsets[3] = r_notexture_mip->Offsets[2] + (4 * 4);
 
         for (int m = 0; m < 4; m++)
         {
             byte* dest = (byte*)r_notexture_mip + r_notexture_mip->Offsets[m];
             for (int y = 0; y < (16 >> m); y++)
+            {
                 for (int x = 0; x < (16 >> m); x++)
+                {
                     *dest++ = (y < (8 >> m)) ^ (x < (8 >> m)) ? (byte)0 : (byte)0xff;
+                }
+            }
         }
     }
 
@@ -255,7 +259,9 @@ public static unsafe class RMain
     public static void NewMap()
     {
         for (int i = 0; i < Cl.worldmodel->NumLeafs; i++)
+        {
             Cl.worldmodel->Leafs[i].EFrags = null;
+        }
 
         r_viewleaf = null;
         RPart.ClearParticles();
@@ -263,7 +269,9 @@ public static unsafe class RMain
         r_cnumsurfs = (int)r_maxsurfs->Value;
 
         if (r_cnumsurfs <= RShared.MINSURFACES)
+        {
             r_cnumsurfs = RShared.MINSURFACES;
+        }
 
         if (r_cnumsurfs > RShared.NUMSTACKSURFACES)
         {
@@ -286,7 +294,9 @@ public static unsafe class RMain
         RShared.r_numallocatededges = (int)r_maxedges->Value;
 
         if (RShared.r_numallocatededges < RShared.MINEDGES)
+        {
             RShared.r_numallocatededges = RShared.MINEDGES;
+        }
 
         RShared.auxedges = RShared.r_numallocatededges <= RShared.NUMSTACKEDGES
             ? null
@@ -321,7 +331,9 @@ public static unsafe class RMain
         pvrect->Width &= ~7;
         pvrect->Height = (int)(pvrectin->Height * size);
         if (pvrect->Height > pvrectin->Height - lineadj)
+        {
             pvrect->Height = pvrectin->Height - lineadj;
+        }
 
         pvrect->Height &= ~1;
 
@@ -388,9 +400,9 @@ public static unsafe class RMain
         // the polygon rasterization will never render in the first row or
         // column but will definately render in the [range] row and column,
         // so adjust the buffer origin to get an exact edge to edge fill
-        RShared.xcenter = RShared.r_refdef->Vrect.Width * RLocal.XCENTERING + RShared.r_refdef->Vrect.X - 0.5f;
+        RShared.xcenter = (RShared.r_refdef->Vrect.Width * RLocal.XCENTERING) + RShared.r_refdef->Vrect.X - 0.5f;
         aliasxcenter = RShared.xcenter * DIface.r_aliasuvscale;
-        RShared.ycenter = RShared.r_refdef->Vrect.Height * RLocal.YCENTERING + RShared.r_refdef->Vrect.Y - 0.5f;
+        RShared.ycenter = (RShared.r_refdef->Vrect.Height * RLocal.YCENTERING) + RShared.r_refdef->Vrect.Y - 0.5f;
         aliasycenter = RShared.ycenter * DIface.r_aliasuvscale;
 
         RShared.xscale = RShared.r_refdef->Vrect.Width / RShared.r_refdef->HorizontalFieldOfView;
@@ -451,7 +463,9 @@ public static unsafe class RMain
     public static void MarkLeaves()
     {
         if (r_oldviewleaf == r_viewleaf)
+        {
             return;
+        }
 
         r_visframecount++;
         r_oldviewleaf = r_viewleaf;
@@ -485,7 +499,10 @@ public static unsafe class RMain
             ulong bits = 0;
             int nbytes = (rem + 7) >> 3;
             for (int b = 0; b < nbytes; b++)
+            {
                 bits |= (ulong)vis[(fullWords << 3) + b] << (b << 3);
+            }
+
             bits &= (1UL << rem) - 1;
             while (bits != 0)
             {
@@ -501,7 +518,10 @@ public static unsafe class RMain
         do
         {
             if (node->VisFrame == visframecount)
+            {
                 break;
+            }
+
             node->VisFrame = visframecount;
             node = node->Parent;
         } while (node != null);
@@ -515,14 +535,18 @@ public static unsafe class RMain
     public static void DrawEntitiesOnList()
     {
         if (r_drawentities->Value == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < ClEntities.cl_numvisedicts; i++)
         {
             RShared.currententity = ClEntities.cl_visedicts[i];
 
             if (RShared.currententity == ClEntities.cl_entities + Cl.viewentity)
+            {
                 continue; // don't draw the player
+            }
 
             switch (RShared.currententity->Model->Type)
             {
@@ -535,7 +559,9 @@ public static unsafe class RMain
                 case ModType_t.Alias:
                     // r_main.c (Mark_V): move lerp before the origin is read
                     if (r_lerpmove->Value != 0)
+                    {
                         RLerp.SetupEntityTransform(RShared.currententity);
+                    }
 
                     r_entorigin = RShared.currententity->Origin;
                     RShared.modelorg = RShared.r_origin - r_entorigin;
@@ -564,15 +590,22 @@ public static unsafe class RMain
                                 float add = ClEntities.cl_dlights[lnum].Radius - dist.Length();
 
                                 if (add > 0)
+                                {
                                     lighting.AmbientLight = (int)(lighting.AmbientLight + add);
+                                }
                             }
                         }
 
                         // clamp lighting so it doesn't overbright as much
                         if (lighting.AmbientLight > 128)
+                        {
                             lighting.AmbientLight = 128;
+                        }
+
                         if (lighting.AmbientLight + lighting.ShadeLight > 192)
+                        {
                             lighting.ShadeLight = 192 - lighting.AmbientLight;
+                        }
 
                         RAlias.DrawModel(&lighting);
                     }
@@ -595,17 +628,25 @@ public static unsafe class RMain
         lightvec[2] = 0;
 
         if (r_drawviewmodel->Value == 0 || r_fov_greater_than_90)
+        {
             return;
+        }
 
         if ((Cl.items & IT_INVISIBILITY) != 0)
+        {
             return;
+        }
 
         if (Cl.stats[(int)Stat.Health] <= 0)
+        {
             return;
+        }
 
         RShared.currententity = Cl.viewent;
         if (RShared.currententity->Model == null)
+        {
             return;
+        }
 
         r_entorigin = RShared.currententity->Origin;
         RShared.modelorg = RShared.r_origin - r_entorigin;
@@ -616,7 +657,10 @@ public static unsafe class RMain
         int j = RLight.LightPoint(&RShared.currententity->Origin);
 
         if (j < 24)
+        {
             j = 24; // allways give some light on gun
+        }
+
         r_viewlighting->AmbientLight = j;
         r_viewlighting->ShadeLight = j;
 
@@ -625,21 +669,33 @@ public static unsafe class RMain
         {
             ref DLight_t dl = ref ClEntities.cl_dlights[lnum];
             if (dl.Radius == 0)
+            {
                 continue;
+            }
+
             if (dl.Die < Cl.time)
+            {
                 continue;
+            }
 
             Vec3_t dist = RShared.currententity->Origin - dl.Origin;
             float add = dl.Radius - dist.Length();
             if (add > 0)
+            {
                 r_viewlighting->AmbientLight = (int)(r_viewlighting->AmbientLight + add);
+            }
         }
 
         // clamp lighting so it doesn't overbright as much
         if (r_viewlighting->AmbientLight > 128)
+        {
             r_viewlighting->AmbientLight = 128;
+        }
+
         if (r_viewlighting->AmbientLight + r_viewlighting->ShadeLight > 192)
+        {
             r_viewlighting->ShadeLight = 192 - r_viewlighting->AmbientLight;
+        }
 
         r_viewlighting->PLightVec = lightvec;
 
@@ -663,10 +719,14 @@ public static unsafe class RMain
                 d -= view_clipplanes[i].Dist;
 
                 if (d <= -clmodel->Radius)
+                {
                     return RLocal.BMODEL_FULLY_CLIPPED;
+                }
 
                 if (d <= clmodel->Radius)
+                {
                     clipflags |= 1 << i;
+                }
             }
         }
         else
@@ -687,7 +747,9 @@ public static unsafe class RMain
                 d -= view_clipplanes[i].Dist;
 
                 if (d <= 0)
+                {
                     return RLocal.BMODEL_FULLY_CLIPPED;
+                }
 
                 Vec3_t acceptpt = default;
                 acceptpt[0] = minmaxs[pindex[3 + 0]];
@@ -698,7 +760,9 @@ public static unsafe class RMain
                 d -= view_clipplanes[i].Dist;
 
                 if (d <= 0)
+                {
                     clipflags |= 1 << i;
+                }
             }
         }
 
@@ -713,7 +777,9 @@ public static unsafe class RMain
     public static void DrawBEntitiesOnList()
     {
         if (r_drawentities->Value == 0)
+        {
             return;
+        }
 
         Vec3_t oldorigin = RShared.modelorg;
         insubmodel = true;
@@ -729,7 +795,9 @@ public static unsafe class RMain
             RShared.currententity = ClEntities.cl_visedicts[i];
 
             if (RShared.currententity->Model->Type != ModType_t.Brush)
+            {
                 continue;
+            }
 
             Model_t* clmodel = RShared.currententity->Model;
 
@@ -742,7 +810,9 @@ public static unsafe class RMain
             int clipflags = BmodelCheckBBox(clmodel, minmaxs);
 
             if (clipflags == RLocal.BMODEL_FULLY_CLIPPED)
+            {
                 continue;
+            }
 
             r_entorigin = RShared.currententity->Origin;
             RShared.modelorg = RShared.r_origin - r_entorigin;
@@ -761,7 +831,9 @@ public static unsafe class RMain
                 for (int k = 0; k < ClEntities.MAX_DLIGHTS; k++)
                 {
                     if (ClEntities.cl_dlights[k].Die < Cl.time || ClEntities.cl_dlights[k].Radius == 0)
+                    {
                         continue;
+                    }
 
                     RLight.MarkLights(&ClEntities.cl_dlights[k], 1 << k, clmodel->Nodes + clmodel->Hulls[0].FirstClipNode);
                 }
@@ -841,14 +913,20 @@ public static unsafe class RMain
         else
         {
             if (ledges == null)
+            {
                 ledges = (Edge_t*)NativeMemory.AlignedAlloc((nuint)(RShared.NUMSTACKEDGES * sizeof(Edge_t)), 64);
+            }
+
             RShared.r_edges = ledges;
         }
 
         if (r_surfsonstack)
         {
             if (lsurfs == null)
+            {
                 lsurfs = (Surf_t*)NativeMemory.AlignedAlloc((nuint)(RShared.NUMSTACKSURFACES * sizeof(Surf_t)), 64);
+            }
+
             RShared.surfaces = lsurfs;
             RShared.surf_max = &RShared.surfaces[r_cnumsurfs];
             // surface 0 doesn't really exist; it's just a dummy because
@@ -861,12 +939,16 @@ public static unsafe class RMain
         REdge.BeginEdgeFrame();
 
         if (r_dspeeds->Value != 0)
+        {
             rw_time1 = (float)Sys.FloatTime();
+        }
 
         RBsp.RenderWorld();
 
         if (DIface.r_drawculledpolys)
+        {
             REdge.ScanEdges();
+        }
 
         // D_TurnZOn -- "not needed for software version" even in the
         // original (d_init.c); permanently a no-op, not ported.
@@ -890,7 +972,9 @@ public static unsafe class RMain
         // buffer-lock/audio-pump triad is unneeded by OpenTK/OpenAL's model)
 
         if (!(DIface.r_drawpolys || DIface.r_drawculledpolys))
+        {
             REdge.ScanEdges();
+        }
     }
 
     /*
@@ -908,11 +992,16 @@ public static unsafe class RMain
         // stack array in the original; kept as a lazily-allocated native
         // buffer instead.
         if (warpBuffer == null)
+        {
             warpBuffer = NativeMemory.AllocArrayZeroed<byte>(DIface.WARP_WIDTH * DIface.WARP_HEIGHT);
+        }
+
         DIface.r_warpbuffer = warpBuffer;
 
         if (r_timegraph->Value != 0 || r_speeds->Value != 0 || r_dspeeds->Value != 0)
+        {
             r_time1 = (float)Sys.FloatTime();
+        }
 
         RMisc.SetupFrame();
 
@@ -922,7 +1011,9 @@ public static unsafe class RMain
         // (managed doubles have no such mode)
 
         if (ClEntities.cl_entities[0].Model == null || Cl.worldmodel == null)
+        {
             Sys.Error("R_RenderView: NULL worldmodel"u8);
+        }
 
         // VID_UnlockBuffer/S_ExtraUpdate/VID_LockBuffer -- dropped
 
@@ -955,31 +1046,47 @@ public static unsafe class RMain
         RPart.DrawParticles();
 
         if (r_dspeeds->Value != 0)
+        {
             dp_time2 = (float)Sys.FloatTime();
+        }
 
         if (DIface.r_dowarp)
+        {
             DScan.WarpScreen();
+        }
 
         // V_SetContentsColor(r_viewleaf->contents)
         View.SetContentsColor(r_viewleaf->Contents);
 
         if (r_timegraph->Value != 0)
+        {
             RMisc.TimeGraph();
+        }
 
         if (r_aliasstats->Value != 0)
+        {
             RMisc.PrintAliasStats();
+        }
 
         if (r_speeds->Value != 0)
+        {
             RMisc.PrintTimes();
+        }
 
         if (r_dspeeds->Value != 0)
+        {
             RMisc.PrintDSpeeds();
+        }
 
         if (r_reportsurfout->Value != 0 && r_outofsurfaces != 0)
+        {
             Con.Printf($"Short {r_outofsurfaces} surfaces\n");
+        }
 
         if (r_reportedgeout->Value != 0 && r_outofedges != 0)
+        {
             Con.Printf($"Short roughly {r_outofedges * 2 / 3} edges\n");
+        }
 
         // Sys_HighFPPrecision -- dropped (see Sys_LowFPPrecision above)
     }
@@ -1001,8 +1108,8 @@ public static unsafe class RMain
     {
         for (int i = 0; i < RShared.SIN_BUFFER_SIZE; i++)
         {
-            RShared.sintable[i] = (int)(RLocal.AMP + MathF.Sin(i * 3.14159f * 2 / DIface.CYCLE) * RLocal.AMP);
-            RShared.intsintable[i] = (int)(RLocal.AMP2 + MathF.Sin(i * 3.14159f * 2 / DIface.CYCLE) * RLocal.AMP2); // AMP2, not 20
+            RShared.sintable[i] = (int)(RLocal.AMP + (MathF.Sin(i * 3.14159f * 2 / DIface.CYCLE) * RLocal.AMP));
+            RShared.intsintable[i] = (int)(RLocal.AMP2 + (MathF.Sin(i * 3.14159f * 2 / DIface.CYCLE) * RLocal.AMP2)); // AMP2, not 20
         }
     }
 }

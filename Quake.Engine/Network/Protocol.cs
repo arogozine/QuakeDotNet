@@ -71,8 +71,11 @@ public static class Protocol
     public static byte EntAlphaEncode(float a)
     {
         if (a == 0)
+        {
             return ENTALPHA_DEFAULT;
-        float v = MathF.Round(a * 254 + 1, MidpointRounding.ToEven);
+        }
+
+        float v = MathF.Round((a * 254) + 1, MidpointRounding.ToEven);
         return (byte)Math.Clamp(v, 1, 255);
     }
 

@@ -7,13 +7,17 @@ using System.Text.RegularExpressions;
 
 /// <summary>Every declared Cvar_t* is registered somewhere (Cvar_RegisterVariable), so console changes reach it.</summary>
 [TestClass]
-public sealed unsafe class CvarRegistrationTests
+public sealed class CvarRegistrationTests
 {
     [TestMethod]
     public void EveryDeclaredCvarIsRegistered()
     {
         string dir = AppContext.BaseDirectory;
-        while (dir != null && !Directory.Exists(Path.Combine(dir, "Quake.Engine"))) dir = Path.GetDirectoryName(dir)!;
+        while (dir != null && !Directory.Exists(Path.Combine(dir, "Quake.Engine")))
+        {
+            dir = Path.GetDirectoryName(dir)!;
+        }
+
         Assert.IsNotNull(dir, "Quake.Engine source directory not found");
 
         var files = Directory.EnumerateFiles(Path.Combine(dir, "Quake.Engine"), "*.cs", SearchOption.AllDirectories)

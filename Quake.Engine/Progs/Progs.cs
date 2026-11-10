@@ -205,7 +205,7 @@ public static unsafe class Progs
     public static void RETURN_EDICT(EDict_t* e) => G_INT_SET(OFS_RETURN, EdictToProg(e));
     public static void RETURN_INT(int v) => G_INT_SET(OFS_RETURN, v);
 
-    public static int OFS_PARM(int i) => OFS_PARM0 + i * 3;
+    public static int OFS_PARM(int i) => OFS_PARM0 + (i * 3);
 
     /*
     ===============================================================================
@@ -228,7 +228,10 @@ public static unsafe class Progs
     {
         long d = p - pr_strings;
         if (d != (int)d)
+        {
             Sys.Error("PR_SetString: string outside the Hunk"u8);
+        }
+
         return (int)d;
     }
 
@@ -255,12 +258,15 @@ public static unsafe class Progs
     // current statement, since the ring wraps after PR_STRING_RING_SIZE calls.
     public static int PR_NewString(byte* src)
     {
-        byte* dst = pr_string_temp + pr_string_ring_index * PR_STRING_SLOT_LEN;
+        byte* dst = pr_string_temp + (pr_string_ring_index * PR_STRING_SLOT_LEN);
         pr_string_ring_index = (pr_string_ring_index + 1) % PR_STRING_RING_SIZE;
 
         int i = 0;
         for (; i < PR_STRING_SLOT_LEN - 1 && src[i] != 0; i++)
+        {
             dst[i] = src[i];
+        }
+
         dst[i] = 0;
 
         return PR_SetString(dst);
@@ -274,20 +280,31 @@ public static unsafe class Progs
         progs = (DPrograms_t*)Com.LoadHunkFile("progs.dat"u8);
 
         if (progs == null)
+        {
             Sys.Error("PR_LoadProgs: couldn't load progs.dat"u8);
+        }
 
         for (int i = 0; i < Com.com_filesize; i++)
+        {
             Crc.ProcessByte(ref pr_crc, ((byte*)progs)[i]);
+        }
 
         // byte swap the header
         int* headerInts = (int*)progs;
         for (int i = 0; i < sizeof(DPrograms_t) / 4; i++)
+        {
             headerInts[i] = Com.LittleLong(headerInts[i]);
+        }
 
         if (progs->Version != PROG_VERSION)
+        {
             Sys.Error($"progs.dat has wrong version number ({progs->Version} should be {PROG_VERSION})");
+        }
+
         if (progs->Crc != PROGHEADER_CRC)
+        {
             Sys.Error("progs.dat system vars have been modified, progdefs.h is out of date"u8);
+        }
 
         pr_functions = (DFunction_t*)((byte*)progs + progs->Ofs_Functions);
         pr_strings = (byte*)progs + progs->Ofs_Strings;
@@ -308,7 +325,7 @@ public static unsafe class Progs
         // original never validates this at runtime (it's a compile-time
         // guarantee of progdefs.h matching progs.src); not validated here
         // either, matching that.
-        pr_edict_size = progs->EntityFields * 4 + sizeof(EDict_t) - sizeof(EntVars_t);
+        pr_edict_size = (progs->EntityFields * 4) + sizeof(EDict_t) - sizeof(EntVars_t);
 
         // byte swap the lumps
         for (int i = 0; i < progs->NumStatements; i++)
@@ -340,14 +357,19 @@ public static unsafe class Progs
         {
             pr_fielddefs[i].Type = (ushort)Com.LittleShort((short)pr_fielddefs[i].Type);
             if ((pr_fielddefs[i].Type & DEF_SAVEGLOBAL) != 0)
+            {
                 Sys.Error("PR_LoadProgs: pr_fielddefs[i].type & DEF_SAVEGLOBAL"u8);
+            }
+
             pr_fielddefs[i].Ofs = (ushort)Com.LittleShort((short)pr_fielddefs[i].Ofs);
             pr_fielddefs[i].S_Name = Com.LittleLong(pr_fielddefs[i].S_Name);
         }
 
         int* globalInts = (int*)pr_globals;
         for (int i = 0; i < progs->NumGlobals; i++)
+        {
             globalInts[i] = Com.LittleLong(globalInts[i]);
+        }
     }
 
     /*
@@ -360,8 +382,11 @@ public static unsafe class Progs
     public static EDict_t* EdictNum(int n)
     {
         if (n < 0 || n >= Sv.max_edicts)
+        {
             Sys.Error($"EDICT_NUM: bad number {n}");
-        return (EDict_t*)((byte*)Sv.edicts + n * pr_edict_size);
+        }
+
+        return (EDict_t*)((byte*)Sv.edicts + (n * pr_edict_size));
     }
 
     // NUM_FOR_EDICT
@@ -371,7 +396,10 @@ public static unsafe class Progs
         long n = b / pr_edict_size;
 
         if (n < 0 || n >= Sv.num_edicts)
+        {
             Sys.Error("NUM_FOR_EDICT: bad pointer"u8);
+        }
+
         return (int)n;
     }
 
@@ -420,7 +448,9 @@ public static unsafe class Progs
         }
 
         if (i == QuakeDef.MAX_EDICTS)
+        {
             Sys.Error("ED_Alloc: no free edicts"u8);
+        }
 
         Sv.num_edicts++;
         e = EdictNum(i);
@@ -525,14 +555,21 @@ public static unsafe class Progs
         pr_stack[pr_depth].F = pr_xfunction;
         pr_depth++;
         if (pr_depth >= MAX_STACK_DEPTH)
+        {
             RunError("stack overflow"u8);
+        }
 
         int c = f->Locals;
         if (localstack_used + c > LOCALSTACK_SIZE)
+        {
             RunError("PR_ExecuteProgram: locals stack overflow\n"u8);
+        }
 
         for (int i = 0; i < c; i++)
+        {
             localstack[localstack_used + i] = ((int*)pr_globals)[f->Parm_Start + i];
+        }
+
         localstack_used += c;
 
         int o = f->Parm_Start;
@@ -540,7 +577,7 @@ public static unsafe class Progs
         {
             for (int j = 0; j < f->Parm_Size[i]; j++)
             {
-                ((int*)pr_globals)[o] = ((int*)pr_globals)[OFS_PARM0 + i * 3 + j];
+                ((int*)pr_globals)[o] = ((int*)pr_globals)[OFS_PARM0 + (i * 3) + j];
                 o++;
             }
         }
@@ -553,15 +590,21 @@ public static unsafe class Progs
     public static int LeaveFunction()
     {
         if (pr_depth <= 0)
+        {
             Sys.Error("prog stack underflow"u8);
+        }
 
         int c = pr_xfunction->Locals;
         localstack_used -= c;
         if (localstack_used < 0)
+        {
             RunError("PR_ExecuteProgram: locals stack underflow\n"u8);
+        }
 
         for (int i = 0; i < c; i++)
+        {
             ((int*)pr_globals)[pr_xfunction->Parm_Start + i] = localstack[localstack_used + i];
+        }
 
         pr_depth--;
         pr_xfunction = pr_stack[pr_depth].F;
@@ -580,7 +623,9 @@ public static unsafe class Progs
     public static void ExecuteProgram(int fnum)
     {
         if (fnum == 0 || fnum >= progs->NumFunctions)
+        {
             Sys.Error("PR_ExecuteProgram: NULL function"u8); // ED_Print(self) omitted -- debug aid only
+        }
 
         DFunction_t* f = &pr_functions[fnum];
 
@@ -602,7 +647,9 @@ public static unsafe class Progs
             int* ai = (int*)a, bi = (int*)b, ci = (int*)c;
 
             if (--runaway == 0)
+            {
                 RunError("runaway loop error"u8);
+            }
 
             pr_xfunction->Profile++;
             pr_xstatement = s;
@@ -620,7 +667,7 @@ public static unsafe class Progs
                     break;
 
                 case Op_t.Mul_F: *c = *a * *b; break;
-                case Op_t.Mul_V: *c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; break;
+                case Op_t.Mul_V: *c = (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]); break;
                 case Op_t.Mul_FV:
                     c[0] = *a * b[0]; c[1] = *a * b[1]; c[2] = *a * b[2];
                     break;
@@ -690,7 +737,10 @@ public static unsafe class Progs
                     {
                         EDict_t* ed = ProgToEdict(*ai);
                         if (ed == Sv.edicts && Sv.state == ServerState_t.Active)
+                        {
                             RunError("assignment to world entity"u8);
+                        }
+
                         *ci = (int)((byte*)((int*)&ed->V + *bi) - (byte*)Sv.edicts);
                         break;
                     }
@@ -717,12 +767,18 @@ public static unsafe class Progs
 
                 case Op_t.IfNot:
                     if (*ai == 0)
+                    {
                         s += st->B - 1;
+                    }
+
                     break;
 
                 case Op_t.If:
                     if (*ai != 0)
+                    {
                         s += st->B - 1;
+                    }
+
                     break;
 
                 case Op_t.Goto:
@@ -741,7 +797,9 @@ public static unsafe class Progs
                     {
                         pr_argc = st->Op - (int)Op_t.Call0;
                         if (*ai == 0)
+                        {
                             RunError("NULL function"u8);
+                        }
 
                         DFunction_t* newf = &pr_functions[*ai];
 
@@ -749,7 +807,10 @@ public static unsafe class Progs
                         {
                             int bi2 = -newf->First_Statement;
                             if (bi2 >= pr_numbuiltins)
+                            {
                                 RunError("Bad builtin call number"u8);
+                            }
+
                             pr_builtins[bi2]();
                             break;
                         }
@@ -766,7 +827,10 @@ public static unsafe class Progs
 
                     s = LeaveFunction();
                     if (pr_depth == exitdepth)
+                    {
                         return; // all done
+                    }
+
                     break;
 
                 case Op_t.State:
@@ -774,7 +838,10 @@ public static unsafe class Progs
                         EDict_t* ed = ProgToEdict(pr_global_struct->Self);
                         ed->V.NextThink = pr_global_struct->Time + 0.1f;
                         if (*a != ed->V.Frame)
+                        {
                             ed->V.Frame = *a;
+                        }
+
                         ed->V.Think = *bi;
                         break;
                     }
@@ -820,14 +887,25 @@ public static unsafe class Progs
         {
             EDict_t* ent = EdictNum(i);
             if (ent->Free != 0)
+            {
                 continue;
+            }
+
             active++;
             if (ent->V.Solid != 0)
+            {
                 solid++;
+            }
+
             if (ent->V.Model != 0)
+            {
                 models++;
+            }
+
             if (ent->V.MoveType == (int)MoveType.Step)
+            {
                 step++;
+            }
         }
         Con.Printf($"num_edicts:{Sv.num_edicts}\n");
         Con.Printf($"active    :{active}\n");
@@ -859,7 +937,9 @@ public static unsafe class Progs
     {
         Con.Printf($"{Sv.num_edicts} entities\n");
         for (int i = 0; i < Sv.num_edicts; i++)
+        {
             PrintNum(i);
+        }
     }
 
     // ED_PrintEdict_f

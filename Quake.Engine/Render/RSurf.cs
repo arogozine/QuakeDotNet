@@ -52,7 +52,9 @@ public static unsafe class RSurf
         for (int lnum = 0; lnum < ClEntities.MAX_DLIGHTS; lnum++)
         {
             if ((surf->DLightBits & (1 << lnum)) == 0)
+            {
                 continue; // not lit by this light
+            }
 
             float rad = ClEntities.cl_dlights[lnum].Radius;
             Vec3_t origin = ClEntities.cl_dlights[lnum].Origin;
@@ -61,10 +63,13 @@ public static unsafe class RSurf
             rad -= MathF.Abs(dist);
             float minlight = ClEntities.cl_dlights[lnum].MinLight;
             if (rad < minlight)
+            {
                 continue;
+            }
+
             minlight = rad - minlight;
 
-            Vec3_t impact = origin - normal * dist;
+            Vec3_t impact = origin - (normal * dist);
 
             Vec3_t local = default;
             local[0] = Vector3.Dot(impact, Unsafe.ReadUnaligned<Vec3_t>(tex->Vecs)) + tex->Vecs[3];
@@ -110,7 +115,9 @@ public static unsafe class RSurf
 
         // add all the dynamic lights
         if (surf->DLightFrame == DIface.r_framecount)
+        {
             AddDynamicLights();
+        }
 
         // bound, invert, and shift
         RSurfSimd.BoundInvertShift(blocklights, size, 8 - Vid.VID_CBITS);
@@ -122,11 +129,15 @@ public static unsafe class RSurf
         if (RShared.currententity->Frame != 0)
         {
             if (@base->AlternateAnims != null)
+            {
                 @base = @base->AlternateAnims;
+            }
         }
 
         if (@base->AnimTotal == 0)
+        {
             return @base;
+        }
 
         int reletive = (int)(Cl.time * 10) % @base->AnimTotal;
 
@@ -135,9 +146,14 @@ public static unsafe class RSurf
         {
             @base = @base->AnimNext;
             if (@base == null)
+            {
                 Sys.Error("R_TextureAnimation: broken cycle"u8);
+            }
+
             if (++count > 100)
+            {
                 Sys.Error("R_TextureAnimation: infinite cycle"u8);
+            }
         }
 
         return @base;
@@ -193,7 +209,7 @@ public static unsafe class RSurf
         sourcetstep = texwidth;
         r_stepback = tmax * twidth;
 
-        r_sourcemax = r_source + tmax * smax;
+        r_sourcemax = r_source + (tmax * smax);
 
         int soffset = DSurf.r_drawsurf.Surf->TextureMins[0];
         int basetoffset = DSurf.r_drawsurf.Surf->TextureMins[1];
@@ -217,7 +233,9 @@ public static unsafe class RSurf
 
             soffset += blocksize;
             if (soffset >= smax)
+            {
                 soffset = 0;
+            }
 
             pcolumndest += horzblockstep;
         }
@@ -227,18 +245,26 @@ public static unsafe class RSurf
     public static void DrawSurfaceBlock8_mip0()
     {
         if (Avx2.IsSupported)
+        {
             DrawSurfaceBlock8_Avx2<Mip0>();
+        }
         else
+        {
             DrawSurfaceBlock8<Mip0>();
+        }
     }
 
     // R_DrawSurfaceBlock8_mip1
     public static void DrawSurfaceBlock8_mip1()
     {
         if (Avx2.IsSupported)
+        {
             DrawSurfaceBlock8_Avx2<Mip1>();
+        }
         else
+        {
             DrawSurfaceBlock8<Mip1>();
+        }
     }
 
     // R_DrawSurfaceBlock8_mip2
@@ -300,7 +326,9 @@ public static unsafe class RSurf
             }
 
             if (psource >= r_sourcemax)
+            {
                 psource -= r_stepback;
+            }
         }
 
         r_lightptr = lightptr;
@@ -347,12 +375,12 @@ public static unsafe class RSurf
                 Vector256<int> vstep = Vector256.Create(lightstep);
                 Vector256<int> vbase = Vector256.Create(lightrightL);
 
-                Vector256<int> idx0 = ((vbase + vstep * iotaLo) & ff00) + Avx2.ConvertToVector256Int32(psource);
+                Vector256<int> idx0 = ((vbase + (vstep * iotaLo)) & ff00) + Avx2.ConvertToVector256Int32(psource);
                 Vector256<int> g0 = Avx2.GatherVector256((int*)colorMap, idx0, 1) & ff;
 
                 if (count == 16)
                 {
-                    Vector256<int> idx1 = ((vbase + vstep * iotaHi) & ff00) + Avx2.ConvertToVector256Int32(psource + 8);
+                    Vector256<int> idx1 = ((vbase + (vstep * iotaHi)) & ff00) + Avx2.ConvertToVector256Int32(psource + 8);
                     Vector256<int> g1 = Avx2.GatherVector256((int*)colorMap, idx1, 1) & ff;
                     Vector128<short> s0 = Sse2.PackSignedSaturate(g0.GetLower(), g0.GetUpper());
                     Vector128<short> s1 = Sse2.PackSignedSaturate(g1.GetLower(), g1.GetUpper());
@@ -371,7 +399,9 @@ public static unsafe class RSurf
             }
 
             if (psource >= r_sourcemax)
+            {
                 psource -= r_stepback;
+            }
         }
 
         r_lightptr = lightptr;

@@ -90,12 +90,16 @@ public static unsafe class World
         if (ent->V.Solid == (int)SolidType.Bsp)
         {
             if (ent->V.MoveType != (int)MoveType.Push)
+            {
                 Sys.Error("(int)SolidType.Bsp without (int)MoveType.Push"u8);
+            }
 
             Model_t* model = Sv.models[(int)ent->V.ModelIndex];
 
             if (model == null || model->Type != ModType_t.Brush)
+            {
                 Sys.Error("(int)MoveType.Push with a non bsp model"u8);
+            }
 
             Vec3_t size = maxs - mins;
             hull = size[0] < 3 ? &model->Hulls[0] : size[0] <= 32 ? &model->Hulls[1] : &model->Hulls[2];
@@ -177,7 +181,10 @@ public static unsafe class World
     public static void UnlinkEdict(EDict_t* ent)
     {
         if (ent->Area.Prev == null)
+        {
             return; // not linked in anywhere
+        }
+
         Link.RemoveLink((Link_t*)&ent->Area);
         ent->Area.Prev = ent->Area.Next = null;
     }
@@ -229,12 +236,19 @@ public static unsafe class World
 
         // recurse down both sides
         if (node->Axis == -1)
+        {
             return;
+        }
 
         if (ent->V.AbsMax[node->Axis] > node->Dist)
+        {
             TouchLinks(ent, node->Children0);
+        }
+
         if (ent->V.AbsMin[node->Axis] < node->Dist)
+        {
             TouchLinks(ent, node->Children1);
+        }
     }
 
     // EDICT_FROM_AREA(l) == STRUCT_FROM_LINK(l, edict_t, area): l points at
@@ -254,12 +268,16 @@ public static unsafe class World
     public static void FindTouchedLeafs(EDict_t* ent, MNode_t* node)
     {
         if (node->Contents == (int)Contents.Solid)
+        {
             return;
+        }
 
         if (node->Contents < 0)
         {
             if (ent->NumLeafs == EDict_t.MAX_ENT_LEAFS)
+            {
                 return;
+            }
 
             MLeaf_t* leaf = (MLeaf_t*)node;
             int leafnum = (int)(leaf - Sv.worldmodel->Leafs) - 1;
@@ -274,25 +292,36 @@ public static unsafe class World
         int sides = MathLib.BoxOnPlaneSideFast(ent->V.AbsMin, ent->V.AbsMax, splitplane);
 
         if ((sides & 1) != 0)
+        {
             FindTouchedLeafs(ent, node->Children[0]);
+        }
+
         if ((sides & 2) != 0)
+        {
             FindTouchedLeafs(ent, node->Children[1]);
+        }
     }
 
     // SV_LinkEdict
     public static void LinkEdict(EDict_t* ent, bool touch_triggers)
     {
         if (ent->Area.Prev != null)
+        {
             UnlinkEdict(ent); // unlink from old position
+        }
 
         {
             AreaNode_t* rootNode = sv_areanodes;
 
             if (ent == Sv.edicts)
+            {
                 return; // don't add the world
+            }
 
             if (ent->Free != 0)
+            {
                 return;
+            }
 
             // set the abs box
             ent->V.AbsMin = ent->V.Origin + ent->V.Mins;
@@ -322,34 +351,53 @@ public static unsafe class World
             // link to PVS leafs
             ent->NumLeafs = 0;
             if (ent->V.ModelIndex != 0)
+            {
                 FindTouchedLeafs(ent, Sv.worldmodel->Nodes);
+            }
 
             if (ent->V.Solid == (int)SolidType.Not)
+            {
                 return;
+            }
 
             // find the first node that the ent's box crosses
             AreaNode_t* node = rootNode;
             while (true)
             {
                 if (node->Axis == -1)
+                {
                     break;
+                }
+
                 if (ent->V.AbsMin[node->Axis] > node->Dist)
+                {
                     node = node->Children0;
+                }
                 else if (ent->V.AbsMax[node->Axis] < node->Dist)
+                {
                     node = node->Children1;
+                }
                 else
+                {
                     break; // crosses the node
+                }
             }
 
             // link it in
             if (ent->V.Solid == (int)SolidType.Trigger)
+            {
                 Link.InsertLinkBefore((Link_t*)&ent->Area, (Link_t*)&node->TriggerEdicts);
+            }
             else
+            {
                 Link.InsertLinkBefore((Link_t*)&ent->Area, (Link_t*)&node->SolidEdicts);
+            }
 
             // if touch_triggers, touch all entities at this node and decend for more
             if (touch_triggers)
+            {
                 TouchLinks(ent, rootNode);
+            }
         }
     }
 
@@ -365,7 +413,9 @@ public static unsafe class World
         while (num >= 0)
         {
             if (num < hull->FirstClipNode || num > hull->LastClipNode)
+            {
                 Sys.Error("SV_HullPointContents: bad node number"u8);
+            }
 
             DClipNode_t* node = hull->ClipNodes + num;
             MPlane_t* plane = hull->Planes + node->PlaneNum;
@@ -382,7 +432,10 @@ public static unsafe class World
     {
         int cont = HullPointContents(&Sv.worldmodel->Hulls[0], 0, p);
         if (cont <= (int)Contents.Current0 && cont >= (int)Contents.CurrentDown)
+        {
             cont = (int)Contents.Water;
+        }
+
         return cont;
     }
 
@@ -396,7 +449,9 @@ public static unsafe class World
         Trace_t trace = Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, ent->V.Origin, (int)ClipMoveType.Normal, ent);
 
         if (trace.StartSolid)
+        {
             return Sv.edicts;
+        }
 
         return null;
     }
@@ -419,17 +474,26 @@ public static unsafe class World
             {
                 trace.AllSolid = false;
                 if (num == (int)Contents.Empty)
+                {
                     trace.InOpen = true;
+                }
                 else
+                {
                     trace.InWater = true;
+                }
             }
             else
+            {
                 trace.StartSolid = true;
+            }
+
             return true; // empty
         }
 
         if (num < hull->FirstClipNode || num > hull->LastClipNode)
+        {
             Sys.Error("SV_RecursiveHullCheck: bad node number"u8);
+        }
 
         // find the point distances
         DClipNode_t* node = hull->ClipNodes + num;
@@ -449,32 +513,48 @@ public static unsafe class World
         }
 
         if (t1 >= 0 && t2 >= 0)
+        {
             return RecursiveHullCheck(hull, node->Children[0], p1f, p2f, p1, p2, ref trace);
+        }
+
         if (t1 < 0 && t2 < 0)
+        {
             return RecursiveHullCheck(hull, node->Children[1], p1f, p2f, p1, p2, ref trace);
+        }
 
         // put the crosspoint DIST_EPSILON pixels on the near side
         float frac = t1 < 0 ? (t1 + DIST_EPSILON) / (t1 - t2) : (t1 - DIST_EPSILON) / (t1 - t2);
         if (frac < 0)
+        {
             frac = 0;
-        if (frac > 1)
-            frac = 1;
+        }
 
-        float midf = p1f + (p2f - p1f) * frac;
-        Vec3_t mid = p1 + frac * (p2 - p1);
+        if (frac > 1)
+        {
+            frac = 1;
+        }
+
+        float midf = p1f + ((p2f - p1f) * frac);
+        Vec3_t mid = p1 + (frac * (p2 - p1));
 
         int side = t1 < 0 ? 1 : 0;
 
         // move up to the node
         if (!RecursiveHullCheck(hull, node->Children[side], p1f, midf, p1, mid, ref trace))
+        {
             return false;
+        }
 
         if (HullPointContents(hull, node->Children[side ^ 1], mid) != (int)Contents.Solid)
+        {
             // go past the node
             return RecursiveHullCheck(hull, node->Children[side ^ 1], midf, p2f, mid, p2, ref trace);
+        }
 
         if (trace.AllSolid)
+        {
             return false; // never got out of the solid area
+        }
 
         //==================
         // the other side of the node is solid, this is the impact point
@@ -502,8 +582,8 @@ public static unsafe class World
                 Con.DPrintf("backup past 0\n"u8);
                 return false;
             }
-            midf = p1f + (p2f - p1f) * frac;
-            mid = p1 + frac * (p2 - p1);
+            midf = p1f + ((p2f - p1f) * frac);
+            mid = p1 + (frac * (p2 - p1));
         }
 
         trace.Fraction = midf;
@@ -529,11 +609,15 @@ public static unsafe class World
 
         // fix trace up by the offset
         if (trace.Fraction != 1)
+        {
             trace.EndPos = trace.EndPos + offset;
+        }
 
         // did we clip the move?
         if (trace.Fraction < 1 || trace.StartSolid)
+        {
             trace.Ent = ent;
+        }
 
         return trace;
     }
@@ -550,14 +634,24 @@ public static unsafe class World
             l = next;
 
             if (touch->V.Solid == (int)SolidType.Not)
+            {
                 continue;
+            }
+
             if (touch == clip.PassEdict)
+            {
                 continue;
+            }
+
             if (touch->V.Solid == (int)SolidType.Trigger)
+            {
                 Sys.Error("Trigger in clipping list"u8);
+            }
 
             if (clip.Type == (int)ClipMoveType.NoMonsters && touch->V.Solid != (int)SolidType.Bsp)
+            {
                 continue;
+            }
 
             if (clip.BoxMins[0] > touch->V.AbsMax[0]
                 || clip.BoxMins[1] > touch->V.AbsMax[1]
@@ -565,20 +659,32 @@ public static unsafe class World
                 || clip.BoxMaxs[0] < touch->V.AbsMin[0]
                 || clip.BoxMaxs[1] < touch->V.AbsMin[1]
                 || clip.BoxMaxs[2] < touch->V.AbsMin[2])
+            {
                 continue;
+            }
 
             if (clip.PassEdict != null && clip.PassEdict->V.Size[0] != 0 && touch->V.Size[0] == 0)
+            {
                 continue; // points never interact
+            }
 
             // might intersect, so do an exact clip
             if (clip.Trace.AllSolid)
+            {
                 return;
+            }
+
             if (clip.PassEdict != null)
             {
                 if (Progs.ProgToEdict(touch->V.Owner) == clip.PassEdict)
+                {
                     continue; // don't clip against own missiles
+                }
+
                 if (Progs.ProgToEdict(clip.PassEdict->V.Owner) == touch)
+                {
                     continue; // don't clip against owner
+                }
             }
 
             Trace_t trace = ((int)touch->V.Flags & SvPhys.FL_MONSTER) != 0
@@ -594,20 +700,31 @@ public static unsafe class World
                     clip.Trace.StartSolid = true;
                 }
                 else
+                {
                     clip.Trace = trace;
+                }
             }
             else if (trace.StartSolid)
+            {
                 clip.Trace.StartSolid = true;
+            }
         }
 
         // recurse down both sides
         if (node->Axis == -1)
+        {
             return;
+        }
 
         if (clip.BoxMaxs[node->Axis] > node->Dist)
+        {
             ClipToLinks(node->Children0, ref clip);
+        }
+
         if (clip.BoxMins[node->Axis] < node->Dist)
+        {
             ClipToLinks(node->Children1, ref clip);
+        }
     }
 
     // SV_MoveBounds
@@ -634,7 +751,9 @@ public static unsafe class World
         Trace_t trace = Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.Normal, ent);
 
         if (trace.Fraction == 1 || trace.AllSolid)
+        {
             return false;
+        }
 
         ent->V.Origin = trace.EndPos;
         LinkEdict(ent, false);

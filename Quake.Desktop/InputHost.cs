@@ -52,28 +52,36 @@ public static class InputHost
         // (key_repeats), letting only K_BACKSPACE/K_PAUSE autorepeat.
         int keynum = KeyMap.ToKeynum(e.Key);
         if (keynum != -1)
+        {
             Quake.Engine.Keys.Event(keynum, true);
+        }
     }
 
     private static void OnKeyUp(KeyboardKeyEventArgs e)
     {
         int keynum = KeyMap.ToKeynum(e.Key);
         if (keynum != -1)
+        {
             Quake.Engine.Keys.Event(keynum, false);
+        }
     }
 
     private static void OnMouseDown(MouseButtonEventArgs e)
     {
         int keynum = KeyMap.ToKeynum(e.Button);
         if (keynum != -1)
+        {
             Quake.Engine.Keys.Event(keynum, true);
+        }
     }
 
     private static void OnMouseUp(MouseButtonEventArgs e)
     {
         int keynum = KeyMap.ToKeynum(e.Button);
         if (keynum != -1)
+        {
             Quake.Engine.Keys.Event(keynum, false);
+        }
     }
 
     // WM_MOUSEWHEEL -- one down+up pair per notch (the wheel has no held state).
@@ -81,7 +89,9 @@ public static class InputHost
     {
         int keynum = KeyMap.ToWheelKeynum(e.OffsetY);
         if (keynum == -1)
+        {
             return;
+        }
 
         int notches = Math.Max(1, (int)MathF.Round(MathF.Abs(e.OffsetY)));
         for (int i = 0; i < notches; i++)
@@ -110,7 +120,9 @@ public static class InputHost
         // ActiveApp && !Minimized gate (IN_Move's own condition, in_win.c) --
         // this port's stand-in is "only accumulate while focused".
         if (!window.IsFocused)
+        {
             return;
+        }
 
         pendingDx += e.DeltaX;
         pendingDy += e.DeltaY;
@@ -152,6 +164,8 @@ public static class InputHost
 
         // The setter calls into GLFW every time; only touch it on a change.
         if (window.CursorState != desired)
+        {
             window.CursorState = desired;
+        }
     }
 }

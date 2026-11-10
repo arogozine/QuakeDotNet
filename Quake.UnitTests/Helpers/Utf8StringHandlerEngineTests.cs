@@ -279,7 +279,9 @@ public sealed unsafe class Utf8StringHandlerEngineTests
         {
             int value = rng.Next(int.MinValue, int.MaxValue);
             if (iter % 5 == 0)
+            {
                 value %= 1000;
+            }
 
             // Alignment must be a constant in an interpolation hole, so the
             // random cases select from a fixed set.

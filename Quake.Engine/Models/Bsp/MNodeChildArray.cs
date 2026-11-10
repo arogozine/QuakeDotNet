@@ -19,8 +19,14 @@ public unsafe struct MNodeChildArray
         get => i == 0 ? _e0 : _e1;
         set
         {
-            if (i == 0) _e0 = value;
-            else _e1 = value;
+            if (i == 0)
+            {
+                _e0 = value;
+            }
+            else
+            {
+                _e1 = value;
+            }
         }
     }
 }

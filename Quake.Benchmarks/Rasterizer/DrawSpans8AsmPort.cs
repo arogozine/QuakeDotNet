@@ -71,7 +71,7 @@ public static unsafe class DrawSpans8AsmPort
         do
         {
             int count = pspan->Count;
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             // "set up the initial s/z, t/z, and 1/z ... and generate the
             // initial s and t values" (d_draw.s:116-171) -- same formula as
@@ -79,9 +79,9 @@ public static unsafe class DrawSpans8AsmPort
             float du = pspan->U;
             float dv = pspan->V;
 
-            float sdivz = DLocal.d_sdivzorigin + dv * DLocal.d_sdivzstepv + du * DLocal.d_sdivzstepu;
-            float tdivz = DLocal.d_tdivzorigin + dv * DLocal.d_tdivzstepv + du * DLocal.d_tdivzstepu;
-            float zi = DLocal.d_ziorigin + dv * DLocal.d_zistepv + du * DLocal.d_zistepu;
+            float sdivz = DLocal.d_sdivzorigin + (dv * DLocal.d_sdivzstepv) + (du * DLocal.d_sdivzstepu);
+            float tdivz = DLocal.d_tdivzorigin + (dv * DLocal.d_tdivzstepv) + (du * DLocal.d_tdivzstepu);
+            float zi = DLocal.d_ziorigin + (dv * DLocal.d_zistepv) + (du * DLocal.d_zistepu);
             float z = 65536.0f / zi;
 
             // "calculate and clamp s & t" (d_draw.s:172-286) -- the asm's
@@ -90,12 +90,24 @@ public static unsafe class DrawSpans8AsmPort
             // / [0,bbextentt] for any bbextents/bbextentt >= 0 (always true
             // here), so there's no need to reproduce the trick itself.
             int s = (int)(sdivz * z) + sadjust;
-            if (s > bbextents) s = bbextents;
-            else if (s < 0) s = 0;
+            if (s > bbextents)
+            {
+                s = bbextents;
+            }
+            else if (s < 0)
+            {
+                s = 0;
+            }
 
             int t = (int)(tdivz * z) + tadjust;
-            if (t > bbextentt) t = bbextentt;
-            else if (t < 0) t = 0;
+            if (t > bbextentt)
+            {
+                t = bbextentt;
+            }
+            else if (t < 0)
+            {
+                t = 0;
+            }
 
             // sfracf/tfracf (d_draw.s:284,292): 32-bit fractional-position
             // accumulators seeded from s/t's low 16 bits (the shift discards
@@ -105,7 +117,7 @@ public static unsafe class DrawSpans8AsmPort
 
             // "psource = pbase + (sfrac >> 16) + (tfrac >> 16) * cachewidth"
             // (d_draw.s:294-302)
-            byte* psource = pbase + (s >> 16) + (t >> 16) * cachewidth;
+            byte* psource = pbase + (s >> 16) + ((t >> 16) * cachewidth);
 
             // LNotLastSegment (d_draw.s:313-427): full 8-pixel chunks, using
             // the fixed +8-step FP formula and the raw-delta ">>19/<<13" DDA
@@ -126,10 +138,23 @@ public static unsafe class DrawSpans8AsmPort
                 // fallback's chunk clamp (which uses 8/16) -- a genuine,
                 // deliberate divergence between the asm and its own C
                 // fallback that already exists in the original source.
-                if (snext < 2048) snext = 2048;
-                else if (snext > bbextents) snext = bbextents;
-                if (tnext < 2048) tnext = 2048;
-                else if (tnext > bbextentt) tnext = bbextentt;
+                if (snext < 2048)
+                {
+                    snext = 2048;
+                }
+                else if (snext > bbextents)
+                {
+                    snext = bbextents;
+                }
+
+                if (tnext < 2048)
+                {
+                    tnext = 2048;
+                }
+                else if (tnext > bbextentt)
+                {
+                    tnext = bbextentt;
+                }
 
                 int ds = snext - s;
                 int dt = tnext - t;
@@ -142,7 +167,7 @@ public static unsafe class DrawSpans8AsmPort
                 // t-fraction accumulator overflows this pixel.
                 int dtCoarse = dt >> 19; // really delta/8, despite the asm's own ">>=16" comment (d_draw.s:369)
                 int dsCoarse = ds >> 19;
-                int advBase = dtCoarse * cachewidth + dsCoarse;
+                int advBase = (dtCoarse * cachewidth) + dsCoarse;
                 int advExtra = advBase + cachewidth;
 
                 int sstepFrac = ds << 13;
@@ -181,18 +206,31 @@ public static unsafe class DrawSpans8AsmPort
             {
                 int divisor = count - 1; // 1..7
 
-                float sdivzEnd = sdivz + DLocal.d_sdivzstepu * divisor;
-                float tdivzEnd = tdivz + DLocal.d_tdivzstepu * divisor;
-                float ziEnd = zi + DLocal.d_zistepu * divisor;
+                float sdivzEnd = sdivz + (DLocal.d_sdivzstepu * divisor);
+                float tdivzEnd = tdivz + (DLocal.d_tdivzstepu * divisor);
+                float ziEnd = zi + (DLocal.d_zistepu * divisor);
                 float zEnd = 65536.0f / ziEnd;
 
                 int snext = (int)(sdivzEnd * zEnd) + sadjust;
                 int tnext = (int)(tdivzEnd * zEnd) + tadjust;
 
-                if (snext < 2048) snext = 2048;
-                else if (snext > bbextents) snext = bbextents;
-                if (tnext < 2048) tnext = 2048;
-                else if (tnext > bbextentt) tnext = bbextentt;
+                if (snext < 2048)
+                {
+                    snext = 2048;
+                }
+                else if (snext > bbextents)
+                {
+                    snext = bbextents;
+                }
+
+                if (tnext < 2048)
+                {
+                    tnext = 2048;
+                }
+                else if (tnext > bbextentt)
+                {
+                    tnext = bbextentt;
+                }
 
                 int ds = snext - s;
                 int dt = tnext - t;
@@ -220,7 +258,7 @@ public static unsafe class DrawSpans8AsmPort
 
                 int dtCoarse = tstepPixel >> 16;
                 int dsCoarse = sstepPixel >> 16;
-                int advBase = dtCoarse * cachewidth + dsCoarse;
+                int advBase = (dtCoarse * cachewidth) + dsCoarse;
                 int advExtra = advBase + cachewidth;
 
                 int sstepFrac = sstepPixel << 16;

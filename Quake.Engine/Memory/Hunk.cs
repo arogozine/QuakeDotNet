@@ -31,9 +31,15 @@ public static unsafe class Hunk
         for (h = (HunkHeader*)hunk_base; (byte*)h != hunk_base + hunk_low_used;)
         {
             if (h->Sentinel != HUNK_SENTINAL)
+            {
                 Sys.Error("Hunk_Check: trahsed sentinal"u8);
+            }
+
             if (h->Size < 16 || h->Size + (byte*)h - hunk_base > hunk_size)
+            {
                 Sys.Error("Hunk_Check: bad size"u8);
+            }
+
             h = (HunkHeader*)((byte*)h + h->Size);
         }
     }
@@ -51,12 +57,16 @@ public static unsafe class Hunk
         HunkHeader* h;
 
         if (size < 0)
+        {
             Sys.Error($"Hunk_Alloc: bad size: {size}");
+        }
 
         size = sizeof(HunkHeader) + ((size + 15) & ~15);
 
         if (hunk_size - hunk_low_used - hunk_high_used < size)
+        {
             Sys.Error($"Hunk_Alloc: failed on {size} bytes");
+        }
 
         h = (HunkHeader*)(hunk_base + hunk_low_used);
         hunk_low_used += size;
@@ -94,7 +104,10 @@ public static unsafe class Hunk
     public static void FreeToLowMark(int mark)
     {
         if (mark < 0 || mark > hunk_low_used)
+        {
             Sys.Error($"Hunk_FreeToLowMark: bad mark {mark}");
+        }
+
         NativeMemory.Clear(hunk_base + mark, hunk_low_used - mark);
         hunk_low_used = mark;
     }
@@ -120,7 +133,10 @@ public static unsafe class Hunk
             FreeToHighMark(hunk_tempmark);
         }
         if (mark < 0 || mark > hunk_high_used)
+        {
             Sys.Error($"Hunk_FreeToHighMark: bad mark {mark}");
+        }
+
         NativeMemory.Clear(hunk_base + hunk_size - hunk_high_used, hunk_high_used - mark);
         hunk_high_used = mark;
     }
@@ -136,7 +152,9 @@ public static unsafe class Hunk
         HunkHeader* h;
 
         if (size < 0)
+        {
             Sys.Error($"Hunk_HighAllocName: bad size: {size}");
+        }
 
         if (hunk_tempactive)
         {

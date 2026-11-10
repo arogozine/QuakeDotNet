@@ -99,7 +99,10 @@ public sealed unsafe class HostShutdownServerTests
         Cls.netcon = null;
 
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
+
         NativeMemory.Free(_buf);
     }
 

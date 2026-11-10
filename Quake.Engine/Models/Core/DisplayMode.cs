@@ -27,12 +27,20 @@ public readonly record struct DisplayMode(int Width, int Height) : IUtf8SpanForm
         bytesWritten = 0;
 
         if (!Width.TryFormat(utf8Destination, out int w, default, CultureInfo.InvariantCulture))
+        {
             return false;
+        }
+
         if (w >= utf8Destination.Length)
+        {
             return false;
+        }
+
         utf8Destination[w++] = (byte)'x';
         if (!Height.TryFormat(utf8Destination[w..], out int h, default, CultureInfo.InvariantCulture))
+        {
             return false;
+        }
 
         bytesWritten = w + h;
         return true;

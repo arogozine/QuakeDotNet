@@ -55,8 +55,12 @@ public sealed unsafe class RealPakFileTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -65,11 +69,15 @@ public sealed unsafe class RealPakFileTests
     {
         string? dir = TestConfiguration.PakFilesDirectory;
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive("PakFilesDirectory is not configured in configuration.json; skipping real PAK file test.");
+        }
 
         string path = Path.Combine(dir, fileName);
         if (!File.Exists(path))
+        {
             Assert.Inconclusive($"{fileName} was not found in the configured PakFilesDirectory ({dir}); skipping real PAK file test.");
+        }
 
         return path;
     }

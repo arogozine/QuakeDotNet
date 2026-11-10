@@ -65,7 +65,7 @@ public static unsafe class SpriteModel
         int numframes = Com.LittleLong(pingroup->NumFrames);
 
         MSpriteGroup_t* pspritegroup = (MSpriteGroup_t*)Hunk.AllocName(
-            sizeof(MSpriteGroup_t) + (numframes - 1) * sizeof(MSpriteFrame_t*), Model.loadname);
+            sizeof(MSpriteGroup_t) + ((numframes - 1) * sizeof(MSpriteFrame_t*)), Model.loadname);
 
         pspritegroup->NumFrames = numframes;
 
@@ -84,7 +84,9 @@ public static unsafe class SpriteModel
         {
             *poutintervals = Com.LittleFloat(pin_intervals->Interval);
             if (*poutintervals <= 0.0f)
+            {
                 Sys.Error("Mod_LoadSpriteGroup: interval<=0"u8);
+            }
 
             poutintervals++;
             pin_intervals++;
@@ -94,7 +96,9 @@ public static unsafe class SpriteModel
 
         MSpriteFrame_t** frames = &pspritegroup->Frames;
         for (int i = 0; i < numframes; i++)
+        {
             ptemp = LoadSpriteFrame(ptemp, &frames[i]);
+        }
 
         return ptemp;
     }
@@ -106,11 +110,13 @@ public static unsafe class SpriteModel
 
         int version = Com.LittleLong(pin->Version);
         if (version != SPRITE_VERSION)
+        {
             Sys.Error($"{mod->Name} has wrong version number ({version} should be {SPRITE_VERSION})");
+        }
 
         int numframes = Com.LittleLong(pin->NumFrames);
 
-        int size = sizeof(MSprite_t) + (numframes - 1) * sizeof(MSpriteFrameDesc_t);
+        int size = sizeof(MSprite_t) + ((numframes - 1) * sizeof(MSpriteFrameDesc_t));
 
         MSprite_t* psprite = (MSprite_t*)Hunk.AllocName(size, Model.loadname);
 
@@ -130,7 +136,9 @@ public static unsafe class SpriteModel
 
         // load the frames
         if (numframes < 1)
+        {
             Sys.Error($"Mod_LoadSpriteModel: Invalid # of frames: {numframes}");
+        }
 
         mod->NumFrames = numframes;
         mod->Flags = 0;

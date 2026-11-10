@@ -63,8 +63,8 @@ public static class Canvas
             case CanvasType.Menu:
                 // centred in both axes (Mark V: cly + (clheight - 200*s) / 2)
                 Scale = MenuScale;
-                OriginX = Math.Max(0, (w - MENU_WIDTH * Scale) / 2);
-                OriginY = Math.Max(0, (h - MENU_HEIGHT * Scale) / 2);
+                OriginX = Math.Max(0, (w - (MENU_WIDTH * Scale)) / 2);
+                OriginY = Math.Max(0, (h - (MENU_HEIGHT * Scale)) / 2);
                 break;
 
             case CanvasType.Sbar:
@@ -72,7 +72,7 @@ public static class Canvas
                 // even when Height is not a multiple of Scale
                 Scale = SbarScale;
                 OriginX = 0;
-                OriginY = h - (h / Scale) * Scale;
+                OriginY = h - ((h / Scale) * Scale);
                 break;
 
             case CanvasType.Crosshair:
@@ -105,7 +105,9 @@ public static class Canvas
         crosshair = LimitToWidth((int)crosshairscale, width);
 
         if (width <= 0 || height <= 0)
+        {
             return false;
+        }
 
         int size = Math.Clamp((int)scaleauto, -1, 3);
 
@@ -118,7 +120,9 @@ public static class Canvas
         }
 
         if (size < 0)
+        {
             return true; // everything stays 1x
+        }
 
         // screen.c: SCR_UpdateScreen (GLQUAKE_SCALED_DRAWING)
         int textWidth = size > 1 ? 320 : 400;
@@ -143,7 +147,9 @@ public static class Canvas
                 Screen.scr_scaleauto->Value, Screen.scr_conscale->Value, Screen.scr_menuscale->Value,
                 Screen.scr_sbarscale->Value, Screen.scr_crosshairscale->Value,
                 out int con, out int menu, out int sbar, out int crosshair))
+        {
             return false;
+        }
 
         uint conWidth = (uint)(width / con);
         uint conHeight = (uint)(height / con);

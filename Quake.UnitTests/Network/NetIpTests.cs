@@ -65,7 +65,9 @@ public sealed unsafe class NetIpTests
 
         byte[] payload = "hello"u8.ToArray();
         fixed (byte* p = payload)
+        {
             Assert.AreEqual(5, NetIp.Write(a, p, 5, &addrB));
+        }
 
         TestHelpers.WaitForData(b);
 

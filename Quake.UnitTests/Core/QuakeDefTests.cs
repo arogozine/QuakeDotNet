@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 /// <summary>quakedef.h constants (QuakeDef.cs) and the single-definition rule for them.</summary>
 [TestClass]
-public sealed unsafe class QuakeDefTests
+public sealed class QuakeDefTests
 {
     [TestMethod]
     public void ItemFlagsMatchQuakedefH()
@@ -47,15 +47,26 @@ public sealed unsafe class QuakeDefTests
     public void QuakedefConstantsAreDeclaredOnlyInQuakeDef()
     {
         string dir = AppContext.BaseDirectory;
-        while (dir != null && !Directory.Exists(Path.Combine(dir, "Quake.Engine"))) dir = Path.GetDirectoryName(dir)!;
+        while (dir != null && !Directory.Exists(Path.Combine(dir, "Quake.Engine")))
+        {
+            dir = Path.GetDirectoryName(dir)!;
+        }
+
         Assert.IsNotNull(dir, "Quake.Engine source directory not found");
 
         var decl = new Regex(@"^\s*(?:public |private |internal )?(?:static )?const (?:int|float) (?:MAX_(?:QPATH|OSPATH|NUM_ARGVS|MSGLEN|DATAGRAM|EDICTS|LIGHTSTYLES|MODELS|SOUNDS|STYLESTRING|CL_STATS|SCOREBOARDNAME|SCOREBOARD)|VERSION|PITCH|YAW|ROLL|ON_EPSILON|SAVEGAME_COMMENT_LENGTH|R?IT_\w+|HIT_\w+)\b", RegexOptions.Multiline);
         var offenders = new List<string>();
         foreach (string file in Directory.EnumerateFiles(Path.Combine(dir, "Quake.Engine"), "*.cs", SearchOption.AllDirectories))
         {
-            if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") || Path.GetFileName(file) == "QuakeDef.cs") continue;
-            if (decl.IsMatch(File.ReadAllText(file))) offenders.Add(Path.GetFileName(file));
+            if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") || Path.GetFileName(file) == "QuakeDef.cs")
+            {
+                continue;
+            }
+
+            if (decl.IsMatch(File.ReadAllText(file)))
+            {
+                offenders.Add(Path.GetFileName(file));
+            }
         }
         Assert.AreEqual(0, offenders.Count, "quakedef.h constants re-declared in: " + string.Join(", ", offenders));
     }

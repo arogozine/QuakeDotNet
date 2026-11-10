@@ -55,15 +55,25 @@ public static class DisplayModeList
         foreach (DisplayMode mode in candidates.Concat(BaselineModes))
         {
             if (mode.Width < MinWidth || mode.Height < MinHeight)
+            {
                 continue;
+            }
+
             if (mode.Width > nativeWidth || mode.Height > nativeHeight)
+            {
                 continue;
+            }
+
             if (seen.Add(mode))
+            {
                 result.Add(mode);
+            }
         }
 
         if (seen.Add(new DisplayMode(MinWidth, MinHeight)))
+        {
             result.Add(new DisplayMode(MinWidth, MinHeight));
+        }
 
         result.Sort(static (a, b) => a.Width != b.Width ? a.Width.CompareTo(b.Width) : a.Height.CompareTo(b.Height));
         return result;

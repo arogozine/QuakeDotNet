@@ -10,7 +10,7 @@ namespace Quake.Engine;
 // refdef_t (render.h)
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct RRefDef_t
+public struct RRefDef_t
 {
     public VRect_t Vrect;                  // subwindow in video for refresh
                                            // FIXME: not need vrect next field here?

@@ -45,7 +45,9 @@ public static unsafe class SvUser
     public static void SetIdealPitch()
     {
         if (((int)Sv.sv_player->V.Flags & SvPhys.FL_ONGROUND) == 0)
+        {
             return;
+        }
 
         float angleval = Sv.sv_player->V.Angles[QuakeDef.YAW] * MathLib.M_PI * 2 / 360;
         float sinval = MathF.Sin(angleval);
@@ -57,8 +59,8 @@ public static unsafe class SvUser
         int i;
         for (i = 0; i < MAX_FORWARD; i++)
         {
-            top[0] = Sv.sv_player->V.Origin[0] + cosval * (i + 3) * 12;
-            top[1] = Sv.sv_player->V.Origin[1] + sinval * (i + 3) * 12;
+            top[0] = Sv.sv_player->V.Origin[0] + (cosval * (i + 3) * 12);
+            top[1] = Sv.sv_player->V.Origin[1] + (sinval * (i + 3) * 12);
             top[2] = Sv.sv_player->V.Origin[2] + Sv.sv_player->V.ViewOfs[2];
 
             bottom[0] = top[0];
@@ -67,12 +69,16 @@ public static unsafe class SvUser
 
             Trace_t tr = World.Move(top, MathLib.vec3_origin, MathLib.vec3_origin, bottom, (int)ClipMoveType.NoMonsters, Sv.sv_player);
             if (tr.AllSolid)
+            {
                 return; // looking at a wall, leave ideal the way it was
+            }
 
             if (tr.Fraction == 1)
+            {
                 return; // near a dropoff
+            }
 
-            z[i] = top[2] + tr.Fraction * (bottom[2] - top[2]);
+            z[i] = top[2] + (tr.Fraction * (bottom[2] - top[2]));
         }
 
         int dir = 0;
@@ -83,10 +89,14 @@ public static unsafe class SvUser
             // difference -- preserved faithfully, quirks included.
             int step = (int)(z[j] - z[j - 1]);
             if (step > -ON_EPSILON && step < ON_EPSILON)
+            {
                 continue;
+            }
 
             if (dir != 0 && (step - dir > ON_EPSILON || step - dir < -ON_EPSILON))
+            {
                 return; // mixed changes
+            }
 
             steps++;
             dir = step;
@@ -99,7 +109,10 @@ public static unsafe class SvUser
         }
 
         if (steps < 2)
+        {
             return;
+        }
+
         Sv.sv_player->V.IdealPitch = -dir * Sv.sv_idealpitchscale->Value;
     }
 
@@ -107,14 +120,16 @@ public static unsafe class SvUser
     public static void UserFriction()
     {
         Vec3_t vel = *velocityPtr;
-        float speed = MathF.Sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
+        float speed = MathF.Sqrt((vel[0] * vel[0]) + (vel[1] * vel[1]));
         if (speed == 0)
+        {
             return;
+        }
 
         // if the leading edge is over a dropoff, increase friction
         Vec3_t start = default, stop = default;
-        start[0] = stop[0] = (*originPtr)[0] + vel[0] / speed * 16;
-        start[1] = stop[1] = (*originPtr)[1] + vel[1] / speed * 16;
+        start[0] = stop[0] = (*originPtr)[0] + (vel[0] / speed * 16);
+        start[1] = stop[1] = (*originPtr)[1] + (vel[1] / speed * 16);
         start[2] = (*originPtr)[2] + Sv.sv_player->V.Mins[2];
         stop[2] = start[2] - 34;
 
@@ -126,10 +141,13 @@ public static unsafe class SvUser
 
         // apply friction
         float control = speed < Sv.sv_stopspeed->Value ? Sv.sv_stopspeed->Value : speed;
-        float newspeed = speed - Host.host_frametime * control * friction;
+        float newspeed = speed - (Host.host_frametime * control * friction);
 
         if (newspeed < 0)
+        {
             newspeed = 0;
+        }
+
         newspeed /= speed;
 
         *velocityPtr *= newspeed;
@@ -141,10 +159,15 @@ public static unsafe class SvUser
         float currentspeed = Vector3.Dot(*velocityPtr, wishdir);
         float addspeed = wishspeed - currentspeed;
         if (addspeed <= 0)
+        {
             return;
+        }
+
         float accelspeed = Sv.sv_accelerate->Value * Host.host_frametime * wishspeed;
         if (accelspeed > addspeed)
+        {
             accelspeed = addspeed;
+        }
 
         *velocityPtr += accelspeed * wishdir;
     }
@@ -154,14 +177,22 @@ public static unsafe class SvUser
     {
         float wishspd = MathLib.VectorNormalize((Vec3_t*)Unsafe.AsPointer(ref wishveloc));
         if (wishspd > 30)
+        {
             wishspd = 30;
+        }
+
         float currentspeed = Vector3.Dot(*velocityPtr, wishveloc);
         float addspeed = wishspd - currentspeed;
         if (addspeed <= 0)
+        {
             return;
+        }
+
         float accelspeed = Sv.sv_accelerate->Value * wishspeed * Host.host_frametime;
         if (accelspeed > addspeed)
+        {
             accelspeed = addspeed;
+        }
 
         *velocityPtr += accelspeed * wishveloc;
     }
@@ -173,7 +204,10 @@ public static unsafe class SvUser
 
         len -= 10 * Host.host_frametime;
         if (len < 0)
+        {
             len = 0;
+        }
+
         Sv.sv_player->V.PunchAngle *= len;
     }
 
@@ -184,12 +218,16 @@ public static unsafe class SvUser
 
         MathLib.AngleVectors(Sv.sv_player->V.VAngle, out forward, out right, out up);
 
-        wishvel = forward * cmd.ForwardMove + right * cmd.SideMove;
+        wishvel = (forward * cmd.ForwardMove) + (right * cmd.SideMove);
 
         if (cmd.ForwardMove == 0 && cmd.SideMove == 0 && cmd.UpMove == 0)
+        {
             wishvel[2] -= 60; // drift towards bottom
+        }
         else
+        {
             wishvel[2] += cmd.UpMove;
+        }
 
         float wishspd = wishvel.Length();
         if (wishspd > Sv.sv_maxspeed->Value)
@@ -204,9 +242,12 @@ public static unsafe class SvUser
         float newspeed;
         if (speed != 0)
         {
-            newspeed = speed - Host.host_frametime * speed * Sv.sv_friction->Value;
+            newspeed = speed - (Host.host_frametime * speed * Sv.sv_friction->Value);
             if (newspeed < 0)
+            {
                 newspeed = 0;
+            }
+
             *velocityPtr *= newspeed / speed;
         }
         else
@@ -216,16 +257,22 @@ public static unsafe class SvUser
 
         // water acceleration
         if (wishspd == 0)
+        {
             return;
+        }
 
         float addspeed = wishspd - newspeed;
         if (addspeed <= 0)
+        {
             return;
+        }
 
         MathLib.VectorNormalize(&wishvel);
         float accelspeed = Sv.sv_accelerate->Value * wishspd * Host.host_frametime;
         if (accelspeed > addspeed)
+        {
             accelspeed = addspeed;
+        }
 
         *velocityPtr += accelspeed * wishvel;
     }
@@ -254,14 +301,20 @@ public static unsafe class SvUser
 
         // hack to not let you back into teleporter
         if (Sv.time < Sv.sv_player->V.TeleportTime && fmove < 0)
+        {
             fmove = 0;
+        }
 
-        wishvel = forward * fmove + right * smove;
+        wishvel = (forward * fmove) + (right * smove);
 
         if ((int)Sv.sv_player->V.MoveType != (int)MoveType.Walk)
+        {
             wishvel[2] = cmd.UpMove;
+        }
         else
+        {
             wishvel[2] = 0;
+        }
 
         wishdir = wishvel;
         wishspeed = MathLib.VectorNormalize((Vec3_t*)Unsafe.AsPointer(ref wishdir));
@@ -297,7 +350,9 @@ public static unsafe class SvUser
     public static void ClientThink()
     {
         if ((int)Sv.sv_player->V.MoveType == (int)MoveType.None)
+        {
             return;
+        }
 
         onground = ((int)Sv.sv_player->V.Flags & SvPhys.FL_ONGROUND) != 0;
 
@@ -308,7 +363,9 @@ public static unsafe class SvUser
 
         // if dead, behave differently
         if (Sv.sv_player->V.Health <= 0)
+        {
             return;
+        }
 
         // angles
         // show 1/3 the pitch angle and all the roll angle
@@ -353,7 +410,9 @@ public static unsafe class SvUser
         // read current angles
         Vec3_t angle = default;
         for (int i = 0; i < 3; i++)
+        {
             angle[i] = Sv.current_protocol == Protocol.PROTOCOL_NETQUAKE ? Msg.ReadAngle() : Msg.ReadAngle16(); // Mark V SV_ReadClientMove
+        }
 
         Svs.host_client->Edict->V.VAngle = angle;
 
@@ -369,7 +428,9 @@ public static unsafe class SvUser
 
         int impulse = Msg.ReadByte();
         if (impulse != 0)
+        {
             Svs.host_client->Edict->V.Impulse = impulse;
+        }
     }
 
     // Q_strncasecmp(s, lit, n) == 0 shorthand for SV_ReadClientMessage's
@@ -394,7 +455,9 @@ public static unsafe class SvUser
                 return false;
             }
             if (ret == 0)
+            {
                 return true;
+            }
 
             Msg.BeginReading();
 
@@ -402,7 +465,9 @@ public static unsafe class SvUser
             while (!nextMessage)
             {
                 if (!Svs.host_client->Active)
+                {
                     return false; // a command caused an error
+                }
 
                 if (Msg.msg_badread)
                 {
@@ -435,14 +500,23 @@ public static unsafe class SvUser
                                 || Is(s, "tell"u8) || Is(s, "color"u8) || Is(s, "kill"u8) || Is(s, "pause"u8)
                                 || Is(s, "spawn"u8) || Is(s, "begin"u8) || Is(s, "prespawn"u8) || Is(s, "kick"u8)
                                 || Is(s, "ping"u8) || Is(s, "give"u8) || Is(s, "ban"u8))
+                            {
                                 handled = 1;
+                            }
 
                             if (handled == 2)
+                            {
                                 Cmd.InsertText(s);
+                            }
                             else if (handled == 1)
+                            {
                                 Cmd.ExecuteString(s, CmdSource_t.SrcClient);
+                            }
                             else
+                            {
                                 Con.DPrintf($"{Svs.host_client->Name} tried to {s}\n");
+                            }
+
                             break;
                         }
 
@@ -469,7 +543,9 @@ public static unsafe class SvUser
             Svs.host_client = &Svs.clients[i];
 
             if (!Svs.host_client->Active)
+            {
                 continue;
+            }
 
             Sv.sv_player = Svs.host_client->Edict;
 
@@ -488,7 +564,9 @@ public static unsafe class SvUser
 
             // always pause in single player if in console or menus
             if (!Sv.paused && (Svs.maxclients > 1 || Keys.key_dest == KeyDest.Game))
+            {
                 ClientThink();
+            }
         }
     }
 }

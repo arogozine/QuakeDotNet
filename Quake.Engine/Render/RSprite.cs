@@ -27,7 +27,7 @@ public static unsafe class RSprite
     internal static readonly float* clip_verts =
         NativeMemory.AllocArrayZeroed<float>(2 * RShared.MAXWORKINGVERTS * 5);
 
-    internal static float* Row(int r) => clip_verts + r * RShared.MAXWORKINGVERTS * 5;
+    internal static float* Row(int r) => clip_verts + (r * RShared.MAXWORKINGVERTS * 5);
 
     // r_sprite.c's own sprite_width/sprite_height -- distinct globals from
     // DSprite.cs's (d_sprite.c) same-named statics; confirmed by reading
@@ -39,7 +39,9 @@ public static unsafe class RSprite
     public static void RotateSprite(float beamlength)
     {
         if (beamlength == 0.0f)
+        {
             return;
+        }
 
         Vec3_t vec = DIface.r_spritedesc.Vpn * -beamlength;
         RMain.r_entorigin = RMain.r_entorigin + vec;
@@ -74,12 +76,16 @@ public static unsafe class RSprite
 
         float* instep = in_;
         for (int i = 0; i < nump; i++, instep += 5)
-            dists[i] = instep[0] * pclipnormal[0] + instep[1] * pclipnormal[1] + instep[2] * pclipnormal[2] - clipdist;
+        {
+            dists[i] = (instep[0] * pclipnormal[0]) + (instep[1] * pclipnormal[1]) + (instep[2] * pclipnormal[2]) - clipdist;
+        }
 
         // handle wraparound case
         dists[nump] = dists[0];
         for (int k = 0; k < 5; k++)
+        {
             instep[k] = in_[k];
+        }
 
         // clip the winding
         instep = in_;
@@ -90,16 +96,23 @@ public static unsafe class RSprite
             if (dists[i] >= 0)
             {
                 for (int k = 0; k < 5; k++)
+                {
                     outstep[k] = instep[k];
+                }
+
                 outstep += 5;
                 outcount++;
             }
 
             if (dists[i] == 0 || dists[i + 1] == 0)
+            {
                 continue;
+            }
 
             if ((dists[i] > 0) == (dists[i + 1] > 0))
+            {
                 continue;
+            }
 
             // split it into a new vertex
             float frac = dists[i] / (dists[i] - dists[i + 1]);
@@ -107,7 +120,9 @@ public static unsafe class RSprite
             float* vert2 = instep + 5;
 
             for (int k = 0; k < 5; k++)
-                outstep[k] = instep[k] + frac * (vert2[k] - instep[k]);
+            {
+                outstep[k] = instep[k] + (frac * (vert2[k] - instep[k]));
+            }
 
             outstep += 5;
             outcount++;
@@ -123,7 +138,9 @@ public static unsafe class RSprite
 
         // backface cull
         if (dot >= 0)
+        {
             return;
+        }
 
         // build the sprite poster in worldspace
         Vec3_t right = DIface.r_spritedesc.Vright * DIface.r_spritedesc.PSpriteFrame->Right;
@@ -133,29 +150,29 @@ public static unsafe class RSprite
 
         float* pverts = Row(0);
 
-        pverts[0 * 5 + 0] = RMain.r_entorigin[0] + up[0] + left[0];
-        pverts[0 * 5 + 1] = RMain.r_entorigin[1] + up[1] + left[1];
-        pverts[0 * 5 + 2] = RMain.r_entorigin[2] + up[2] + left[2];
-        pverts[0 * 5 + 3] = 0;
-        pverts[0 * 5 + 4] = 0;
+        pverts[(0 * 5) + 0] = RMain.r_entorigin[0] + up[0] + left[0];
+        pverts[(0 * 5) + 1] = RMain.r_entorigin[1] + up[1] + left[1];
+        pverts[(0 * 5) + 2] = RMain.r_entorigin[2] + up[2] + left[2];
+        pverts[(0 * 5) + 3] = 0;
+        pverts[(0 * 5) + 4] = 0;
 
-        pverts[1 * 5 + 0] = RMain.r_entorigin[0] + up[0] + right[0];
-        pverts[1 * 5 + 1] = RMain.r_entorigin[1] + up[1] + right[1];
-        pverts[1 * 5 + 2] = RMain.r_entorigin[2] + up[2] + right[2];
-        pverts[1 * 5 + 3] = sprite_width;
-        pverts[1 * 5 + 4] = 0;
+        pverts[(1 * 5) + 0] = RMain.r_entorigin[0] + up[0] + right[0];
+        pverts[(1 * 5) + 1] = RMain.r_entorigin[1] + up[1] + right[1];
+        pverts[(1 * 5) + 2] = RMain.r_entorigin[2] + up[2] + right[2];
+        pverts[(1 * 5) + 3] = sprite_width;
+        pverts[(1 * 5) + 4] = 0;
 
-        pverts[2 * 5 + 0] = RMain.r_entorigin[0] + down[0] + right[0];
-        pverts[2 * 5 + 1] = RMain.r_entorigin[1] + down[1] + right[1];
-        pverts[2 * 5 + 2] = RMain.r_entorigin[2] + down[2] + right[2];
-        pverts[2 * 5 + 3] = sprite_width;
-        pverts[2 * 5 + 4] = sprite_height;
+        pverts[(2 * 5) + 0] = RMain.r_entorigin[0] + down[0] + right[0];
+        pverts[(2 * 5) + 1] = RMain.r_entorigin[1] + down[1] + right[1];
+        pverts[(2 * 5) + 2] = RMain.r_entorigin[2] + down[2] + right[2];
+        pverts[(2 * 5) + 3] = sprite_width;
+        pverts[(2 * 5) + 4] = sprite_height;
 
-        pverts[3 * 5 + 0] = RMain.r_entorigin[0] + down[0] + left[0];
-        pverts[3 * 5 + 1] = RMain.r_entorigin[1] + down[1] + left[1];
-        pverts[3 * 5 + 2] = RMain.r_entorigin[2] + down[2] + left[2];
-        pverts[3 * 5 + 3] = 0;
-        pverts[3 * 5 + 4] = sprite_height;
+        pverts[(3 * 5) + 0] = RMain.r_entorigin[0] + down[0] + left[0];
+        pverts[(3 * 5) + 1] = RMain.r_entorigin[1] + down[1] + left[1];
+        pverts[(3 * 5) + 2] = RMain.r_entorigin[2] + down[2] + left[2];
+        pverts[(3 * 5) + 3] = 0;
+        pverts[(3 * 5) + 4] = sprite_height;
 
         // clip to the frustum in worldspace
         int nump = 4;
@@ -165,9 +182,14 @@ public static unsafe class RSprite
         {
             nump = ClipSpriteFace(nump, &RMain.view_clipplanes[i]);
             if (nump < 3)
+            {
                 return;
+            }
+
             if (nump >= RShared.MAXWORKINGVERTS)
+            {
                 Sys.Error("R_SetupAndDrawSprite: too many points"u8);
+            }
         }
 
         // transform vertices into viewspace and project
@@ -184,21 +206,25 @@ public static unsafe class RSprite
             RMisc.TransformVector(local, out Vec3_t transformed);
 
             if (transformed[2] < RLocal.NEAR_CLIP)
+            {
                 transformed[2] = RLocal.NEAR_CLIP;
+            }
 
             EmitPoint_t* pout = &outverts[i];
             pout->Zi = 1.0f / transformed[2];
             if (pout->Zi > DIface.r_spritedesc.NearZi)
+            {
                 DIface.r_spritedesc.NearZi = pout->Zi;
+            }
 
             pout->S = pv[3];
             pout->T = pv[4];
 
             float scale = RShared.xscale * pout->Zi;
-            pout->U = RShared.xcenter + scale * transformed[0];
+            pout->U = RShared.xcenter + (scale * transformed[0]);
 
             scale = RShared.yscale * pout->Zi;
-            pout->V = RShared.ycenter - scale * transformed[1];
+            pout->V = RShared.ycenter - (scale * transformed[1]);
 
             pv += 5;
         }
@@ -241,13 +267,15 @@ public static unsafe class RSprite
 
             // when loading in Mod_LoadSpriteGroup, we guaranteed all interval values
             // are positive, so we don't have to worry about division by 0
-            float targettime = (float)(time - (int)(time / fullinterval) * fullinterval);
+            float targettime = (float)(time - ((int)(time / fullinterval) * fullinterval));
 
             int i;
             for (i = 0; i < numframes - 1; i++)
             {
                 if (pintervals[i] > targettime)
+                {
                     break;
+                }
             }
 
             MSpriteFrame_t** groupframes = &pspritegroup->Frames;
@@ -283,7 +311,10 @@ public static unsafe class RSprite
             float dot = tvec[2]; // same as DotProduct (tvec, r_spritedesc.vup) because
                                  //  r_spritedesc.vup is 0, 0, 1
             if (dot > 0.999848f || dot < -0.999848f) // cos(1 degree) = 0.999848
+            {
                 return;
+            }
+
             DIface.r_spritedesc.Vup[0] = 0;
             DIface.r_spritedesc.Vup[1] = 0;
             DIface.r_spritedesc.Vup[2] = 1;
@@ -327,7 +358,10 @@ public static unsafe class RSprite
             float dot = RShared.vpn[2]; // same as DotProduct (vpn, r_spritedesc.vup) because
                                         //  r_spritedesc.vup is 0, 0, 1
             if (dot > 0.999848f || dot < -0.999848f) // cos(1 degree) = 0.999848
+            {
                 return;
+            }
+
             DIface.r_spritedesc.Vup[0] = 0;
             DIface.r_spritedesc.Vup[1] = 0;
             DIface.r_spritedesc.Vup[2] = 1;
@@ -357,8 +391,8 @@ public static unsafe class RSprite
             (float sr, float cr) = MathF.SinCos(angle);
 
             DIface.r_spritedesc.Vpn = RShared.vpn;
-            DIface.r_spritedesc.Vright = RShared.vright * cr + RShared.vup * sr;
-            DIface.r_spritedesc.Vup = RShared.vright * -sr + RShared.vup * cr;
+            DIface.r_spritedesc.Vright = (RShared.vright * cr) + (RShared.vup * sr);
+            DIface.r_spritedesc.Vup = (RShared.vright * -sr) + (RShared.vup * cr);
             /*
             for (int i = 0; i < 3; i++)
             {

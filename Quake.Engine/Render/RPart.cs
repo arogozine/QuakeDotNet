@@ -45,7 +45,9 @@ public static unsafe class RPart
         {
             r_numparticles = Q.Atoi(Com.com_argv[i + 1]);
             if (r_numparticles < ABSOLUTE_MIN_PARTICLES)
+            {
                 r_numparticles = ABSOLUTE_MIN_PARTICLES;
+            }
         }
         else
         {
@@ -68,7 +70,9 @@ public static unsafe class RPart
         {
             float* flat = (float*)avelocities;
             for (int i = 0; i < NUMVERTEXNORMALS * 3; i++)
+            {
                 flat[i] = (Q.Rand() & 255) * 0.01f;
+            }
         }
 
         for (int i = 0; i < NUMVERTEXNORMALS; i++)
@@ -84,7 +88,10 @@ public static unsafe class RPart
             forward[2] = -sp;
 
             if (free_particles == null)
+            {
                 return;
+            }
+
             Particle_t* p = free_particles;
             free_particles = p->Next;
             p->Next = active_particles;
@@ -94,7 +101,7 @@ public static unsafe class RPart
             p->Color = 0x6f;
             p->Type = PType_t.Explode;
 
-            p->Org = ent->Origin + RAlias.r_avertexnormals[i] * dist + forward * beamlength;
+            p->Org = ent->Origin + (RAlias.r_avertexnormals[i] * dist) + (forward * beamlength);
         }
     }
 
@@ -105,7 +112,10 @@ public static unsafe class RPart
         active_particles = null;
 
         for (int i = 0; i < r_numparticles; i++)
+        {
             particles[i].Next = &particles[i + 1];
+        }
+
         particles[r_numparticles - 1].Next = null;
     }
 
@@ -147,7 +157,10 @@ public static unsafe class RPart
             if (!float.TryParse(tokens[tok], out float x) ||
                 !float.TryParse(tokens[tok + 1], out float y) ||
                 !float.TryParse(tokens[tok + 2], out float z))
+            {
                 break;
+            }
+
             tok += 3;
             c++;
 
@@ -179,9 +192,15 @@ public static unsafe class RPart
     {
         Vec3_t org = default, dir = default;
         for (int i = 0; i < 3; i++)
+        {
             org[i] = Msg.ReadCoord();
+        }
+
         for (int i = 0; i < 3; i++)
+        {
             dir[i] = Msg.ReadChar() * (1.0f / 16);
+        }
+
         int msgcount = Msg.ReadByte();
         int color = Msg.ReadByte();
 
@@ -196,7 +215,10 @@ public static unsafe class RPart
         for (int i = 0; i < 1024; i++)
         {
             if (free_particles == null)
+            {
                 return;
+            }
+
             Particle_t* p = free_particles;
             free_particles = p->Next;
             p->Next = active_particles;
@@ -208,8 +230,8 @@ public static unsafe class RPart
             p->Type = (i & 1) != 0 ? PType_t.Explode : PType_t.Explode2;
             for (int j = 0; j < 3; j++)
             {
-                p->Org[j] = org[j] + (Q.Rand() % 32 - 16);
-                p->Vel[j] = Q.Rand() % 512 - 256;
+                p->Org[j] = org[j] + ((Q.Rand() % 32) - 16);
+                p->Vel[j] = (Q.Rand() % 512) - 256;
             }
         }
     }
@@ -222,21 +244,24 @@ public static unsafe class RPart
         for (int i = 0; i < 512; i++)
         {
             if (free_particles == null)
+            {
                 return;
+            }
+
             Particle_t* p = free_particles;
             free_particles = p->Next;
             p->Next = active_particles;
             active_particles = p;
 
             p->Die = (float)(Cl.time + 0.3);
-            p->Color = colorStart + colorMod % colorLength;
+            p->Color = colorStart + (colorMod % colorLength);
             colorMod++;
 
             p->Type = PType_t.Blob;
             for (int j = 0; j < 3; j++)
             {
-                p->Org[j] = org[j] + (Q.Rand() % 32 - 16);
-                p->Vel[j] = Q.Rand() % 512 - 256;
+                p->Org[j] = org[j] + ((Q.Rand() % 32) - 16);
+                p->Vel[j] = (Q.Rand() % 512) - 256;
             }
         }
     }
@@ -247,28 +272,31 @@ public static unsafe class RPart
         for (int i = 0; i < 1024; i++)
         {
             if (free_particles == null)
+            {
                 return;
+            }
+
             Particle_t* p = free_particles;
             free_particles = p->Next;
             p->Next = active_particles;
             active_particles = p;
 
-            p->Die = (float)(Cl.time + 1 + (Q.Rand() & 8) * 0.05);
+            p->Die = (float)(Cl.time + 1 + ((Q.Rand() & 8) * 0.05));
 
             if ((i & 1) != 0)
             {
                 p->Type = PType_t.Blob;
-                p->Color = 66 + Q.Rand() % 6;
+                p->Color = 66 + (Q.Rand() % 6);
             }
             else
             {
                 p->Type = PType_t.Blob2;
-                p->Color = 150 + Q.Rand() % 6;
+                p->Color = 150 + (Q.Rand() % 6);
             }
             for (int j = 0; j < 3; j++)
             {
-                p->Org[j] = org[j] + (Q.Rand() % 32 - 16);
-                p->Vel[j] = Q.Rand() % 512 - 256;
+                p->Org[j] = org[j] + ((Q.Rand() % 32) - 16);
+                p->Vel[j] = (Q.Rand() % 512) - 256;
             }
         }
     }
@@ -279,7 +307,10 @@ public static unsafe class RPart
         for (int i = 0; i < count; i++)
         {
             if (free_particles == null)
+            {
                 return;
+            }
+
             Particle_t* p = free_particles;
             free_particles = p->Next;
             p->Next = active_particles;
@@ -294,13 +325,13 @@ public static unsafe class RPart
                 p->Type = (i & 1) != 0 ? PType_t.Explode : PType_t.Explode2;
                 for (int j = 0; j < 3; j++)
                 {
-                    p->Org[j] = org[j] + (Q.Rand() % 32 - 16);
-                    p->Vel[j] = Q.Rand() % 512 - 256;
+                    p->Org[j] = org[j] + ((Q.Rand() % 32) - 16);
+                    p->Vel[j] = (Q.Rand() % 512) - 256;
                 }
             }
             else
             {
-                p->Die = (float)(Cl.time + 0.1 * (Q.Rand() % 5));
+                p->Die = (float)(Cl.time + (0.1 * (Q.Rand() % 5)));
                 p->Color = (color & ~7) + (Q.Rand() & 7);
                 p->Type = PType_t.SlowGrav;
                 for (int j = 0; j < 3; j++)
@@ -316,22 +347,26 @@ public static unsafe class RPart
     public static void LavaSplash(Vec3_t org)
     {
         for (int i = -16; i < 16; i++)
+        {
             for (int j = -16; j < 16; j++)
             {
                 if (free_particles == null)
+                {
                     return;
+                }
+
                 Particle_t* p = free_particles;
                 free_particles = p->Next;
                 p->Next = active_particles;
                 active_particles = p;
 
-                p->Die = (float)(Cl.time + 2 + (Q.Rand() & 31) * 0.02);
+                p->Die = (float)(Cl.time + 2 + ((Q.Rand() & 31) * 0.02));
                 p->Color = 224 + (Q.Rand() & 7);
                 p->Type = PType_t.SlowGrav;
 
                 Vec3_t dir = default;
-                dir[0] = j * 8 + (Q.Rand() & 7);
-                dir[1] = i * 8 + (Q.Rand() & 7);
+                dir[0] = (j * 8) + (Q.Rand() & 7);
+                dir[1] = (i * 8) + (Q.Rand() & 7);
                 dir[2] = 256;
 
                 p->Org[0] = org[0] + dir[0];
@@ -342,23 +377,29 @@ public static unsafe class RPart
                 MathLib.VectorNormalize(&dir);
                 p->Vel = dir * vel;
             }
+        }
     }
 
     // R_TeleportSplash
     public static void TeleportSplash(Vec3_t org)
     {
         for (int i = -16; i < 16; i += 4)
+        {
             for (int j = -16; j < 16; j += 4)
+            {
                 for (int k = -24; k < 32; k += 4)
                 {
                     if (free_particles == null)
+                    {
                         return;
+                    }
+
                     Particle_t* p = free_particles;
                     free_particles = p->Next;
                     p->Next = active_particles;
                     active_particles = p;
 
-                    p->Die = (float)(Cl.time + 0.2 + (Q.Rand() & 7) * 0.02);
+                    p->Die = (float)(Cl.time + 0.2 + ((Q.Rand() & 7) * 0.02));
                     p->Color = 7 + (Q.Rand() & 7);
                     p->Type = PType_t.SlowGrav;
 
@@ -375,6 +416,8 @@ public static unsafe class RPart
                     MathLib.VectorNormalize(&dir);
                     p->Vel = dir * vel;
                 }
+            }
+        }
     }
 
     // R_RocketTrail
@@ -401,7 +444,10 @@ public static unsafe class RPart
             len -= dec;
 
             if (free_particles == null)
+            {
                 return;
+            }
+
             Particle_t* p = free_particles;
             free_particles = p->Next;
             p->Next = active_particles;
@@ -417,7 +463,10 @@ public static unsafe class RPart
                     p->Color = ramp3[(int)p->Ramp];
                     p->Type = PType_t.Fire;
                     for (int j = 0; j < 3; j++)
-                        p->Org[j] = start[j] + (Q.Rand() % 6 - 3);
+                    {
+                        p->Org[j] = start[j] + ((Q.Rand() % 6) - 3);
+                    }
+
                     break;
 
                 case 1: // smoke smoke
@@ -425,14 +474,20 @@ public static unsafe class RPart
                     p->Color = ramp3[(int)p->Ramp];
                     p->Type = PType_t.Fire;
                     for (int j = 0; j < 3; j++)
-                        p->Org[j] = start[j] + (Q.Rand() % 6 - 3);
+                    {
+                        p->Org[j] = start[j] + ((Q.Rand() % 6) - 3);
+                    }
+
                     break;
 
                 case 2: // blood
                     p->Type = PType_t.Grav;
                     p->Color = 67 + (Q.Rand() & 3);
                     for (int j = 0; j < 3; j++)
-                        p->Org[j] = start[j] + (Q.Rand() % 6 - 3);
+                    {
+                        p->Org[j] = start[j] + ((Q.Rand() % 6) - 3);
+                    }
+
                     break;
 
                 case 3:
@@ -462,16 +517,22 @@ public static unsafe class RPart
                     p->Type = PType_t.Grav;
                     p->Color = 67 + (Q.Rand() & 3);
                     for (int j = 0; j < 3; j++)
-                        p->Org[j] = start[j] + (Q.Rand() % 6 - 3);
+                    {
+                        p->Org[j] = start[j] + ((Q.Rand() % 6) - 3);
+                    }
+
                     len -= 3;
                     break;
 
                 case 6: // voor trail
-                    p->Color = 9 * 16 + 8 + (Q.Rand() & 3);
+                    p->Color = (9 * 16) + 8 + (Q.Rand() & 3);
                     p->Type = PType_t.Static;
                     p->Die = (float)(Cl.time + 0.3);
                     for (int j = 0; j < 3; j++)
-                        p->Org[j] = start[j] + (Q.Rand() & 15 - 8);
+                    {
+                        p->Org[j] = start[j] + (Q.Rand() & (15 - 8));
+                    }
+
                     break;
             }
 
@@ -535,18 +596,28 @@ public static unsafe class RPart
                 case PType_t.Fire:
                     p->Ramp += time1;
                     if (p->Ramp >= 6)
+                    {
                         p->Die = -1;
+                    }
                     else
+                    {
                         p->Color = ramp3[(int)p->Ramp];
+                    }
+
                     p->Vel[2] += grav;
                     break;
 
                 case PType_t.Explode:
                     p->Ramp += time2;
                     if (p->Ramp >= 8)
+                    {
                         p->Die = -1;
+                    }
                     else
+                    {
                         p->Color = ramp1[(int)p->Ramp];
+                    }
+
                     p->Vel += p->Vel * dvel;
                     p->Vel[2] -= grav;
                     break;
@@ -554,9 +625,14 @@ public static unsafe class RPart
                 case PType_t.Explode2:
                     p->Ramp += time3;
                     if (p->Ramp >= 8)
+                    {
                         p->Die = -1;
+                    }
                     else
+                    {
                         p->Color = ramp2[(int)p->Ramp];
+                    }
+
                     p->Vel -= p->Vel * frametime;
                     p->Vel[2] -= grav;
                     break;
@@ -568,7 +644,10 @@ public static unsafe class RPart
 
                 case PType_t.Blob2:
                     for (int i = 0; i < 2; i++)
+                    {
                         p->Vel[i] -= p->Vel[i] * dvel;
+                    }
+
                     p->Vel[2] -= grav;
                     break;
 

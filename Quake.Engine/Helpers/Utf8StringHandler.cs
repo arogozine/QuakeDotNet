@@ -52,7 +52,7 @@ public unsafe ref struct Utf8StringHandler
     // arguments are unused because the storage is a fixed ring slot.
     public Utf8StringHandler(int literalLength, int formattedCount)
     {
-        _buf = _buffer + (s_created++ & (RING_SIZE - 1)) * SLOT_STRIDE;
+        _buf = _buffer + ((s_created++ & (RING_SIZE - 1)) * SLOT_STRIDE);
         _destination = new(_buf, MAX_SIZE);
     }
 

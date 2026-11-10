@@ -26,7 +26,9 @@ public unsafe struct Vec3_t
     public static implicit operator float*(in Vec3_t v)
     {
         fixed (float* p = v.V)
+        {
             return p;
+        }
     }
 }
 

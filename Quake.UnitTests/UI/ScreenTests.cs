@@ -68,7 +68,9 @@ public sealed unsafe class ScreenTests
         NativeMemory.Free(_vidBuf);
         NativeMemory.Free(Draw.draw_chars);
         if (_wadBuf != null)
+        {
             NativeMemory.Free(_wadBuf);
+        }
     }
 
     // Builds a minimal in-memory WAD (3 lumps: ram/net/turtle, each a
@@ -77,19 +79,21 @@ public sealed unsafe class ScreenTests
     private void InstallFakeWad()
     {
         string[] names = ["ram", "net", "turtle"];
-        int picSize = sizeof(int) * 2 + 1; // width,height + 1 data byte
+        int picSize = (sizeof(int) * 2) + 1; // width,height + 1 data byte
         int lumpsSize = names.Length * sizeof(LumpInfo_t);
         int picsOffset = lumpsSize;
-        _wadBuf = NativeMemory.AllocArrayZeroed<byte>(lumpsSize + picSize * names.Length);
+        _wadBuf = NativeMemory.AllocArrayZeroed<byte>(lumpsSize + (picSize * names.Length));
 
         LumpInfo_t* lumps = (LumpInfo_t*)_wadBuf;
         for (int i = 0; i < names.Length; i++)
         {
             byte[] nameBytes = Encoding.ASCII.GetBytes(names[i]);
             for (int j = 0; j < nameBytes.Length; j++)
+            {
                 lumps[i].Name[j] = nameBytes[j];
+            }
 
-            lumps[i].FilePos = picsOffset + i * picSize;
+            lumps[i].FilePos = picsOffset + (i * picSize);
 
             QPic_t* pic = (QPic_t*)(_wadBuf + lumps[i].FilePos);
             pic->Width = 1;
@@ -265,7 +269,9 @@ public sealed unsafe class ScreenTests
         Screen.scr_centertime->Value = 2;
 
         fixed (byte* str = "line1\nline2\nline3"u8)
+        {
             Screen.CenterPrint(str);
+        }
 
         Screen.DrawCenterString(); // must not throw
 
@@ -330,7 +336,9 @@ public sealed unsafe class ScreenTests
         try
         {
             fixed (byte* dir = Encoding.ASCII.GetBytes(gamedir + "\0"))
+            {
                 Q.StrCpy(Com.com_gamedir, dir);
+            }
 
             byte* pixels = stackalloc byte[4]; // 2x2, no run-length escape needed
             pixels[0] = 0x10;
@@ -341,7 +349,9 @@ public sealed unsafe class ScreenTests
             byte* palette = stackalloc byte[768];
 
             fixed (byte* filename = "test_screenshot.pcx"u8)
+            {
                 Screen.WritePCXfile(filename, pixels, 2, 2, 2, palette);
+            }
 
             Assert.IsTrue(File.Exists(Path.Combine(gamedir, "test_screenshot.pcx")));
         }

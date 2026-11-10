@@ -8,7 +8,7 @@ namespace Quake.Engine;
 /// <summary>
 /// UnsafeAccessor wrappers for internal .NET runtime members.
 /// </summary>
-internal static unsafe class RuntimeAccessors
+internal static class RuntimeAccessors
 {
     /// <summary>
     /// System.Text.UTF8Encoding.UTF8EncodingSealed.ReadUtf8.

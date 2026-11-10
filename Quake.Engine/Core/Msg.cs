@@ -70,7 +70,9 @@ public static unsafe class Msg
             Sz.Write(sb, &empty, 1);
         }
         else
+        {
             Sz.Write(sb, s, Q.StrLen(s) + 1);
+        }
     }
 
     public static void WriteString(SizeBuf_t* sb, [InterpolatedStringHandlerArgument] scoped Utf8StringHandler s_)
@@ -220,7 +222,10 @@ public static unsafe class Msg
         {
             int c = ReadChar();
             if (c is -1 or 0)
+            {
                 break;
+            }
+
             readStringBuffer[l] = (byte)c;
             l++;
         } while (l < READ_STRING_SIZE - 1);

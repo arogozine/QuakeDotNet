@@ -48,13 +48,13 @@ public unsafe partial class Turbulent8Benchmarks
         Vector256<ulong> q = idxV.AsUInt64();
         ulong i01 = q.GetElement(0), i23 = q.GetElement(1), i45 = q.GetElement(2), i67 = q.GetElement(3);
         return pbase[(uint)i01]
-            | (ulong)pbase[(uint)(i01 >> 32)] << 8
-            | (ulong)pbase[(uint)i23] << 16
-            | (ulong)pbase[(uint)(i23 >> 32)] << 24
-            | (ulong)pbase[(uint)i45] << 32
-            | (ulong)pbase[(uint)(i45 >> 32)] << 40
-            | (ulong)pbase[(uint)i67] << 48
-            | (ulong)pbase[(uint)(i67 >> 32)] << 56;
+            | ((ulong)pbase[(uint)(i01 >> 32)] << 8)
+            | ((ulong)pbase[(uint)i23] << 16)
+            | ((ulong)pbase[(uint)(i23 >> 32)] << 24)
+            | ((ulong)pbase[(uint)i45] << 32)
+            | ((ulong)pbase[(uint)(i45 >> 32)] << 40)
+            | ((ulong)pbase[(uint)i67] << 48)
+            | ((ulong)pbase[(uint)(i67 >> 32)] << 56);
     }
 
     // Byte 0 of each dword -> bytes 0..3 (lo) or 4..7 (hi) of each 128-bit lane.
@@ -91,7 +91,7 @@ public unsafe partial class Turbulent8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
             int count = pspan->Count;
             float du = pspan->U;
             float dv = pspan->V;
@@ -102,9 +102,24 @@ public unsafe partial class Turbulent8Benchmarks
             float z = 0x10000 / zi;
 
             int s = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
-            if (s > bbextents) s = bbextents; else if (s < 0) s = 0;
+            if (s > bbextents)
+            {
+                s = bbextents;
+            }
+            else if (s < 0)
+            {
+                s = 0;
+            }
+
             int t = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
-            if (t > bbextentt) t = bbextentt; else if (t < 0) t = 0;
+            if (t > bbextentt)
+            {
+                t = bbextentt;
+            }
+            else if (t < 0)
+            {
+                t = 0;
+            }
 
             int snext, tnext;
             do
@@ -119,9 +134,25 @@ public unsafe partial class Turbulent8Benchmarks
                     zi += zi16stepu;
                     z = 0x10000 / zi;
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
-                    if (snext > bbextents) snext = bbextents; else if (snext < 16) snext = 16;
+                    if (snext > bbextents)
+                    {
+                        snext = bbextents;
+                    }
+                    else if (snext < 16)
+                    {
+                        snext = 16;
+                    }
+
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
-                    if (tnext > bbextentt) tnext = bbextentt; else if (tnext < 16) tnext = 16;
+                    if (tnext > bbextentt)
+                    {
+                        tnext = bbextentt;
+                    }
+                    else if (tnext < 16)
+                    {
+                        tnext = 16;
+                    }
+
                     r_turb_sstep = (snext - s) >> 4;
                     r_turb_tstep = (tnext - t) >> 4;
                 }
@@ -133,9 +164,25 @@ public unsafe partial class Turbulent8Benchmarks
                     zi += d_zistepu * spancountminus1;
                     z = 0x10000 / zi;
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
-                    if (snext > bbextents) snext = bbextents; else if (snext < 16) snext = 16;
+                    if (snext > bbextents)
+                    {
+                        snext = bbextents;
+                    }
+                    else if (snext < 16)
+                    {
+                        snext = 16;
+                    }
+
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
-                    if (tnext > bbextentt) tnext = bbextentt; else if (tnext < 16) tnext = 16;
+                    if (tnext > bbextentt)
+                    {
+                        tnext = bbextentt;
+                    }
+                    else if (tnext < 16)
+                    {
+                        tnext = 16;
+                    }
+
                     if (spancount > 1)
                     {
                         r_turb_sstep = (snext - s) / (spancount - 1);
@@ -150,8 +197,8 @@ public unsafe partial class Turbulent8Benchmarks
                 {
                     Vector256<int> sstepV = Vector256.Create(r_turb_sstep);
                     Vector256<int> tstepV = Vector256.Create(r_turb_tstep);
-                    Vector256<int> sV = Vector256.Create(s) + indexV * sstepV;
-                    Vector256<int> tV = Vector256.Create(t) + indexV * tstepV;
+                    Vector256<int> sV = Vector256.Create(s) + (indexV * sstepV);
+                    Vector256<int> tV = Vector256.Create(t) + (indexV * tstepV);
                     Vector256<int> idx0 = TexIndex8(turb, sV, tV);
 
                     if (spancount == 16)
@@ -228,29 +275,37 @@ public unsafe partial class Turbulent8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
             float du = pspan->U;
             float dv = pspan->V;
 
-            float sdivz = d_sdivzorigin + dv * d_sdivzstepv + du * d_sdivzstepu;
-            float tdivz = d_tdivzorigin + dv * d_tdivzstepv + du * d_tdivzstepu;
-            float zi = d_ziorigin + dv * d_zistepv + du * d_zistepu;
+            float sdivz = d_sdivzorigin + (dv * d_sdivzstepv) + (du * d_sdivzstepu);
+            float tdivz = d_tdivzorigin + (dv * d_tdivzstepv) + (du * d_tdivzstepu);
+            float zi = d_ziorigin + (dv * d_zistepv) + (du * d_zistepu);
             float z = 0x10000 / zi;
 
             int r_turb_s = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
             if (r_turb_s > bbextents)
+            {
                 r_turb_s = bbextents;
+            }
             else if (r_turb_s < 0)
+            {
                 r_turb_s = 0;
+            }
 
             int r_turb_t = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
             if (r_turb_t > bbextentt)
+            {
                 r_turb_t = bbextentt;
+            }
             else if (r_turb_t < 0)
+            {
                 r_turb_t = 0;
+            }
 
             int snext, tnext;
 
@@ -268,15 +323,23 @@ public unsafe partial class Turbulent8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 16)
+                    {
                         snext = 16;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 16)
+                    {
                         tnext = 16;
+                    }
 
                     r_turb_sstep = (snext - r_turb_s) >> 4;
                     r_turb_tstep = (tnext - r_turb_t) >> 4;
@@ -290,15 +353,23 @@ public unsafe partial class Turbulent8Benchmarks
                     z = 0x10000 / zi;
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 16)
+                    {
                         snext = 16;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 16)
+                    {
                         tnext = 16;
+                    }
 
                     if (spancount > 1)
                     {

@@ -44,14 +44,14 @@ public static unsafe class DEdge
         float wu = 8192.0f * (u - ((int)Vid.vid.Width >> 1)) / temp;
         float wv = 8192.0f * (((int)Vid.vid.Height >> 1) - v) / temp;
 
-        Vec3_t end = 4096 * RShared.vpn + wu * RShared.vright + wv * RShared.vup;
+        Vec3_t end = (4096 * RShared.vpn) + (wu * RShared.vright) + (wv * RShared.vup);
         end[2] *= 3;
         MathLib.VectorNormalize(&end);
 
         temp = RSky.skytime * RSky.skyspeed; // TODO (original comment): add D_SetupFrame & set this there
 
-        *s = float.ConvertToInteger<int>((temp + 6 * (128 / 2 - 1) * end[0]) * 0x10000);
-        *t = float.ConvertToInteger<int>((temp + 6 * (128 / 2 - 1) * end[1]) * 0x10000);
+        *s = float.ConvertToInteger<int>((temp + (6 * ((128 / 2) - 1) * end[0])) * 0x10000);
+        *t = float.ConvertToInteger<int>((temp + (6 * ((128 / 2) - 1) * end[1])) * 0x10000);
     }
 
     // D_DrawSkyScans8
@@ -77,7 +77,7 @@ public static unsafe class DEdge
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -123,21 +123,21 @@ public static unsafe class DEdge
                 {
                     do
                     {
-                        Vector256<int> tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                        Vector256<int> sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
+                        Vector256<int> tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                        Vector256<int> sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
                         (((tV & rSkyTMaskV) >> 8) + ((sV & rSkySMaskV) >> 16)).Store(idx);
 
                         ulong i01 = idx64[0], i23 = idx64[1], i45 = idx64[2], i67 = idx64[3];
 
                         ulong texels =
                               skysource[(uint)i01]
-                            | (ulong)skysource[(uint)(i01 >> 32)] << 8
-                            | (ulong)skysource[(uint)i23] << 16
-                            | (ulong)skysource[(uint)(i23 >> 32)] << 24
-                            | (ulong)skysource[(uint)i45] << 32
-                            | (ulong)skysource[(uint)(i45 >> 32)] << 40
-                            | (ulong)skysource[(uint)i67] << 48
-                            | (ulong)skysource[(uint)(i67 >> 32)] << 56;
+                            | ((ulong)skysource[(uint)(i01 >> 32)] << 8)
+                            | ((ulong)skysource[(uint)i23] << 16)
+                            | ((ulong)skysource[(uint)(i23 >> 32)] << 24)
+                            | ((ulong)skysource[(uint)i45] << 32)
+                            | ((ulong)skysource[(uint)(i45 >> 32)] << 40)
+                            | ((ulong)skysource[(uint)i67] << 48)
+                            | ((ulong)skysource[(uint)(i67 >> 32)] << 56);
 
                         Unsafe.WriteUnaligned(pdest, texels);
                         pdest += Vector256<int>.Count;
@@ -178,16 +178,26 @@ public static unsafe class DEdge
         int lmiplevel;
 
         if (scale >= DLocal.d_scalemip[0])
+        {
             lmiplevel = 0;
+        }
         else if (scale >= DLocal.d_scalemip[1])
+        {
             lmiplevel = 1;
+        }
         else if (scale >= DLocal.d_scalemip[2])
+        {
             lmiplevel = 2;
+        }
         else
+        {
             lmiplevel = 3;
+        }
 
         if (lmiplevel < DLocal.d_minmip)
+        {
             lmiplevel = DLocal.d_minmip;
+        }
 
         return lmiplevel;
     }
@@ -199,7 +209,7 @@ public static unsafe class DEdge
 
         for (ESpan_t* span = surf->Spans; span != null; span = span->PNext)
         {
-            byte* pdest = (byte*)DLocal.d_viewbuffer + RShared.screenwidth * span->V;
+            byte* pdest = (byte*)DLocal.d_viewbuffer + (RShared.screenwidth * span->V);
             int u = span->U;
             int u2 = span->U + span->Count - 1;
             pdest[u] = (byte)pix;
@@ -207,19 +217,28 @@ public static unsafe class DEdge
             if (u2 - u < 8)
             {
                 for (u++; u <= u2; u++)
+                {
                     pdest[u] = (byte)pix;
+                }
             }
             else
             {
                 for (u++; (u & 3) != 0; u++)
+                {
                     pdest[u] = (byte)pix;
+                }
 
                 u2 -= 4;
                 for (; u <= u2; u += 4)
+                {
                     *(int*)(pdest + u) = pix;
+                }
+
                 u2 += 4;
                 for (; u <= u2; u++)
+                {
                     pdest[u] = (byte)pix;
+                }
             }
         }
     }
@@ -243,18 +262,18 @@ public static unsafe class DEdge
         DLocal.d_sdivzstepv = -p_saxis[1] * t;
         DLocal.d_tdivzstepv = -p_taxis[1] * t;
 
-        DLocal.d_sdivzorigin = p_saxis[2] * mipscale - RShared.xcenter * DLocal.d_sdivzstepu -
-                                RShared.ycenter * DLocal.d_sdivzstepv;
-        DLocal.d_tdivzorigin = p_taxis[2] * mipscale - RShared.xcenter * DLocal.d_tdivzstepu -
-                                RShared.ycenter * DLocal.d_tdivzstepv;
+        DLocal.d_sdivzorigin = (p_saxis[2] * mipscale) - (RShared.xcenter * DLocal.d_sdivzstepu) -
+                                (RShared.ycenter * DLocal.d_sdivzstepv);
+        DLocal.d_tdivzorigin = (p_taxis[2] * mipscale) - (RShared.xcenter * DLocal.d_tdivzstepu) -
+                                (RShared.ycenter * DLocal.d_tdivzstepv);
 
         Vec3_t p_temp1 = transformed_modelorg * mipscale;
 
         t = 0x10000 * mipscale;
-        DLocal.sadjust = float.ConvertToIntegerNative<int>(Vector3.Dot(p_temp1, p_saxis) * 0x10000 + 0.5f)
+        DLocal.sadjust = float.ConvertToIntegerNative<int>((Vector3.Dot(p_temp1, p_saxis) * 0x10000) + 0.5f)
                          - ((pface->TextureMins[0] << 16) >> miplevel)
                          + float.ConvertToIntegerNative<int>(pface->TexInfo->Vecs[3] * t);
-        DLocal.tadjust = float.ConvertToIntegerNative<int>(Vector3.Dot(p_temp1, p_taxis) * 0x10000 + 0.5f)
+        DLocal.tadjust = float.ConvertToIntegerNative<int>((Vector3.Dot(p_temp1, p_taxis) * 0x10000) + 0.5f)
                          - ((pface->TextureMins[1] << 16) >> miplevel)
                          + float.ConvertToIntegerNative<int>(pface->TexInfo->Vecs[7] * t);
 
@@ -277,7 +296,9 @@ public static unsafe class DEdge
             for (Surf_t* s = &RShared.surfaces[1]; s < RShared.surface_p; s++)
             {
                 if (s->Spans == null)
+                {
                     continue;
+                }
 
                 DLocal.d_zistepu = s->DZiStepU;
                 DLocal.d_zistepv = s->DZiStepV;
@@ -293,7 +314,9 @@ public static unsafe class DEdge
         for (Surf_t* s = &RShared.surfaces[1]; s < RShared.surface_p; s++)
         {
             if (s->Spans == null)
+            {
                 continue;
+            }
 
             RShared.r_drawnpolycount++;
 
@@ -304,7 +327,9 @@ public static unsafe class DEdge
             if ((s->Flags & Surf.DRAWSKY) != 0)
             {
                 if (!r_skymade)
+                {
                     RSky.MakeSky();
+                }
 
                 DrawSkyScans8(s->Spans);
                 DScan.DrawZSpans(s->Spans);

@@ -68,7 +68,10 @@ public static unsafe class Sbar
     public static void ShowScores()
     {
         if (sb_showscores)
+        {
             return;
+        }
+
         sb_showscores = true;
         sb_updates = 0;
     }
@@ -232,33 +235,49 @@ public static unsafe class Sbar
     public static void DrawPic(int x, int y, QPic_t* pic)
     {
         if (Cl.gametype == (int)GameType.Deathmatch)
+        {
             Draw.Pic(x, y + (Canvas.Height - SBAR_HEIGHT), pic);
+        }
         else
+        {
             Draw.Pic(x + ((Canvas.Width - 320) >> 1), y + (Canvas.Height - SBAR_HEIGHT), pic);
+        }
     }
 
     public static void DrawTransPic(int x, int y, QPic_t* pic)
     {
         if (Cl.gametype == (int)GameType.Deathmatch)
+        {
             Draw.TransPic(x, y + (Canvas.Height - SBAR_HEIGHT), pic);
+        }
         else
+        {
             Draw.TransPic(x + ((Canvas.Width - 320) >> 1), y + (Canvas.Height - SBAR_HEIGHT), pic);
+        }
     }
 
     public static void DrawCharacter(int x, int y, int num)
     {
         if (Cl.gametype == (int)GameType.Deathmatch)
+        {
             Draw.Character(x + 4, y + Canvas.Height - SBAR_HEIGHT, num);
+        }
         else
+        {
             Draw.Character(x + ((Canvas.Width - 320) >> 1) + 4, y + Canvas.Height - SBAR_HEIGHT, num);
+        }
     }
 
     private static void DrawStringRaw(int x, int y, byte* str)
     {
         if (Cl.gametype == (int)GameType.Deathmatch)
+        {
             Draw.String(x, y + Canvas.Height - SBAR_HEIGHT, str);
+        }
         else
+        {
             Draw.String(x + ((Canvas.Width - 320) >> 1), y + Canvas.Height - SBAR_HEIGHT, str);
+        }
     }
 
     // Sbar_DrawString(x, y, va("...%3i...", n)) without allocating: $"Time :{minutes,3}".
@@ -307,9 +326,14 @@ public static unsafe class Sbar
         int l = Itoa(num, str);
         byte* ptr = str;
         if (l > digits)
+        {
             ptr += l - digits;
+        }
+
         if (l < digits)
+        {
             x += (digits - l) * 24;
+        }
 
         while (*ptr != 0)
         {
@@ -352,9 +376,15 @@ public static unsafe class Sbar
         }
 
         for (int i = 0; i < scoreboardlines; i++)
+        {
             for (int j = 0; j < scoreboardlines - 1 - i; j++)
+            {
                 if (Cl.scores[fragsort[j]].Frags < Cl.scores[fragsort[j + 1]].Frags)
+                {
                     (fragsort[j], fragsort[j + 1]) = (fragsort[j + 1], fragsort[j]);
+                }
+            }
+        }
     }
 
     public static int ColorForMap(int m) => m < 128 ? m + 8 : m + 8;
@@ -371,14 +401,14 @@ public static unsafe class Sbar
 
         // time
         int minutes = (int)(Cl.time / 60);
-        int seconds = (int)(Cl.time - 60 * minutes);
+        int seconds = (int)(Cl.time - (60 * minutes));
         int tens = seconds / 10;
-        int units = seconds - 10 * tens;
+        int units = seconds - (10 * tens);
         DrawString(184, 4, $"Time :{minutes,3}:{tens}{units}");
 
         // draw level name
         int l = (int)Q.StrLen(Cl.levelname);
-        DrawStringRaw(232 - l * 4, 12, Cl.levelname);
+        DrawStringRaw(232 - (l * 4), 12, Cl.levelname);
     }
 
     /*
@@ -390,7 +420,9 @@ public static unsafe class Sbar
     {
         SoloScoreboard();
         if (Cl.gametype == (int)GameType.Deathmatch)
+        {
             DeathmatchOverlay();
+        }
     }
 
     //=============================================================================
@@ -405,9 +437,13 @@ public static unsafe class Sbar
         if (Com.rogue)
         {
             if (Cl.stats[(int)Stat.ActiveWeapon] >= RIT_LAVA_NAILGUN)
+            {
                 DrawPic(0, -24, rsb_invbar[0]);
+            }
             else
+            {
                 DrawPic(0, -24, rsb_invbar[1]);
+            }
         }
         else
         {
@@ -433,7 +469,9 @@ public static unsafe class Sbar
                 DrawPic(i * 24, -16, sb_weapons[flashon, i]);
 
                 if (flashon > 1)
+                {
                     sb_updates = 0; // force update to remove flash
+                }
             }
         }
 
@@ -483,13 +521,19 @@ public static unsafe class Sbar
                             }
                         }
                         else
+                        {
                             DrawPic(96, -16, hsb_weapons[flashon, 4]);
+                        }
                     }
                     else
+                    {
                         DrawPic(176 + (i * 24), -16, hsb_weapons[flashon, i]);
+                    }
 
                     if (flashon > 1)
+                    {
                         sb_updates = 0; // force update to remove flash
+                    }
                 }
             }
         }
@@ -515,11 +559,19 @@ public static unsafe class Sbar
             Fixed3AsciiInt num = default;
             num.Format(Cl.stats[(int)Stat.Shells + i]);
             if (num[0] != ' ')
-                DrawCharacter((6 * i + 1) * 8 - 2, -24, 18 + num[0] - '0');
+            {
+                DrawCharacter((((6 * i) + 1) * 8) - 2, -24, 18 + num[0] - '0');
+            }
+
             if (num[1] != ' ')
-                DrawCharacter((6 * i + 2) * 8 - 2, -24, 18 + num[1] - '0');
+            {
+                DrawCharacter((((6 * i) + 2) * 8) - 2, -24, 18 + num[1] - '0');
+            }
+
             if (num[2] != ' ')
-                DrawCharacter((6 * i + 3) * 8 - 2, -24, 18 + num[2] - '0');
+            {
+                DrawCharacter((((6 * i) + 3) * 8) - 2, -24, 18 + num[2] - '0');
+            }
         }
 
         bool flashon2 = false;
@@ -539,11 +591,13 @@ public static unsafe class Sbar
                     // MED 01/04/97 changed keys
                     if (!Com.hipnotic || i > 1)
                     {
-                        DrawPic(192 + i * 16, -16, sb_items[i]);
+                        DrawPic(192 + (i * 16), -16, sb_items[i]);
                     }
                 }
                 if (time != 0 && time > Cl.time - 2)
+                {
                     sb_updates = 0;
+                }
             }
         }
 
@@ -552,6 +606,7 @@ public static unsafe class Sbar
         if (Com.hipnotic)
         {
             for (int i = 0; i < 2; i++)
+            {
                 if ((Cl.items & (1 << (24 + i))) != 0)
                 {
                     float time = Cl.item_gettime[24 + i];
@@ -562,11 +617,14 @@ public static unsafe class Sbar
                     }
                     else
                     {
-                        DrawPic(288 + i * 16, -16, hsb_items[i]);
+                        DrawPic(288 + (i * 16), -16, hsb_items[i]);
                     }
                     if (time != 0 && time > Cl.time - 2)
+                    {
                         sb_updates = 0;
+                    }
                 }
+            }
         }
 
         if (Com.rogue)
@@ -585,11 +643,13 @@ public static unsafe class Sbar
                     }
                     else
                     {
-                        DrawPic(288 + i * 16, -16, rsb_items[i]);
+                        DrawPic(288 + (i * 16), -16, rsb_items[i]);
                     }
 
                     if (time != 0 && time > Cl.time - 2)
+                    {
                         sb_updates = 0;
+                    }
                 }
             }
         }
@@ -607,10 +667,12 @@ public static unsafe class Sbar
                     }
                     else
                     {
-                        DrawPic(320 - 32 + i * 8, -16, sb_sigil[i]);
+                        DrawPic(320 - 32 + (i * 8), -16, sb_sigil[i]);
                     }
                     if (time != 0 && time > Cl.time - 2)
+                    {
                         sb_updates = 0;
+                    }
                 }
             }
         }
@@ -644,15 +706,17 @@ public static unsafe class Sbar
             int k = fragsort[i];
             ScoreBoard_t* s = &Cl.scores[k];
             if (s->Name[0] == 0)
+            {
                 continue;
+            }
 
             int top = s->Colors & 0xf0;
             int bottom = (s->Colors & 15) << 4;
             top = ColorForMap(top);
             bottom = ColorForMap(bottom);
 
-            Draw.Fill(xofs + x * 8 + 10, y, 28, 4, top);
-            Draw.Fill(xofs + x * 8 + 10, y + 4, 28, 3, bottom);
+            Draw.Fill(xofs + (x * 8) + 10, y, 28, 4, top);
+            Draw.Fill(xofs + (x * 8) + 10, y + 4, 28, 3, bottom);
 
 
             num.Format(s->Frags);
@@ -662,8 +726,8 @@ public static unsafe class Sbar
 
             if (k == Cl.viewentity - 1)
             {
-                DrawCharacter(x * 8 + 2, -24, 16);
-                DrawCharacter((x + 4) * 8 - 4, -24, 17);
+                DrawCharacter((x * 8) + 2, -24, 16);
+                DrawCharacter(((x + 4) * 8) - 4, -24, 17);
             }
             x += 4;
         }
@@ -702,11 +766,19 @@ public static unsafe class Sbar
             if (top == 8)
             {
                 if (num[0] != ' ')
+                {
                     DrawCharacter(109, 3, 18 + num[0] - '0');
+                }
+
                 if (num[1] != ' ')
+                {
                     DrawCharacter(116, 3, 18 + num[1] - '0');
+                }
+
                 if (num[2] != ' ')
+                {
                     DrawCharacter(123, 3, 18 + num[2] - '0');
+                }
             }
             else
             {
@@ -742,7 +814,9 @@ public static unsafe class Sbar
 
         int f = Cl.stats[(int)Stat.Health] >= 100 ? 4 : Cl.stats[(int)Stat.Health] / 20;
         if (f < 0)
+        {
             f = 0;
+        }
 
         int anim;
         if (Cl.time <= Cl.faceanimtime)
@@ -765,10 +839,14 @@ public static unsafe class Sbar
     public static void Draw_()
     {
         if (Screen.scr_con_current == Vid.vid.ConHeight)
+        {
             return; // console is full screen
+        }
 
         if (sb_updates >= Vid.vid.NumPages)
+        {
             return;
+        }
 
         Screen.scr_copyeverything = 1;
 
@@ -778,13 +856,17 @@ public static unsafe class Sbar
 
         // the side bars are cleared in physical pixels (sb_lines is in status bar canvas units)
         if (sb_lines != 0 && Canvas.Width > 320)
-            Draw.TileClear(0, (int)Vid.vid.Height - sb_lines * Canvas.Scale, (int)Vid.vid.Width, sb_lines * Canvas.Scale);
+        {
+            Draw.TileClear(0, (int)Vid.vid.Height - (sb_lines * Canvas.Scale), (int)Vid.vid.Width, sb_lines * Canvas.Scale);
+        }
 
         if (sb_lines > 24)
         {
             DrawInventory();
             if (Cl.maxclients != 1)
+            {
                 DrawFrags();
+            }
         }
 
         if (sb_showscores || Cl.stats[(int)Stat.Health] <= 0)
@@ -802,9 +884,14 @@ public static unsafe class Sbar
             if (Com.hipnotic)
             {
                 if ((Cl.items & IT_KEY1) != 0)
+                {
                     DrawPic(209, 3, sb_items[0]);
+                }
+
                 if ((Cl.items & IT_KEY2) != 0)
+                {
                     DrawPic(209, 12, sb_items[1]);
+                }
             }
 
             // armor
@@ -819,21 +906,33 @@ public static unsafe class Sbar
                 {
                     DrawNum(24, 0, Cl.stats[(int)Stat.Armor], 3, Cl.stats[(int)Stat.Armor] <= 25 ? 1 : 0);
                     if ((Cl.items & RIT_ARMOR3) != 0)
+                    {
                         DrawPic(0, 0, sb_armor[2]);
+                    }
                     else if ((Cl.items & RIT_ARMOR2) != 0)
+                    {
                         DrawPic(0, 0, sb_armor[1]);
+                    }
                     else if ((Cl.items & RIT_ARMOR1) != 0)
+                    {
                         DrawPic(0, 0, sb_armor[0]);
+                    }
                 }
                 else
                 {
                     DrawNum(24, 0, Cl.stats[(int)Stat.Armor], 3, Cl.stats[(int)Stat.Armor] <= 25 ? 1 : 0);
                     if ((Cl.items & IT_ARMOR3) != 0)
+                    {
                         DrawPic(0, 0, sb_armor[2]);
+                    }
                     else if ((Cl.items & IT_ARMOR2) != 0)
+                    {
                         DrawPic(0, 0, sb_armor[1]);
+                    }
                     else if ((Cl.items & IT_ARMOR1) != 0)
+                    {
                         DrawPic(0, 0, sb_armor[0]);
+                    }
                 }
             }
 
@@ -847,30 +946,52 @@ public static unsafe class Sbar
             if (Com.rogue)
             {
                 if ((Cl.items & RIT_SHELLS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[0]);
+                }
                 else if ((Cl.items & RIT_NAILS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[1]);
+                }
                 else if ((Cl.items & RIT_ROCKETS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[2]);
+                }
                 else if ((Cl.items & RIT_CELLS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[3]);
+                }
                 else if ((Cl.items & RIT_LAVA_NAILS) != 0)
+                {
                     DrawPic(224, 0, rsb_ammo[0]);
+                }
                 else if ((Cl.items & RIT_PLASMA_AMMO) != 0)
+                {
                     DrawPic(224, 0, rsb_ammo[1]);
+                }
                 else if ((Cl.items & RIT_MULTI_ROCKETS) != 0)
+                {
                     DrawPic(224, 0, rsb_ammo[2]);
+                }
             }
             else
             {
                 if ((Cl.items & IT_SHELLS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[0]);
+                }
                 else if ((Cl.items & IT_NAILS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[1]);
+                }
                 else if ((Cl.items & IT_ROCKETS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[2]);
+                }
                 else if ((Cl.items & IT_CELLS) != 0)
+                {
                     DrawPic(224, 0, sb_ammo[3]);
+                }
             }
 
             DrawNum(248, 0, Cl.stats[(int)Stat.Ammo], 3, Cl.stats[(int)Stat.Ammo] <= 10 ? 1 : 0);
@@ -881,7 +1002,9 @@ public static unsafe class Sbar
         if (Canvas.Width > 320)
         {
             if (Cl.gametype == (int)GameType.Deathmatch)
+            {
                 MiniDeathmatchOverlay();
+            }
         }
     }
 
@@ -898,9 +1021,14 @@ public static unsafe class Sbar
         int l = Itoa(num, str);
         byte* ptr = str;
         if (l > digits)
+        {
             ptr += l - digits;
+        }
+
         if (l < digits)
+        {
             x += (digits - l) * 24;
+        }
 
         while (*ptr != 0)
         {
@@ -936,7 +1064,9 @@ public static unsafe class Sbar
             int k = fragsort[i];
             ScoreBoard_t* s = &Cl.scores[k];
             if (s->Name[0] == 0)
+            {
                 continue;
+            }
 
             int top = s->Colors & 0xf0;
             int bottom = (s->Colors & 15) << 4;
@@ -954,7 +1084,10 @@ public static unsafe class Sbar
             Draw.Character(x + 24, y, num[2]);
 
             if (k == Cl.viewentity - 1)
+            {
                 Draw.Character(x - 8, y, 12);
+            }
+
             Draw.String(x + 64, y, s->Name);
 
             y += 10;
@@ -969,7 +1102,9 @@ public static unsafe class Sbar
     public static void MiniDeathmatchOverlay()
     {
         if (Canvas.Width < 512 || sb_lines == 0)
+        {
             return;
+        }
 
         Screen.scr_copyeverything = 1;
         Screen.scr_fullupdate = 0;
@@ -980,23 +1115,38 @@ public static unsafe class Sbar
         int y = Canvas.Height - sb_lines;
         int numlines = sb_lines / 8;
         if (numlines < 3)
+        {
             return;
+        }
 
         // find us
         int i;
         for (i = 0; i < scoreboardlines; i++)
+        {
             if (fragsort[i] == Cl.viewentity - 1)
+            {
                 break;
+            }
+        }
 
         if (i == scoreboardlines) // we're not there
+        {
             i = 0;
+        }
         else // figure out start
+        {
             i -= numlines / 2;
+        }
 
         if (i > scoreboardlines - numlines)
+        {
             i = scoreboardlines - numlines;
+        }
+
         if (i < 0)
+        {
             i = 0;
+        }
 
         int x = 324;
         for (; i < scoreboardlines && y < Canvas.Height - 8; i++)
@@ -1004,7 +1154,9 @@ public static unsafe class Sbar
             int k = fragsort[i];
             ScoreBoard_t* s = &Cl.scores[k];
             if (s->Name[0] == 0)
+            {
                 continue;
+            }
 
             int top = s->Colors & 0xf0;
             int bottom = (s->Colors & 15) << 4;
@@ -1058,7 +1210,7 @@ public static unsafe class Sbar
         // time
         int dig = Cl.completed_time / 60;
         IntermissionNumber(160, 64, dig, 3, 0);
-        int num = Cl.completed_time - dig * 60;
+        int num = Cl.completed_time - (dig * 60);
         Draw.TransPic(234, 64, sb_colon);
         Draw.TransPic(246, 64, sb_nums[0, num / 10]);
         Draw.TransPic(266, 64, sb_nums[0, num % 10]);

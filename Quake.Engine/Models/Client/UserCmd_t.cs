@@ -11,7 +11,7 @@ namespace Quake.Engine;
 // SV_ReadClientMove (SvUser.cs) writes angles/buttons/impulse straight into the edict, as
 // in sv_user.c, so ViewAngles is declared for fidelity but unused, as in C.
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct UserCmd_t
+public struct UserCmd_t
 {
     public Vec3_t ViewAngles;
 

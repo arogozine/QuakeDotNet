@@ -77,7 +77,9 @@ public static unsafe class REdge
             for (Surf_t* s = RShared.surface_p - 1; s > &RShared.surfaces[1]; s--)
             {
                 if (s->Spans == null)
+                {
                     continue;
+                }
 
                 if ((s->Flags & Surf.DRAWBACKGROUND) == 0)
                 {
@@ -91,7 +93,9 @@ public static unsafe class REdge
             for (Surf_t* s = &RShared.surfaces[1]; s < RShared.surface_p; s++)
             {
                 if (s->Spans == null)
+                {
                     continue;
+                }
 
                 if ((s->Flags & Surf.DRAWBACKGROUND) == 0)
                 {
@@ -156,16 +160,28 @@ public static unsafe class REdge
 
         edgesearch:
             if (edgelist->U >= edgestoadd->U)
+            {
                 goto addedge;
+            }
+
             edgelist = edgelist->Next;
             if (edgelist->U >= edgestoadd->U)
+            {
                 goto addedge;
+            }
+
             edgelist = edgelist->Next;
             if (edgelist->U >= edgestoadd->U)
+            {
                 goto addedge;
+            }
+
             edgelist = edgelist->Next;
             if (edgelist->U >= edgestoadd->U)
+            {
                 goto addedge;
+            }
+
             edgelist = edgelist->Next;
             goto edgesearch;
 
@@ -209,29 +225,43 @@ public static unsafe class REdge
         nextedge:
             pedge->U += pedge->UStep;
             if (pedge->U < pedge->Prev->U)
+            {
                 goto pushback;
+            }
+
             pedge = pedge->Next;
 
             pedge->U += pedge->UStep;
             if (pedge->U < pedge->Prev->U)
+            {
                 goto pushback;
+            }
+
             pedge = pedge->Next;
 
             pedge->U += pedge->UStep;
             if (pedge->U < pedge->Prev->U)
+            {
                 goto pushback;
+            }
+
             pedge = pedge->Next;
 
             pedge->U += pedge->UStep;
             if (pedge->U < pedge->Prev->U)
+            {
                 goto pushback;
+            }
+
             pedge = pedge->Next;
 
             goto nextedge;
 
         pushback:
             if (pedge == edgeAfterTail)
+            {
                 return;
+            }
 
             // push it back to keep it sorted
             Edge_t* pnext_edge = pedge->Next;
@@ -256,7 +286,9 @@ public static unsafe class REdge
 
             pedge = pnext_edge;
             if (pedge == edgeTail)
+            {
                 return;
+            }
         }
     }
 
@@ -307,7 +339,9 @@ public static unsafe class REdge
             Surf_t* surf2 = RShared.surfaces[1].Next;
 
             if (surf->Key > surf2->Key)
+            {
                 goto newtop;
+            }
 
             // if it's two surfaces on the same plane, the one that's
             // already active is in front, so keep going unless it's a
@@ -331,7 +365,9 @@ public static unsafe class REdge
                 // already active is in front, so keep going unless it's a
                 // bmodel
                 if (!surf->InSubmodel)
+                {
                     goto continue_search;
+                }
 
                 // must be two bmodels in the same leaf; don't care which is
                 // really in front, because they'll never be farthest anyway
@@ -380,7 +416,9 @@ public static unsafe class REdge
         if (--surf->SpanState == 0)
         {
             if (surf->InSubmodel)
+            {
                 r_bmodelactive--;
+            }
 
             if (surf == RShared.surfaces[1].Next)
             {
@@ -413,7 +451,9 @@ public static unsafe class REdge
     public static void LeadingEdge(Edge_t* edge)
     {
         if (edge->Surfs[1] == 0)
+        {
             return;
+        }
 
         // it's adding a new surface in, so find the correct place
         Surf_t* surf = &RShared.surfaces[edge->Surfs[1]];
@@ -424,12 +464,16 @@ public static unsafe class REdge
         if (++surf->SpanState == 1)
         {
             if (surf->InSubmodel)
+            {
                 r_bmodelactive++;
+            }
 
             Surf_t* surf2 = RShared.surfaces[1].Next;
 
             if (surf->Key < surf2->Key)
+            {
                 goto newtop;
+            }
 
             // if it's two surfaces on the same plane, the one that's
             // already active is in front, so keep going unless it's a
@@ -438,19 +482,23 @@ public static unsafe class REdge
             {
                 // must be two bmodels in the same leaf; sort on 1/z
                 double fu = (edge->U - 0xFFFFF) * (1.0 / 0x100000);
-                double newzi = surf->DZiOrigin + fv * surf->DZiStepV + fu * surf->DZiStepU;
+                double newzi = surf->DZiOrigin + (fv * surf->DZiStepV) + (fu * surf->DZiStepU);
                 double newzibottom = newzi * 0.99;
 
-                double testzi = surf2->DZiOrigin + fv * surf2->DZiStepV + fu * surf2->DZiStepU;
+                double testzi = surf2->DZiOrigin + (fv * surf2->DZiStepV) + (fu * surf2->DZiStepU);
 
                 if (newzibottom >= testzi)
+                {
                     goto newtop;
+                }
 
                 double newzitop = newzi * 1.01;
                 if (newzitop >= testzi)
                 {
                     if (surf->DZiStepU >= surf2->DZiStepU)
+                    {
                         goto newtop;
+                    }
                 }
             }
 
@@ -466,23 +514,29 @@ public static unsafe class REdge
                 // already active is in front, so keep going unless it's a
                 // bmodel
                 if (!surf->InSubmodel)
+                {
                     goto continue_search;
+                }
 
                 // must be two bmodels in the same leaf; sort on 1/z
                 double fu = (edge->U - 0xFFFFF) * (1.0 / 0x100000);
-                double newzi = surf->DZiOrigin + fv * surf->DZiStepV + fu * surf->DZiStepU;
+                double newzi = surf->DZiOrigin + (fv * surf->DZiStepV) + (fu * surf->DZiStepU);
                 double newzibottom = newzi * 0.99;
 
-                double testzi = surf2->DZiOrigin + fv * surf2->DZiStepV + fu * surf2->DZiStepU;
+                double testzi = surf2->DZiOrigin + (fv * surf2->DZiStepV) + (fu * surf2->DZiStepU);
 
                 if (newzibottom >= testzi)
+                {
                     goto gotposition;
+                }
 
                 double newzitop = newzi * 1.01;
                 if (newzitop >= testzi)
                 {
                     if (surf->DZiStepU >= surf2->DZiStepU)
+                    {
                         goto gotposition;
+                    }
                 }
 
                 goto continue_search;
@@ -545,7 +599,9 @@ public static unsafe class REdge
                 TrailingEdge(surf, edge);
 
                 if (edge->Surfs[1] == 0)
+                {
                     continue;
+                }
             }
 
             LeadingEdge(edge);
@@ -573,10 +629,14 @@ public static unsafe class REdge
         for (Edge_t* edge = RShared.edge_head->Next; edge != edgeTail; edge = edge->Next)
         {
             if (edge->Surfs[0] != 0)
+            {
                 TrailingEdge(&RShared.surfaces[edge->Surfs[0]], edge);
+            }
 
             if (edge->Surfs[1] != 0)
+            {
                 LeadingEdgeBackwards(edge);
+            }
         }
 
         CleanupSpan();
@@ -602,7 +662,10 @@ public static unsafe class REdge
         Edge_t* edgeSentinel = edge_sentinel;
 
         if (basespans == null)
+        {
             basespans = (ESpan_t*)NativeMemory.AlignedAlloc((nuint)(RShared.MAXSPANS * sizeof(ESpan_t)), 64);
+        }
+
         ESpan_t* basespan_p = basespans;
         max_span_p = &basespan_p[RShared.MAXSPANS - RShared.r_refdef->Vrect.Width];
 
@@ -654,7 +717,9 @@ public static unsafe class REdge
             RShared.surfaces[1].SpanState = 1;
 
             if (RShared.newedges[iv] != null)
+            {
                 InsertNewEdges(RShared.newedges[iv], edgeHead->Next);
+            }
 
             pdrawfunc();
 
@@ -668,22 +733,32 @@ public static unsafe class REdge
                 // by OpenTK/OpenAL's model)
 
                 if (DIface.r_drawculledpolys)
+                {
                     DrawCulledPolys();
+                }
                 else
+                {
                     DEdge.DrawSurfaces();
+                }
 
                 // clear the surface span pointers
                 for (Surf_t* s = &RShared.surfaces[1]; s < RShared.surface_p; s++)
+                {
                     s->Spans = null;
+                }
 
                 span_p = basespan_p;
             }
 
             if (RShared.removeedges[iv] != null)
+            {
                 RemoveEdges(RShared.removeedges[iv]);
+            }
 
             if (edgeHead->Next != edgeTail)
+            {
                 StepActiveU(edgeHead->Next);
+            }
         }
 
         // do the last scan (no need to step or sort or remove on the last
@@ -696,15 +771,21 @@ public static unsafe class REdge
         RShared.surfaces[1].SpanState = 1;
 
         if (RShared.newedges[iv] != null)
+        {
             InsertNewEdges(RShared.newedges[iv], edgeHead->Next);
+        }
 
         pdrawfunc();
 
         // draw whatever's left in the span list
         if (DIface.r_drawculledpolys)
+        {
             DrawCulledPolys();
+        }
         else
+        {
             DEdge.DrawSurfaces();
+        }
     }
 
 }

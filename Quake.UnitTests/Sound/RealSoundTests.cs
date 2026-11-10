@@ -59,8 +59,12 @@ public sealed unsafe class RealSoundTests
         SndDma.Shutdown();
 
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -69,10 +73,14 @@ public sealed unsafe class RealSoundTests
     {
         string? dir = TestConfiguration.PakFilesDirectory;
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive("PakFilesDirectory is not configured in configuration.json; skipping real sound test.");
+        }
 
         if (!File.Exists(Path.Combine(dir, "pak0.pak")))
+        {
             Assert.Inconclusive($"pak0.pak was not found in the configured PakFilesDirectory ({dir}); skipping real sound test.");
+        }
 
         return dir;
     }
@@ -109,7 +117,9 @@ public sealed unsafe class RealSoundTests
         SndDma.Init();
 
         if (!SndDma.sound_started)
+        {
             Assert.Inconclusive("No real audio device is available in this environment; skipping playback test.");
+        }
 
         Sfx_t* sfx = SndDma.PrecacheSound(Ansi("items/health1.wav"));
         Assert.IsTrue(sfx != null, "items/health1.wav should precache from PAK0.PAK");

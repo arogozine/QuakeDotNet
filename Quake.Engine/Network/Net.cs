@@ -117,10 +117,14 @@ public static unsafe class Net
     public static QSocket_t* NewQSocket()
     {
         if (net_freeSockets == null)
+        {
             return null;
+        }
 
         if (net_activeconnections >= Svs.maxclients)
+        {
             return null;
+        }
 
         // get one from free list
         QSocket_t* sock = net_freeSockets;
@@ -170,7 +174,9 @@ public static unsafe class Net
                 }
             }
             if (s == null)
+            {
                 Sys.Error("NET_FreeQSocket: not active\n"u8);
+            }
         }
 
         // add it to free list
@@ -191,7 +197,9 @@ public static unsafe class Net
         SetNetTime();
 
         if (host != null && *host == 0)
+        {
             host = null;
+        }
 
         bool justDoIt = false;
         if (host != null)
@@ -205,13 +213,18 @@ public static unsafe class Net
             {
                 int n;
                 for (n = 0; n < hostCacheCount; n++)
+                {
                     if (Q.StrCaseCmp(host, hostcache[n].Name) == 0)
                     {
                         host = hostcache[n].CName;
                         break;
                     }
+                }
+
                 if (n < hostCacheCount)
+                {
                     justDoIt = true;
+                }
             }
         }
 
@@ -221,12 +234,17 @@ public static unsafe class Net
             Slist_f();
 
             while (slistInProgress)
+            {
                 Poll();
+            }
 
             if (host == null)
             {
                 if (hostCacheCount != 1)
+                {
                     return null;
+                }
+
                 host = hostcache[0].CName;
                 Con.Printf($"Connecting to...\n{hostcache[0].Name} @ {host}\n\n");
             }
@@ -234,11 +252,13 @@ public static unsafe class Net
             if (hostCacheCount != 0)
             {
                 for (int n = 0; n < hostCacheCount; n++)
+                {
                     if (Q.StrCaseCmp(host, hostcache[n].Name) == 0)
                     {
                         host = hostcache[n].CName;
                         break;
                     }
+                }
             }
         }
 
@@ -246,10 +266,15 @@ public static unsafe class Net
         for (net_driverlevel = 0; net_driverlevel < numdrivers; net_driverlevel++)
         {
             if (!net_drivers[net_driverlevel].Initialized)
+            {
                 continue;
+            }
+
             QSocket_t* ret = net_drivers[net_driverlevel].Connect(host);
             if (ret != null)
+            {
                 return ret;
+            }
         }
 
         if (host != null)
@@ -280,12 +305,20 @@ public static unsafe class Net
         for (net_driverlevel = 0; net_driverlevel < net_numdrivers; net_driverlevel++)
         {
             if (!net_drivers[net_driverlevel].Initialized)
+            {
                 continue;
+            }
+
             if (net_driverlevel != 0 && !listening)
+            {
                 continue;
+            }
+
             QSocket_t* ret = net_drivers[net_driverlevel].CheckNewConnections();
             if (ret != null)
+            {
                 return ret;
+            }
         }
 
         return null;
@@ -295,10 +328,14 @@ public static unsafe class Net
     public static void Close(QSocket_t* sock)
     {
         if (sock == null)
+        {
             return;
+        }
 
         if (sock->Disconnected)
+        {
             return;
+        }
 
         SetNetTime();
 
@@ -321,7 +358,9 @@ public static unsafe class Net
     public static int GetMessage(QSocket_t* sock)
     {
         if (sock == null)
+        {
             return -1;
+        }
 
         if (sock->Disconnected)
         {
@@ -349,9 +388,13 @@ public static unsafe class Net
             {
                 sock->LastMessageTime = net_time;
                 if (ret == 1)
+                {
                     messagesReceived++;
+                }
                 else if (ret == 2)
+                {
                     unreliableMessagesReceived++;
+                }
             }
         }
 
@@ -372,7 +415,9 @@ public static unsafe class Net
     public static int SendMessage(QSocket_t* sock, SizeBuf_t* data)
     {
         if (sock == null)
+        {
             return -1;
+        }
 
         if (sock->Disconnected)
         {
@@ -383,7 +428,9 @@ public static unsafe class Net
         SetNetTime();
         int r = Sfunc(sock).QSendMessage(sock, data);
         if (r == 1 && sock->Driver != 0)
+        {
             messagesSent++;
+        }
 
         return r;
     }
@@ -391,7 +438,9 @@ public static unsafe class Net
     public static int SendUnreliableMessage(QSocket_t* sock, SizeBuf_t* data)
     {
         if (sock == null)
+        {
             return -1;
+        }
 
         if (sock->Disconnected)
         {
@@ -402,7 +451,9 @@ public static unsafe class Net
         SetNetTime();
         int r = Sfunc(sock).SendUnreliableMessage(sock, data);
         if (r == 1 && sock->Driver != 0)
+        {
             unreliableMessagesSent++;
+        }
 
         return r;
     }
@@ -418,10 +469,14 @@ public static unsafe class Net
     public static bool CanSendMessage(QSocket_t* sock)
     {
         if (sock == null)
+        {
             return false;
+        }
 
         if (sock->Disconnected)
+        {
             return false;
+        }
 
         SetNetTime();
 
@@ -447,7 +502,10 @@ public static unsafe class Net
         {
             Client_t* host_client = &Svs.clients[i];
             if (host_client->NetConnection == null)
+            {
                 continue;
+            }
+
             if (host_client->Active)
             {
                 if (host_client->NetConnection->Driver == 0)
@@ -505,7 +563,9 @@ public static unsafe class Net
                 }
             }
             if ((Sys.FloatTime() - start) > blocktime)
+            {
                 break;
+            }
         }
         return count;
     }
@@ -540,7 +600,10 @@ public static unsafe class Net
 
         int n = Q.Atoi(Cmd.Argv(1));
         if (n < 1)
+        {
             n = 1;
+        }
+
         if (n > Svs.maxclientslimit)
         {
             n = Svs.maxclientslimit;
@@ -548,9 +611,14 @@ public static unsafe class Net
         }
 
         if (n == 1 && listening)
+        {
             Cmd.AddText("listen 0\n"u8);
+        }
+
         if (n > 1 && !listening)
+        {
             Cmd.AddText("listen 1\n"u8);
+        }
 
         Svs.maxclients = n;
         Cvar.Set("deathmatch"u8, n == 1 ? "0"u8 : "1"u8);
@@ -576,7 +644,10 @@ public static unsafe class Net
         for (net_driverlevel = 0; net_driverlevel < net_numdrivers; net_driverlevel++)
         {
             if (!net_drivers[net_driverlevel].Initialized)
+            {
                 continue;
+            }
+
             net_drivers[net_driverlevel].Listen(listening);
         }
     }
@@ -623,13 +694,20 @@ public static unsafe class Net
     {
         int i = Com.CheckParm("-port"u8);
         if (i == 0)
+        {
             i = Com.CheckParm("-udpport"u8);
+        }
+
         if (i != 0)
         {
             if (i < Com.com_argc - 1)
+            {
                 DEFAULTnet_hostport = Q.Atoi(Com.com_argv[i + 1]);
+            }
             else
+            {
                 Sys.Error("NET_Init: you must specify a number after -port"u8);
+            }
         }
         net_hostport = DEFAULTnet_hostport;
 
@@ -637,7 +715,9 @@ public static unsafe class Net
 
         net_numsockets = Svs.maxclientslimit;
         if (Cls.state != CActive.Dedicated)
+        {
             net_numsockets++; // the local client's own socket
+        }
 
         SetNetTime();
 
@@ -669,11 +749,16 @@ public static unsafe class Net
         {
             int controlSocket = net_drivers[net_driverlevel].Init();
             if (controlSocket == -1)
+            {
                 continue;
+            }
+
             net_drivers[net_driverlevel].Initialized = true;
             net_drivers[net_driverlevel].ControlSock = controlSocket;
             if (listening)
+            {
                 net_drivers[net_driverlevel].Listen(true);
+            }
         }
     }
 
@@ -683,7 +768,9 @@ public static unsafe class Net
         SetNetTime();
 
         for (QSocket_t* sock = net_activeSockets; sock != null; sock = sock->Next)
+        {
             Close(sock);
+        }
 
         for (net_driverlevel = 0; net_driverlevel < net_numdrivers; net_driverlevel++)
         {
@@ -704,7 +791,10 @@ public static unsafe class Net
         for (PollProcedure_t* pp = pollProcedureList; pp != null; pp = pp->Next)
         {
             if (pp->NextTime > net_time)
+            {
                 break;
+            }
+
             pollProcedureList = pp->Next;
             pp->Procedure();
         }
@@ -718,7 +808,10 @@ public static unsafe class Net
         for (pp = pollProcedureList, prev = null; pp != null; pp = pp->Next)
         {
             if (pp->NextTime >= proc->NextTime)
+            {
                 break;
+            }
+
             prev = pp;
         }
 
@@ -746,7 +839,10 @@ public static unsafe class Net
     {
         int n;
         for (n = slistLastShown; n < hostCacheCount; n++)
+        {
             Con.Printf($"{FormatSlistEntry(n)}\n");
+        }
+
         slistLastShown = n;
     }
 
@@ -780,16 +876,22 @@ public static unsafe class Net
     public static void PrintSlistTrailer()
     {
         if (hostCacheCount != 0)
+        {
             Con.Printf("== end list ==\n\n"u8);
+        }
         else
+        {
             Con.Printf("No Quake servers found.\n\n"u8);
+        }
     }
 
     // NET_Slist_f
     public static void Slist_f()
     {
         if (slistInProgress)
+        {
             return;
+        }
 
         if (!slistSilent)
         {
@@ -814,14 +916,22 @@ public static unsafe class Net
         for (net_driverlevel = 0; net_driverlevel < net_numdrivers; net_driverlevel++)
         {
             if (!slistLocal && net_driverlevel == 0)
+            {
                 continue;
+            }
+
             if (!net_drivers[net_driverlevel].Initialized)
+            {
                 continue;
+            }
+
             net_drivers[net_driverlevel].SearchForHosts(true);
         }
 
         if ((Sys.FloatTime() - slistStartTime) < 0.5)
+        {
             SchedulePollProcedure(slistSendProcedure, 0.75);
+        }
     }
 
     // Slist_Poll
@@ -830,14 +940,22 @@ public static unsafe class Net
         for (net_driverlevel = 0; net_driverlevel < net_numdrivers; net_driverlevel++)
         {
             if (!slistLocal && net_driverlevel == 0)
+            {
                 continue;
+            }
+
             if (!net_drivers[net_driverlevel].Initialized)
+            {
                 continue;
+            }
+
             net_drivers[net_driverlevel].SearchForHosts(false);
         }
 
         if (!slistSilent)
+        {
             PrintSlist();
+        }
 
         if ((Sys.FloatTime() - slistStartTime) < 1.5)
         {
@@ -846,7 +964,10 @@ public static unsafe class Net
         }
 
         if (!slistSilent)
+        {
             PrintSlistTrailer();
+        }
+
         slistInProgress = false;
         slistSilent = false;
         slistLocal = true;

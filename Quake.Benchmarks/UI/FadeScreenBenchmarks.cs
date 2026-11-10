@@ -20,9 +20,16 @@ public unsafe class FadeScreenBenchmarks
     public void Setup()
     {
         _a = NativeMemory.AllocArray<byte>(W * H); _b = NativeMemory.AllocArray<byte>(W * H);
-        Random r = new(1); for (int i = 0; i < W * H; i++) _a[i] = _b[i] = (byte)r.Next(256);
+        Random r = new(1); for (int i = 0; i < W * H; i++)
+        {
+            _a[i] = _b[i] = (byte)r.Next(256);
+        }
+
         Orig(_a); New(_b);
-        if (!new ReadOnlySpan<byte>(_a, W * H).SequenceEqual(new ReadOnlySpan<byte>(_b, W * H))) throw new Exception("mismatch");
+        if (!new ReadOnlySpan<byte>(_a, W * H).SequenceEqual(new ReadOnlySpan<byte>(_b, W * H)))
+        {
+            throw new Exception("mismatch");
+        }
     }
 
     [GlobalCleanup] public void Cleanup() { NativeMemory.Free(_a); NativeMemory.Free(_b); }
@@ -31,10 +38,21 @@ public unsafe class FadeScreenBenchmarks
 
     static void Orig(byte* buf)
     {
-        for (int y = 0; y < H; y++) { byte* pbuf = buf + W * y; int t = (y & 1) << 1; for (int x = 0; x < W; x++) if ((x & 3) != t) pbuf[x] = 0; }
+        for (int y = 0; y < H; y++) { byte* pbuf = buf + (W * y); int t = (y & 1) << 1; for (int x = 0; x < W; x++)
+            {
+                if ((x & 3) != t)
+                {
+                    pbuf[x] = 0;
+                }
+            }
+        }
     }
 
-    static void New(byte* buf) { for (int y = 0; y < H; y++) DrawSimd.FadeRow(buf + W * y, W, (y & 1) << 1); }
+    static void New(byte* buf) { for (int y = 0; y < H; y++)
+        {
+            DrawSimd.FadeRow(buf + (W * y), W, (y & 1) << 1);
+        }
+    }
 
     [Benchmark(Baseline = true)] public void Original() => Orig(_a);
 

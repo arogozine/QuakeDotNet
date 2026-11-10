@@ -65,9 +65,9 @@ public static unsafe class RBsp
     public static void EntityRotate(ref Vec3_t vec)
     {
         Vec3_t tvec = vec;
-        vec[0] = entity_rotation[0] * tvec[0] + entity_rotation[1] * tvec[1] + entity_rotation[2] * tvec[2];
-        vec[1] = entity_rotation[3] * tvec[0] + entity_rotation[4] * tvec[1] + entity_rotation[5] * tvec[2];
-        vec[2] = entity_rotation[6] * tvec[0] + entity_rotation[7] * tvec[1] + entity_rotation[8] * tvec[2];
+        vec[0] = (entity_rotation[0] * tvec[0]) + (entity_rotation[1] * tvec[1]) + (entity_rotation[2] * tvec[2]);
+        vec[1] = (entity_rotation[3] * tvec[0]) + (entity_rotation[4] * tvec[1]) + (entity_rotation[5] * tvec[2]);
+        vec[2] = (entity_rotation[6] * tvec[0]) + (entity_rotation[7] * tvec[1]) + (entity_rotation[8] * tvec[2]);
     }
 
     /*
@@ -92,30 +92,30 @@ public static unsafe class RBsp
         angle = angle * MathLib.M_PI * 2 / 360;
         (float s, float c) = MathF.SinCos(angle);
 
-        temp1[0 * 3 + 0] = c;
-        temp1[0 * 3 + 1] = s;
-        temp1[0 * 3 + 2] = 0;
-        temp1[1 * 3 + 0] = -s;
-        temp1[1 * 3 + 1] = c;
-        temp1[1 * 3 + 2] = 0;
-        temp1[2 * 3 + 0] = 0;
-        temp1[2 * 3 + 1] = 0;
-        temp1[2 * 3 + 2] = 1;
+        temp1[(0 * 3) + 0] = c;
+        temp1[(0 * 3) + 1] = s;
+        temp1[(0 * 3) + 2] = 0;
+        temp1[(1 * 3) + 0] = -s;
+        temp1[(1 * 3) + 1] = c;
+        temp1[(1 * 3) + 2] = 0;
+        temp1[(2 * 3) + 0] = 0;
+        temp1[(2 * 3) + 1] = 0;
+        temp1[(2 * 3) + 2] = 1;
 
         // pitch
         angle = RShared.currententity->Angles[QuakeDef.PITCH];
         angle = angle * MathLib.M_PI * 2 / 360;
         (s, c) = MathF.SinCos(angle);
 
-        temp2[0 * 3 + 0] = c;
-        temp2[0 * 3 + 1] = 0;
-        temp2[0 * 3 + 2] = -s;
-        temp2[1 * 3 + 0] = 0;
-        temp2[1 * 3 + 1] = 1;
-        temp2[1 * 3 + 2] = 0;
-        temp2[2 * 3 + 0] = s;
-        temp2[2 * 3 + 1] = 0;
-        temp2[2 * 3 + 2] = c;
+        temp2[(0 * 3) + 0] = c;
+        temp2[(0 * 3) + 1] = 0;
+        temp2[(0 * 3) + 2] = -s;
+        temp2[(1 * 3) + 0] = 0;
+        temp2[(1 * 3) + 1] = 1;
+        temp2[(1 * 3) + 2] = 0;
+        temp2[(2 * 3) + 0] = s;
+        temp2[(2 * 3) + 1] = 0;
+        temp2[(2 * 3) + 2] = c;
 
         MathLib.R_ConcatRotations(temp2, temp1, temp3);
 
@@ -124,15 +124,15 @@ public static unsafe class RBsp
         angle = angle * MathLib.M_PI * 2 / 360;
         (s, c) = MathF.SinCos(angle);
 
-        temp1[0 * 3 + 0] = 1;
-        temp1[0 * 3 + 1] = 0;
-        temp1[0 * 3 + 2] = 0;
-        temp1[1 * 3 + 0] = 0;
-        temp1[1 * 3 + 1] = c;
-        temp1[1 * 3 + 2] = s;
-        temp1[2 * 3 + 0] = 0;
-        temp1[2 * 3 + 1] = -s;
-        temp1[2 * 3 + 2] = c;
+        temp1[(0 * 3) + 0] = 1;
+        temp1[(0 * 3) + 1] = 0;
+        temp1[(0 * 3) + 2] = 0;
+        temp1[(1 * 3) + 0] = 0;
+        temp1[(1 * 3) + 1] = c;
+        temp1[(1 * 3) + 2] = s;
+        temp1[(2 * 3) + 0] = 0;
+        temp1[(2 * 3) + 1] = -s;
+        temp1[(2 * 3) + 2] = c;
 
         MathLib.R_ConcatRotations(temp1, temp3, entity_rotation);
 
@@ -164,9 +164,9 @@ public static unsafe class RBsp
         float entDotNormal = Vector3.Dot(RMain.r_entorigin, splitplane->Normal);
         MPlane_t tplane = default;
         tplane.Dist = splitplane->Dist - entDotNormal;
-        tplane.Normal[0] = entity_rotation[0] * splitplane->Normal[0] + entity_rotation[1] * splitplane->Normal[1] + entity_rotation[2] * splitplane->Normal[2];
-        tplane.Normal[1] = entity_rotation[3] * splitplane->Normal[0] + entity_rotation[4] * splitplane->Normal[1] + entity_rotation[5] * splitplane->Normal[2];
-        tplane.Normal[2] = entity_rotation[6] * splitplane->Normal[0] + entity_rotation[7] * splitplane->Normal[1] + entity_rotation[8] * splitplane->Normal[2];
+        tplane.Normal[0] = (entity_rotation[0] * splitplane->Normal[0]) + (entity_rotation[1] * splitplane->Normal[1]) + (entity_rotation[2] * splitplane->Normal[2]);
+        tplane.Normal[1] = (entity_rotation[3] * splitplane->Normal[0]) + (entity_rotation[4] * splitplane->Normal[1]) + (entity_rotation[5] * splitplane->Normal[2]);
+        tplane.Normal[2] = (entity_rotation[6] * splitplane->Normal[0]) + (entity_rotation[7] * splitplane->Normal[1]) + (entity_rotation[8] * splitplane->Normal[2]);
 
         // clip edges to BSP plane
         while (pedges != null)
@@ -189,13 +189,15 @@ public static unsafe class RBsp
             {
                 // clipped
                 if (numbverts >= MAX_BMODEL_VERTS)
+                {
                     return;
+                }
 
                 // generate the clipped vertex
                 float frac = lastdist / (lastdist - dist);
                 MVertex_t* ptvert = &pbverts[numbverts++];
 
-                *ptvert = *plastvert + frac * (*pvert - *plastvert);
+                *ptvert = *plastvert + (frac * (*pvert - *plastvert));
 
                 // split into two edges, one on each side, and remember
                 // entering and exiting points
@@ -411,10 +413,14 @@ public static unsafe class RBsp
     public static void RecursiveWorldNode(MNode_t* node, int clipflags)
     {
         if (node->Contents == (int)Contents.Solid)
+        {
             return; // solid
+        }
 
         if (node->VisFrame != RMain.r_visframecount)
+        {
             return;
+        }
 
         // cull the clipping planes if not trivial accept
         if (clipflags != 0)
@@ -422,7 +428,9 @@ public static unsafe class RBsp
             for (int i = 0; i < 4; i++)
             {
                 if ((clipflags & (1 << i)) == 0)
+                {
                     continue; // don't need to clip against it
+                }
 
                 // generate accept and reject points
                 // FIXME: do with fast look-ups or integer tests based on the
@@ -438,7 +446,9 @@ public static unsafe class RBsp
                 d -= RMain.view_clipplanes[i].Dist;
 
                 if (d <= 0)
+                {
                     return;
+                }
 
                 Unsafe.SkipInit(out Vec3_t acceptpt);
                 acceptpt[0] = node->MinMaxs[pindex[3 + 0]];
@@ -449,7 +459,9 @@ public static unsafe class RBsp
                 d -= RMain.view_clipplanes[i].Dist;
 
                 if (d >= 0)
+                {
                     clipflags &= ~(1 << i); // node is entirely on screen
+                }
             }
         }
 
@@ -520,7 +532,9 @@ public static unsafe class RBsp
                     do
                     {
                         if ((surf->Flags & Surf.PLANEBACK) != 0 && surf->VisFrame == DIface.r_framecount)
+                        {
                             DrawOrQueueSurface(surf, clipflags);
+                        }
 
                         surf++;
                     } while (--c != 0);
@@ -530,7 +544,9 @@ public static unsafe class RBsp
                     do
                     {
                         if ((surf->Flags & Surf.PLANEBACK) == 0 && surf->VisFrame == DIface.r_framecount)
+                        {
                             DrawOrQueueSurface(surf, clipflags);
+                        }
 
                         surf++;
                     } while (--c != 0);
@@ -577,7 +593,10 @@ public static unsafe class RBsp
     public static void RenderWorld()
     {
         if (btofpolysBuf == null)
+        {
             btofpolysBuf = NativeMemory.AllocArrayZeroed<BToFPoly_t>(RLocal.MAX_BTOFPOLYS);
+        }
+
         RMain.pbtofpolys = btofpolysBuf;
 
         RShared.currententity = ClEntities.cl_entities; // &cl_entities[0]

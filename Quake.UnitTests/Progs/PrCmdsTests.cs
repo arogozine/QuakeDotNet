@@ -88,7 +88,10 @@ public sealed unsafe class PrCmdsTests
         NativeMemory.Free(_edictsBuf);
         NativeMemory.Free(_progsHeader);
         if (_readBuf != null)
+        {
             NativeMemory.Free(_readBuf);
+        }
+
         NativeMemory.Free(_buf);
     }
 

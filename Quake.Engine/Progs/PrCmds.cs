@@ -65,9 +65,15 @@ public static unsafe class PrCmds
             byte* s = Progs.G_STRING(Progs.OFS_PARM(i));
             int slen = Q.StrLen(s);
             if (len + slen > 255)
+            {
                 slen = 255 - len;
+            }
+
             for (int j = 0; j < slen; j++)
+            {
                 varStringBuf[len + j] = s[j];
+            }
+
             len += slen;
         }
         varStringBuf[len] = 0;
@@ -81,8 +87,12 @@ public static unsafe class PrCmds
     public static void SetMinMaxSize(EDict_t* e, in Vec3_t min, in Vec3_t max, bool rotate)
     {
         for (int i = 0; i < 3; i++)
+        {
             if (min[i] > max[i])
+            {
                 Progs.RunError("backwards mins/maxs"u8);
+            }
+        }
 
         e->V.Mins = min;
         e->V.Maxs = max;
@@ -99,7 +109,9 @@ public static unsafe class PrCmds
     private static void CheckEmptyString(byte* s)
     {
         if (s[0] <= (byte)' ')
+        {
             Progs.RunError("Bad string"u8);
+        }
     }
 
     // Builds a temporary native C string (the original sprintf's into
@@ -186,9 +198,13 @@ public static unsafe class PrCmds
     {
         float v = Progs.G_FLOAT(Progs.OFS_PARM0);
         if (v == (int)v)
+        {
             ReturnNewString($"{(int)v}");
+        }
         else
+        {
             ReturnNewString($"{v,5:F1}");
+        }
     }
 
     // #27
@@ -230,20 +246,30 @@ public static unsafe class PrCmds
 
         int i;
         for (i = 0; i < QuakeDef.MAX_MODELS && Sv.model_precache[i] != null; i++)
+        {
             if (Q.StrCmp(Sv.model_precache[i], m) == 0)
+            {
                 break;
+            }
+        }
 
         if (i >= QuakeDef.MAX_MODELS || Sv.model_precache[i] == null)
+        {
             Progs.RunError($"no precache: {m}\n");
+        }
 
         e->V.Model = Progs.G_STRING_OFS(Progs.OFS_PARM(1));
         e->V.ModelIndex = i;
 
         Model_t* mod = Sv.models[i];
         if (mod != null)
+        {
             SetMinMaxSize(e, mod->Mins, mod->Maxs, true);
+        }
         else
+        {
             SetMinMaxSize(e, MathLib.vec3_origin, MathLib.vec3_origin, true);
+        }
     }
 
     // #14
@@ -364,15 +390,25 @@ public static unsafe class PrCmds
         for (int i = 1; i < Sv.num_edicts; i++, ent = Progs.NextEdict(ent))
         {
             if (ent->Free != 0)
+            {
                 continue;
+            }
+
             if ((int)ent->V.Solid == (int)SolidType.Not)
+            {
                 continue;
+            }
 
             Vec3_t eorg = default;
             for (int j = 0; j < 3; j++)
-                eorg[j] = org[j] - (ent->V.Origin[j] + (ent->V.Mins[j] + ent->V.Maxs[j]) * 0.5f);
+            {
+                eorg[j] = org[j] - (ent->V.Origin[j] + ((ent->V.Mins[j] + ent->V.Maxs[j]) * 0.5f));
+            }
+
             if (eorg.Length() > rad)
+            {
                 continue;
+            }
 
             ent->V.Chain = Progs.EdictToProg(chain);
             chain = ent;
@@ -388,16 +424,24 @@ public static unsafe class PrCmds
         int f = Progs.G_INT(Progs.OFS_PARM(1));
         byte* s = Progs.G_STRING(Progs.OFS_PARM(2));
         if (s == null)
+        {
             Progs.RunError("PF_Find: bad search string"u8);
+        }
 
         for (e++; e < Sv.num_edicts; e++)
         {
             EDict_t* ed = Progs.EdictNum(e);
             if (ed->Free != 0)
+            {
                 continue;
+            }
+
             byte* t = EString(ed, f);
             if (t == null)
+            {
                 continue;
+            }
+
             if (Q.StrCmp(t, s) == 0)
             {
                 Progs.RETURN_EDICT(ed);
@@ -417,7 +461,7 @@ public static unsafe class PrCmds
         start[2] += 20;
 
         Vec3_t dir = Progs.pr_global_struct->VForward;
-        Vec3_t end = start + 2048 * dir;
+        Vec3_t end = start + (2048 * dir);
         Trace_t tr = World.Move(start, MathLib.vec3_origin, MathLib.vec3_origin, end, (int)ClipMoveType.Normal, ent);
         if (tr.Ent != null && tr.Ent->V.TakeDamage == DAMAGE_AIM
             && (Host.teamplay->Value == 0 || ent->V.Team <= 0 || ent->V.Team != tr.Ent->V.Team))
@@ -434,20 +478,34 @@ public static unsafe class PrCmds
         for (int i = 1; i < Sv.num_edicts; i++, check = Progs.NextEdict(check))
         {
             if (check->V.TakeDamage != DAMAGE_AIM)
+            {
                 continue;
+            }
+
             if (check == ent)
+            {
                 continue;
+            }
+
             if (Host.teamplay->Value != 0 && ent->V.Team > 0 && ent->V.Team == check->V.Team)
+            {
                 continue;
+            }
 
             Vec3_t testEnd = default;
             for (int j = 0; j < 3; j++)
-                testEnd[j] = check->V.Origin[j] + 0.5f * (check->V.Mins[j] + check->V.Maxs[j]);
+            {
+                testEnd[j] = check->V.Origin[j] + (0.5f * (check->V.Mins[j] + check->V.Maxs[j]));
+            }
+
             Vec3_t testDir = testEnd - start;
             MathLib.VectorNormalize(&testDir);
             float dist = Vector3.Dot(testDir, Progs.pr_global_struct->VForward);
             if (dist < bestdist)
+            {
                 continue;
+            }
+
             Trace_t tr2 = World.Move(start, MathLib.vec3_origin, MathLib.vec3_origin, testEnd, (int)ClipMoveType.Normal, ent);
             if (tr2.Ent == check)
             {
@@ -478,9 +536,14 @@ public static unsafe class PrCmds
     private static int NewCheckClient(int check)
     {
         if (check < 1)
+        {
             check = 1;
+        }
+
         if (check > Svs.maxclients)
+        {
             check = Svs.maxclients;
+        }
 
         int i = check == Svs.maxclients ? 1 : check + 1;
 
@@ -488,12 +551,16 @@ public static unsafe class PrCmds
         while (true)
         {
             if (i == Svs.maxclients + 1)
+            {
                 i = 1;
+            }
 
             ent = Progs.EdictNum(i);
 
             if (i == check)
+            {
                 break; // didn't find anything else
+            }
 
             if (ent->Free != 0) { i++; continue; }
             if (ent->V.Health <= 0) { i++; continue; }
@@ -547,12 +614,16 @@ public static unsafe class PrCmds
         Svs.EnsureLocalPlayerConnected();
         int i = Progs.NumForEdict(ent);
         if (i < 1 || i > Svs.maxclients)
+        {
             Progs.RunError("Entity is not a client"u8);
+        }
 
         ref Client_t client = ref Svs.clients[i - 1];
         float* parms = &Progs.pr_global_struct->Parm1;
         for (int p = 0; p < Svs.NUM_SPAWN_PARMS; p++)
+        {
             parms[p] = client.spawn_parms[p];
+        }
     }
 
     /*
@@ -565,7 +636,9 @@ public static unsafe class PrCmds
     public static void PF_precache_sound()
     {
         if (Sv.state != ServerState_t.Loading)
+        {
             Progs.RunError("PF_Precache_*: Precache can only be done in spawn functions"u8);
+        }
 
         byte* s = Progs.G_STRING(Progs.OFS_PARM0);
         Progs.RETURN_INT(Progs.G_INT(Progs.OFS_PARM0));
@@ -580,7 +653,9 @@ public static unsafe class PrCmds
                 return;
             }
             if (Q.StrCmp(Sv.sound_precache[i], s) == 0)
+            {
                 return;
+            }
         }
         Progs.RunError("PF_precache_sound: overflow"u8);
     }
@@ -589,7 +664,9 @@ public static unsafe class PrCmds
     public static void PF_precache_model()
     {
         if (Sv.state != ServerState_t.Loading)
+        {
             Progs.RunError("PF_Precache_*: Precache can only be done in spawn functions"u8);
+        }
 
         byte* s = Progs.G_STRING(Progs.OFS_PARM0);
         Progs.RETURN_INT(Progs.G_INT(Progs.OFS_PARM0));
@@ -605,7 +682,9 @@ public static unsafe class PrCmds
                 return;
             }
             if (Q.StrCmp(Sv.model_precache[i], s) == 0)
+            {
                 return;
+            }
         }
         Progs.RunError("PF_precache_model: overflow"u8);
     }
@@ -716,11 +795,19 @@ public static unsafe class PrCmds
         float attenuation = Progs.G_FLOAT(Progs.OFS_PARM(4));
 
         if (volume < 0 || volume > 255)
+        {
             Sys.Error($"SV_StartSound: volume = {volume}");
+        }
+
         if (attenuation < 0 || attenuation > 4)
+        {
             Sys.Error($"SV_StartSound: attenuation = {attenuation:F6}");
+        }
+
         if (channel < 0 || channel > 7)
+        {
             Sys.Error($"SV_StartSound: channel = {channel}");
+        }
 
         SvPhys.StartSound(entity, channel, sample, volume, attenuation);
     }
@@ -746,7 +833,9 @@ public static unsafe class PrCmds
 
         // send message to all clients on this server
         if (Sv.state != ServerState_t.Active)
+        {
             return;
+        }
 
         for (int j = 0; j < Svs.maxclients; j++)
         {
@@ -785,11 +874,19 @@ public static unsafe class PrCmds
         else
         {
             if ((modelIndex & 0xFF00) != 0)
+            {
                 bits |= Protocol.B_LARGEMODEL;
+            }
+
             if (((int)ent->V.Frame & 0xFF00) != 0)
+            {
                 bits |= Protocol.B_LARGEFRAME;
+            }
+
             if (ent->Alpha != Protocol.ENTALPHA_DEFAULT)
+            {
                 bits |= Protocol.B_ALPHA;
+            }
         }
 
         SizeBuf_t* sig = Sv.signon;
@@ -799,17 +896,27 @@ public static unsafe class PrCmds
             Msg.WriteByte(sig, bits);
         }
         else
+        {
             Msg.WriteByte(sig, (int)Svc.SpawnStatic);
+        }
 
         if ((bits & Protocol.B_LARGEMODEL) != 0)
+        {
             Msg.WriteShort(sig, modelIndex);
+        }
         else
+        {
             Msg.WriteByte(sig, modelIndex);
+        }
 
         if ((bits & Protocol.B_LARGEFRAME) != 0)
+        {
             Msg.WriteShort(sig, (int)ent->V.Frame);
+        }
         else
+        {
             Msg.WriteByte(sig, (int)ent->V.Frame);
+        }
 
         Msg.WriteByte(sig, (int)ent->V.ColorMap);
         Msg.WriteByte(sig, (int)ent->V.Skin);
@@ -820,7 +927,9 @@ public static unsafe class PrCmds
         }
 
         if ((bits & Protocol.B_ALPHA) != 0)
+        {
             Msg.WriteByte(sig, ent->Alpha);
+        }
 
         // throw the entity away now
         Progs.Free(ent);
@@ -837,8 +946,12 @@ public static unsafe class PrCmds
         // check to see if samp was properly precached
         int soundnum;
         for (soundnum = 0; soundnum < QuakeDef.MAX_SOUNDS && Sv.sound_precache[soundnum] != null; soundnum++)
+        {
             if (Q.StrCmp(Sv.sound_precache[soundnum], samp) == 0)
+            {
                 break;
+            }
+        }
 
         if (soundnum >= QuakeDef.MAX_SOUNDS || Sv.sound_precache[soundnum] == null)
         {
@@ -851,7 +964,10 @@ public static unsafe class PrCmds
         if (soundnum > 255)
         {
             if (Sv.current_protocol == Protocol.PROTOCOL_NETQUAKE)
+            {
                 return; // don't send any info protocol can't support
+            }
+
             large = true;
         }
 
@@ -859,12 +975,18 @@ public static unsafe class PrCmds
         SizeBuf_t* sig = Sv.signon;
         Msg.WriteByte(sig, large ? (int)Svc.SpawnStaticSound2 : (int)Svc.SpawnStaticSound);
         for (int i = 0; i < 3; i++)
+        {
             Msg.WriteCoord(sig, pos[i]);
+        }
 
         if (large)
+        {
             Msg.WriteShort(sig, soundnum);
+        }
         else
+        {
             Msg.WriteByte(sig, soundnum);
+        }
 
         Msg.WriteByte(sig, (int)(vol * 255));
         Msg.WriteByte(sig, (int)(attenuation * 64));
@@ -877,7 +999,10 @@ public static unsafe class PrCmds
     {
         int entnum = Progs.G_EDICTNUM(Progs.OFS_PARM0);
         if (entnum < 1 || entnum > Svs.maxclients)
+        {
             Progs.RunError("Parm 0 not a client"u8);
+        }
+
         byte* str = Progs.G_STRING(Progs.OFS_PARM(1));
 
         Client_t* old = Svs.host_client;
@@ -890,7 +1015,10 @@ public static unsafe class PrCmds
     public static void PF_changelevel()
     {
         if (Svs.changelevel_issued)
+        {
             return;
+        }
+
         Svs.changelevel_issued = true;
 
         byte* s = Progs.G_STRING(Progs.OFS_PARM0);
@@ -924,7 +1052,10 @@ public static unsafe class PrCmds
                     EDict_t* ent = Progs.ProgToEdict(Progs.pr_global_struct->MsgEntity);
                     int entnum = Progs.NumForEdict(ent);
                     if (entnum < 1 || entnum > Svs.maxclients)
+                    {
                         Progs.RunError("WriteDest: not a client"u8);
+                    }
+
                     return &Svs.clients[entnum - 1].Message;
                 }
 

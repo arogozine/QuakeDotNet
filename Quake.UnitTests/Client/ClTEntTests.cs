@@ -93,7 +93,9 @@ public sealed unsafe class ClTEntTests
             Sz.Clear(msg);
             Msg.WriteByte(msg, teType);
             foreach (float c in coords)
+            {
                 Msg.WriteCoord(msg, c);
+            }
         }
         Msg.BeginReading();
     }
@@ -141,7 +143,10 @@ public sealed unsafe class ClTEntTests
             {
                 Sz.Clear(msg);
                 Msg.WriteShort(msg, 7);
-                for (int i = 0; i < 6; i++) Msg.WriteCoord(msg, 0);
+                for (int i = 0; i < 6; i++)
+                {
+                    Msg.WriteCoord(msg, 0);
+                }
             }
             Msg.BeginReading();
             ClTEnt.ParseBeam(model1);
@@ -150,7 +155,10 @@ public sealed unsafe class ClTEntTests
             {
                 Sz.Clear(msg);
                 Msg.WriteShort(msg, 7); // same entity
-                for (int i = 0; i < 6; i++) Msg.WriteCoord(msg, 9);
+                for (int i = 0; i < 6; i++)
+                {
+                    Msg.WriteCoord(msg, 9);
+                }
             }
             Msg.BeginReading();
             ClTEnt.ParseBeam(model2);
@@ -187,7 +195,10 @@ public sealed unsafe class ClTEntTests
             {
                 Sz.Clear(msg);
                 Msg.WriteShort(msg, 999); // new entity, no free/matching slot
-                for (int i = 0; i < 6; i++) Msg.WriteCoord(msg, 0);
+                for (int i = 0; i < 6; i++)
+                {
+                    Msg.WriteCoord(msg, 0);
+                }
             }
             Msg.BeginReading();
 

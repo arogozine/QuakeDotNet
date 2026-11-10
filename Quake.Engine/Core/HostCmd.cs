@@ -84,7 +84,9 @@ public static unsafe class HostCmd
 
         Sv.SpawnServer(Cmd.Argv(1));
         if (!Sv.active)
+        {
             return;
+        }
 
         if (Cls.state != CActive.Dedicated)
         {
@@ -178,10 +180,14 @@ public static unsafe class HostCmd
     public static void Restart_f()
     {
         if (ClDemo.demoplayback || !Sv.active)
+        {
             return;
+        }
 
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         // mapname must be copied out, because it gets cleared in
         // SV_SpawnServer.
@@ -224,21 +230,34 @@ public static unsafe class HostCmd
 
         byte* newName = Cmd.Argc() == 2 ? Cmd.Argv(1) : Cmd.Args();
         if (Q.StrLen(newName) > 15)
+        {
             newName[15] = 0;
+        }
 
         if (Cmd.cmd_source == CmdSource_t.SrcCommand)
         {
             if (Q.StrCmp(Cl.cl_name->String, newName) == 0)
+            {
                 return;
+            }
+
             Cvar.Set("_cl_name"u8, newName);
             if (Cls.state == CActive.Connected)
+            {
                 Cmd.ForwardToServer();
+            }
+
             return;
         }
 
         if (Svs.host_client->Name[0] != 0 && Q.StrCmp(Svs.host_client->Name, "unconnected"u8) != 0)
+        {
             if (Q.StrCmp(Svs.host_client->Name, newName) != 0)
+            {
                 Con.Printf($"{Svs.host_client->Name} renamed to {newName}\n");
+            }
+        }
+
         Q.StrCpy(Svs.host_client->Name, newName);
         // host_client->edict->v.netname = host_client->name - pr_strings
         // (Svs.clients and pr_strings are both in the Hunk)
@@ -267,7 +286,9 @@ public static unsafe class HostCmd
 
         int top, bottom;
         if (Cmd.Argc() == 2)
+        {
             top = bottom = Q.Atoi(Cmd.Argv(1));
+        }
         else
         {
             top = Q.Atoi(Cmd.Argv(1));
@@ -276,18 +297,26 @@ public static unsafe class HostCmd
 
         top &= 15;
         if (top > 13)
+        {
             top = 13;
+        }
+
         bottom &= 15;
         if (bottom > 13)
+        {
             bottom = 13;
+        }
 
-        int playercolor = top * 16 + bottom;
+        int playercolor = (top * 16) + bottom;
 
         if (Cmd.cmd_source == CmdSource_t.SrcCommand)
         {
             Cvar.SetValue("_cl_color"u8, playercolor);
             if (Cls.state == CActive.Connected)
+            {
                 Cmd.ForwardToServer();
+            }
+
             return;
         }
 
@@ -325,7 +354,9 @@ public static unsafe class HostCmd
         }
 
         if (Cmd.Argc() < 2)
+        {
             return;
+        }
 
         Client_t* save = Svs.host_client;
 
@@ -365,9 +396,15 @@ public static unsafe class HostCmd
         {
             Client_t* client = &Svs.clients[i];
             if (!client->Active || !client->Spawned)
+            {
                 continue;
+            }
+
             if (Host.teamplay->Value != 0 && teamonly && client->Edict->V.Team != save->Edict->V.Team)
+            {
                 continue;
+            }
+
             Svs.host_client = client;
             Host.ClientPrintf(new ReadOnlySpan<byte>(text, length));
         }
@@ -408,7 +445,9 @@ public static unsafe class HostCmd
         }
 
         if (Cmd.Argc() < 3)
+        {
             return;
+        }
 
         byte* p = Cmd.Args();
         // remove quotes if present
@@ -435,9 +474,15 @@ public static unsafe class HostCmd
         {
             Client_t* client = &Svs.clients[i];
             if (!client->Active || !client->Spawned)
+            {
                 continue;
+            }
+
             if (Q.StrCaseCmp(client->Name, Cmd.Argv(1)) != 0)
+            {
                 continue;
+            }
+
             Svs.host_client = client;
             Host.ClientPrintf(new ReadOnlySpan<byte>(text, length));
             break;
@@ -513,7 +558,9 @@ public static unsafe class HostCmd
             // copy spawn parms out of the client_t
             float* parm1 = &Progs.pr_global_struct->Parm1;
             for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+            {
                 parm1[i] = Svs.host_client->spawn_parms[i];
+            }
 
             // call the spawn function
             Progs.pr_global_struct->Time = (float)Sv.time;
@@ -582,7 +629,10 @@ public static unsafe class HostCmd
         EDict_t* fixEnt = Progs.EdictNum(1 + (int)(Svs.host_client - Svs.clients));
         Msg.WriteByte(&Svs.host_client->Message, (int)Svc.SetAngle);
         for (int i = 0; i < 2; i++)
+        {
             Msg.WriteAngle(&Svs.host_client->Message, fixEnt->V.Angles[i]);
+        }
+
         Msg.WriteAngle(&Svs.host_client->Message, 0);
 
         Sv.WriteClientdataToMessage(Sv.sv_player, &Svs.host_client->Message);
@@ -636,7 +686,9 @@ public static unsafe class HostCmd
         Print($"host:    {Cvar.VariableString("hostname"u8)}\n");
         Print($"version: {VERSION:F2}\n");
         if (NetIp.tcpipAvailable)
+        {
             Print($"tcp/ip:  {NetIp.my_tcpip_address}\n");
+        }
         // ipxAvailable is always false in this port (NetIp.cs/Menu.cs -- no
         // IPX transport exists), so the original's "ipx:" line never prints
         // and is skipped here too.
@@ -647,7 +699,9 @@ public static unsafe class HostCmd
         {
             Client_t* client = &Svs.clients[j];
             if (!client->Active)
+            {
                 continue;
+            }
 
             int seconds = (int)(Net.net_time - client->NetConnection->ConnectTime);
             int minutes = seconds / 60;
@@ -657,7 +711,9 @@ public static unsafe class HostCmd
                 seconds -= minutes * 60;
                 hours = minutes / 60;
                 if (hours != 0)
+                {
                     minutes -= hours * 60;
+                }
             }
 
             Print($"#{j + 1,-2} {client->Name,-16}  {(int)client->Edict->V.Frags,3}  {hours,2}:{minutes:D2}:{seconds:D2}\n");
@@ -667,9 +723,13 @@ public static unsafe class HostCmd
         void Print([InterpolatedStringHandlerArgument] scoped ref Utf8StringHandler text)
         {
             if (toConsole)
+            {
                 Con.Printf(text.GetWrittenBuffer());
+            }
             else
+            {
                 Host.ClientPrintf(text.GetWrittenBuffer());
+            }
         }
     }
 
@@ -689,13 +749,19 @@ public static unsafe class HostCmd
         }
 
         if (Progs.pr_global_struct->DeathMatch != 0 && !Svs.host_client->Privileged)
+        {
             return;
+        }
 
         Sv.sv_player->V.Flags = (int)Sv.sv_player->V.Flags ^ SvPhys.FL_GODMODE;
         if (((int)Sv.sv_player->V.Flags & SvPhys.FL_GODMODE) == 0)
+        {
             Host.ClientPrintf("godmode OFF\n"u8);
+        }
         else
+        {
             Host.ClientPrintf("godmode ON\n"u8);
+        }
     }
 
     public static void Notarget_f()
@@ -707,13 +773,19 @@ public static unsafe class HostCmd
         }
 
         if (Progs.pr_global_struct->DeathMatch != 0 && !Svs.host_client->Privileged)
+        {
             return;
+        }
 
         Sv.sv_player->V.Flags = (int)Sv.sv_player->V.Flags ^ SvPhys.FL_NOTARGET;
         if (((int)Sv.sv_player->V.Flags & SvPhys.FL_NOTARGET) == 0)
+        {
             Host.ClientPrintf("notarget OFF\n"u8);
+        }
         else
+        {
             Host.ClientPrintf("notarget ON\n"u8);
+        }
     }
 
     public static void Noclip_f()
@@ -725,7 +797,9 @@ public static unsafe class HostCmd
         }
 
         if (Progs.pr_global_struct->DeathMatch != 0 && !Svs.host_client->Privileged)
+        {
             return;
+        }
 
         if ((int)Sv.sv_player->V.MoveType != (int)MoveType.NoClip)
         {
@@ -757,7 +831,9 @@ public static unsafe class HostCmd
         }
 
         if (Progs.pr_global_struct->DeathMatch != 0 && !Svs.host_client->Privileged)
+        {
             return;
+        }
 
         if ((int)Sv.sv_player->V.MoveType != (int)MoveType.Fly)
         {
@@ -789,11 +865,16 @@ public static unsafe class HostCmd
         {
             Client_t* client = &Svs.clients[i];
             if (!client->Active)
+            {
                 continue;
+            }
 
             float total = 0;
             for (int j = 0; j < Client_t.NUM_PING_TIMES; j++)
+            {
                 total += client->PingTimes[j];
+            }
+
             total /= Client_t.NUM_PING_TIMES;
             Host.ClientPrintf($"{(int)(total * 1000),4} {client->Name}\n");
         }
@@ -837,15 +918,21 @@ public static unsafe class HostCmd
         }
 
         if (Host.pausable->Value == 0)
+        {
             Host.ClientPrintf("Pause not allowed.\n"u8);
+        }
         else
         {
             Sv.paused = !Sv.paused;
 
             if (Sv.paused)
+            {
                 Host.BroadcastPrintf($"{Progs.pr_strings + Sv.sv_player->V.NetName} paused the game\n");
+            }
             else
+            {
                 Host.BroadcastPrintf($"{Progs.pr_strings + Sv.sv_player->V.NetName} unpaused the game\n");
+            }
 
             // send notification to all clients
             SizeBuf_t* rdg = Sv.reliable_datagram;
@@ -888,7 +975,9 @@ public static unsafe class HostCmd
         }
 
         if (Progs.pr_global_struct->DeathMatch != 0 && !Svs.host_client->Privileged)
+        {
             return;
+        }
 
         byte* t = Cmd.Argv(1);
         int v = Q.Atoi(Cmd.Argv(2));
@@ -901,21 +990,33 @@ public static unsafe class HostCmd
                     if (t[0] == '6')
                     {
                         if (t[1] == (byte)'a')
+                        {
                             Sv.sv_player->V.Items = (int)Sv.sv_player->V.Items | HIT_PROXIMITY_GUN;
+                        }
                         else
+                        {
                             Sv.sv_player->V.Items = (int)Sv.sv_player->V.Items | IT_GRENADE_LAUNCHER;
+                        }
                     }
                     else if (t[0] == '9')
+                    {
                         Sv.sv_player->V.Items = (int)Sv.sv_player->V.Items | HIT_LASER_CANNON;
+                    }
                     else if (t[0] == '0')
+                    {
                         Sv.sv_player->V.Items = (int)Sv.sv_player->V.Items | HIT_MJOLNIR;
+                    }
                     else if (t[0] >= '2')
+                    {
                         Sv.sv_player->V.Items = (int)Sv.sv_player->V.Items | (IT_SHOTGUN << (t[0] - '2'));
+                    }
                 }
                 else
                 {
                     if (t[0] >= '2')
+                    {
                         Sv.sv_player->V.Items = (int)Sv.sv_player->V.Items | (IT_SHOTGUN << (t[0] - '2'));
+                    }
                 }
                 break;
 
@@ -924,7 +1025,9 @@ public static unsafe class HostCmd
                 {
                     float* val = EdictSerialization.GetEdictFieldValue(Sv.sv_player, "ammo_shells1"u8);
                     if (val != null)
+                    {
                         *val = v;
+                    }
                 }
 
                 Sv.sv_player->V.AmmoShells = v;
@@ -937,7 +1040,9 @@ public static unsafe class HostCmd
                     {
                         *val = v;
                         if (Sv.sv_player->V.Weapon <= IT_LIGHTNING)
+                        {
                             Sv.sv_player->V.AmmoNails = v;
+                        }
                     }
                 }
                 else
@@ -953,7 +1058,9 @@ public static unsafe class HostCmd
                     {
                         *val = v;
                         if (Sv.sv_player->V.Weapon > IT_LIGHTNING)
+                        {
                             Sv.sv_player->V.AmmoNails = v;
+                        }
                     }
                 }
                 break;
@@ -965,7 +1072,9 @@ public static unsafe class HostCmd
                     {
                         *val = v;
                         if (Sv.sv_player->V.Weapon <= IT_LIGHTNING)
+                        {
                             Sv.sv_player->V.AmmoRockets = v;
+                        }
                     }
                 }
                 else
@@ -981,7 +1090,9 @@ public static unsafe class HostCmd
                     {
                         *val = v;
                         if (Sv.sv_player->V.Weapon > IT_LIGHTNING)
+                        {
                             Sv.sv_player->V.AmmoRockets = v;
+                        }
                     }
                 }
                 break;
@@ -996,7 +1107,9 @@ public static unsafe class HostCmd
                     {
                         *val = v;
                         if (Sv.sv_player->V.Weapon <= IT_LIGHTNING)
+                        {
                             Sv.sv_player->V.AmmoCells = v;
+                        }
                     }
                 }
                 else
@@ -1012,7 +1125,9 @@ public static unsafe class HostCmd
                     {
                         *val = v;
                         if (Sv.sv_player->V.Weapon > IT_LIGHTNING)
+                        {
                             Sv.sv_player->V.AmmoCells = v;
+                        }
                     }
                 }
                 break;
@@ -1040,7 +1155,9 @@ public static unsafe class HostCmd
             }
         }
         else if (Progs.pr_global_struct->DeathMatch != 0 && !Svs.host_client->Privileged)
+        {
             return;
+        }
 
         Client_t* save = Svs.host_client;
 
@@ -1049,9 +1166,15 @@ public static unsafe class HostCmd
         {
             i = (int)Q.Atof(Cmd.Argv(2)) - 1;
             if (i < 0 || i >= Svs.maxclients)
+            {
                 return;
+            }
+
             if (!Svs.clients[i].Active)
+            {
                 return;
+            }
+
             Svs.host_client = &Svs.clients[i];
             byNumber = true;
         }
@@ -1060,9 +1183,14 @@ public static unsafe class HostCmd
             for (i = 0, Svs.host_client = Svs.clients; i < Svs.maxclients; i++, Svs.host_client++)
             {
                 if (!Svs.host_client->Active)
+                {
                     continue;
+                }
+
                 if (Q.StrCaseCmp(Svs.host_client->Name, Cmd.Argv(1)) == 0)
+                {
                     break;
+                }
             }
         }
 
@@ -1070,13 +1198,19 @@ public static unsafe class HostCmd
         {
             string who;
             if (Cmd.cmd_source == CmdSource_t.SrcCommand)
+            {
                 who = Cls.state == CActive.Dedicated ? "Console" : CStr.ToString(Cl.cl_name->String);
+            }
             else
+            {
                 who = CStr.ToString(save->Name);
+            }
 
             // can't kick yourself!
             if (Svs.host_client == save)
+            {
                 return;
+            }
 
             if (Cmd.Argc() > 2)
             {
@@ -1085,17 +1219,28 @@ public static unsafe class HostCmd
                 {
                     msg++; // skip the #
                     while (*msg == (byte)' ') // skip white space
+                    {
                         msg++;
+                    }
+
                     msg += Q.StrLen(Cmd.Argv(2)); // skip the number
                 }
                 while (*msg != 0 && *msg == (byte)' ')
+                {
                     msg++;
+                }
+
                 message = msg;
             }
             if (message != null)
+            {
                 Host.ClientPrintf($"Kicked by {who}: {message}\n");
+            }
             else
+            {
                 Host.ClientPrintf($"Kicked by {who}\n");
+            }
+
             Host.DropClient(false);
         }
 
@@ -1111,7 +1256,9 @@ public static unsafe class HostCmd
         {
             EDict_t* e = Progs.EdictNum(i);
             if (Q.StrCmp(Progs.pr_strings + e->V.ClassName, "viewthing"u8) == 0)
+            {
                 return e;
+            }
         }
         Con.Printf("No viewthing on map\n"u8);
         return null;
@@ -1126,7 +1273,9 @@ public static unsafe class HostCmd
     {
         EDict_t* e = FindViewthing();
         if (e == null)
+        {
             return;
+        }
 
         Model_t* m = Model.ForName(Cmd.Argv(1), false);
         if (m == null)
@@ -1148,12 +1297,17 @@ public static unsafe class HostCmd
     {
         EDict_t* e = FindViewthing();
         if (e == null)
+        {
             return;
+        }
+
         Model_t* m = Cl.model_precache[(int)e->V.ModelIndex];
 
         int f = Q.Atoi(Cmd.Argv(1));
         if (f >= m->NumFrames)
+        {
             f = m->NumFrames - 1;
+        }
 
         e->V.Frame = f;
     }
@@ -1162,7 +1316,10 @@ public static unsafe class HostCmd
     {
         AliasHdr_t* hdr = (AliasHdr_t*)Model.Extradata(m);
         if (hdr == null)
+        {
             return;
+        }
+
         MAliasFrameDesc_t* pframedesc = &hdr->Frames + frame;
 
         Con.Printf($"frame {frame}: {pframedesc->Name}\n");
@@ -1177,12 +1334,17 @@ public static unsafe class HostCmd
     {
         EDict_t* e = FindViewthing();
         if (e == null)
+        {
             return;
+        }
+
         Model_t* m = Cl.model_precache[(int)e->V.ModelIndex];
 
         e->V.Frame = e->V.Frame + 1;
         if (e->V.Frame >= m->NumFrames)
+        {
             e->V.Frame = m->NumFrames - 1;
+        }
 
         PrintFrameName(m, (int)e->V.Frame);
     }
@@ -1196,13 +1358,17 @@ public static unsafe class HostCmd
     {
         EDict_t* e = FindViewthing();
         if (e == null)
+        {
             return;
+        }
 
         Model_t* m = Cl.model_precache[(int)e->V.ModelIndex];
 
         e->V.Frame = e->V.Frame - 1;
         if (e->V.Frame < 0)
+        {
             e->V.Frame = 0;
+        }
 
         PrintFrameName(m, (int)e->V.Frame);
     }
@@ -1225,7 +1391,10 @@ public static unsafe class HostCmd
         if (Cls.state == CActive.Dedicated)
         {
             if (!Sv.active)
+            {
                 Cmd.AddText("map start\n"u8);
+            }
+
             return;
         }
 
@@ -1238,7 +1407,9 @@ public static unsafe class HostCmd
         Con.Printf($"{c} demo(s) in loop\n");
 
         for (int i = 1; i < c + 1; i++)
-            Q.StrNCpy(ClDemo.demos + (i - 1) * ClDemo.MAX_DEMONAME, Cmd.Argv(i), ClDemo.MAX_DEMONAME - 1);
+        {
+            Q.StrNCpy(ClDemo.demos + ((i - 1) * ClDemo.MAX_DEMONAME), Cmd.Argv(i), ClDemo.MAX_DEMONAME - 1);
+        }
 
         if (!Sv.active && ClDemo.demonum != -1 && !ClDemo.demoplayback)
         {
@@ -1246,7 +1417,9 @@ public static unsafe class HostCmd
             ClDemo.NextDemo();
         }
         else
+        {
             ClDemo.demonum = -1;
+        }
     }
 
     /*
@@ -1259,9 +1432,15 @@ public static unsafe class HostCmd
     public static void Demos_f()
     {
         if (Cls.state == CActive.Dedicated)
+        {
             return;
+        }
+
         if (ClDemo.demonum == -1)
+        {
             ClDemo.demonum = 1;
+        }
+
         ClMain.Disconnect_f();
         ClDemo.NextDemo();
     }
@@ -1276,9 +1455,15 @@ public static unsafe class HostCmd
     public static void Stopdemo_f()
     {
         if (Cls.state == CActive.Dedicated)
+        {
             return;
+        }
+
         if (!ClDemo.demoplayback)
+        {
             return;
+        }
+
         ClDemo.StopPlayback();
         ClMain.Disconnect();
     }

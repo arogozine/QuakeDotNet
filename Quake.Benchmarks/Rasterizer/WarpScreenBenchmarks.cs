@@ -27,19 +27,36 @@ public unsafe class WarpScreenBenchmarks
     public void Setup()
     {
         int h = H;
-        _view = NativeMemory.AllocArrayZeroed<byte>(Stride * (h + 2 * Amp2) + 16);
+        _view = NativeMemory.AllocArrayZeroed<byte>((Stride * (h + (2 * Amp2))) + 16);
         _a = NativeMemory.AllocArrayZeroed<byte>(Stride * h); _b = NativeMemory.AllocArrayZeroed<byte>(Stride * h);
-        Random r = new(9); for (int i = 0; i < Stride * (h + 2 * Amp2); i++) _view[i] = (byte)r.Next(256);
-        _rowptr = NativeMemory.AllocPointerArray<byte>(h + 2 * Amp2);
-        _rowoff = NativeMemory.AllocArrayZeroed<int>(h + 2 * Amp2);
-        _column = NativeMemory.AllocArrayZeroed<int>(W + 2 * Amp2);
+        Random r = new(9); for (int i = 0; i < Stride * (h + (2 * Amp2)); i++)
+        {
+            _view[i] = (byte)r.Next(256);
+        }
+
+        _rowptr = NativeMemory.AllocPointerArray<byte>(h + (2 * Amp2));
+        _rowoff = NativeMemory.AllocArrayZeroed<int>(h + (2 * Amp2));
+        _column = NativeMemory.AllocArrayZeroed<int>(W + (2 * Amp2));
         _turbBase = NativeMemory.AllocArrayZeroed<int>(2048 + 128);
-        for (int i = 0; i < 2048 + 128; i++) _turbBase[i] = (int)(Amp2 + MathF.Sin(i * 3.14159f * 2 / 128) * Amp2);
-        for (int v = 0; v < h + 2 * Amp2; v++) { _rowoff[v] = Stride * v; _rowptr[v] = _view + Stride * v; }
-        for (int u = 0; u < W + 2 * Amp2; u++) _column[u] = u;
+        for (int i = 0; i < 2048 + 128; i++)
+        {
+            _turbBase[i] = (int)(Amp2 + (MathF.Sin(i * 3.14159f * 2 / 128) * Amp2));
+        }
+
+        for (int v = 0; v < h + (2 * Amp2); v++) { _rowoff[v] = Stride * v; _rowptr[v] = _view + (Stride * v); }
+        for (int u = 0; u < W + (2 * Amp2); u++)
+        {
+            _column[u] = u;
+        }
+
         Orig(); Gather();
         for (int v = 0; v < h; v++)
-            if (!new ReadOnlySpan<byte>(_a + v * Stride, W).SequenceEqual(new ReadOnlySpan<byte>(_b + v * Stride, W))) throw new Exception("mismatch row " + v);
+        {
+            if (!new ReadOnlySpan<byte>(_a + (v * Stride), W).SequenceEqual(new ReadOnlySpan<byte>(_b + (v * Stride), W)))
+            {
+                throw new Exception("mismatch row " + v);
+            }
+        }
     }
 
     [GlobalCleanup] public void Cleanup() { NativeMemory.Free(_view); NativeMemory.Free(_a); NativeMemory.Free(_b); NativeMemory.Free(_rowptr); NativeMemory.Free(_rowoff); NativeMemory.Free(_column); NativeMemory.Free(_turbBase); }
@@ -79,7 +96,10 @@ public unsafe class WarpScreenBenchmarks
                 Vector128<short> s1 = Sse2.PackSignedSaturate(g1.GetLower(), g1.GetUpper());
                 Sse2.Store(dest + u, Sse2.PackUnsignedSaturate(s0, s1));
             }
-            for (; u < W; u++) dest[u] = _view[roff[turb[u]] + col[u]];
+            for (; u < W; u++)
+            {
+                dest[u] = _view[roff[turb[u]] + col[u]];
+            }
         }
     }
 

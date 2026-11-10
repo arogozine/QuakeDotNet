@@ -39,12 +39,12 @@ public static unsafe class VidMenu
     private const int ROW_HEIGHT = 8;
 
     // Not in the original -- the Fullscreen on/off row, above the list.
-    private const int FULLSCREEN_ROW = 36 + 2 * 8;
+    private const int FULLSCREEN_ROW = 36 + (2 * 8);
 
     // "Windowed Resolutions" header, then the first resolution row, each
     // one blank line below the row before.
-    private const int HEADER_ROW = FULLSCREEN_ROW + 2 * ROW_HEIGHT;
-    private const int ROW_TOP = HEADER_ROW + 2 * ROW_HEIGHT;
+    private const int HEADER_ROW = FULLSCREEN_ROW + (2 * ROW_HEIGHT);
+    private const int ROW_TOP = HEADER_ROW + (2 * ROW_HEIGHT);
 
     // vid_line -- the currently highlighted item: 0 is the Fullscreen row,
     // 1..N are resolution entries (mode index vid_line - 1).
@@ -84,7 +84,9 @@ public static unsafe class VidMenu
                          modes[index].Width == (int)Vid.vid.Width && modes[index].Height == (int)Vid.vid.Height;
 
             if (iscur)
+            {
                 Menu.PrintWhite(16 * 8, row, $"{modes[index].Width}x{modes[index].Height}");
+            }
             else
             {
                 Utf8StringHandler handler = (Utf8StringHandler)$"{modes[index].Width}x{modes[index].Height}";
@@ -97,18 +99,23 @@ public static unsafe class VidMenu
         // scroll indicators -- not in the original (its list always fit on
         // screen); shown only when there's more content in that direction.
         if (vid_scroll_top > 0)
+        {
             Menu.Print(4 * 8, ROW_TOP, "^"u8);
-        if (vid_scroll_top + visibleRows < modes.Count)
-            Menu.Print(4 * 8, row - ROW_HEIGHT, "v"u8);
+        }
 
-        int footerRow = ROW_TOP + VID_VISIBLE_ROWS * ROW_HEIGHT + ROW_HEIGHT;
+        if (vid_scroll_top + visibleRows < modes.Count)
+        {
+            Menu.Print(4 * 8, row - ROW_HEIGHT, "v"u8);
+        }
+
+        int footerRow = ROW_TOP + (VID_VISIBLE_ROWS * ROW_HEIGHT) + ROW_HEIGHT;
         Menu.Print(9 * 8, footerRow, "Press Enter to set mode"u8);
-        Menu.Print(15 * 8, footerRow + 2 * ROW_HEIGHT, "Esc to exit"u8);
+        Menu.Print(15 * 8, footerRow + (2 * ROW_HEIGHT), "Esc to exit"u8);
 
         // line cursor
         int cursorRow = vid_line == 0
             ? FULLSCREEN_ROW
-            : ROW_TOP + (vid_line - 1 - vid_scroll_top) * ROW_HEIGHT;
+            : ROW_TOP + ((vid_line - 1 - vid_scroll_top) * ROW_HEIGHT);
         Menu.DrawCharacter(14 * 8, cursorRow, 12 + ((int)(Host.realtime * 4) & 1));
     }
 
@@ -146,7 +153,10 @@ public static unsafe class VidMenu
             case Keys.K_LEFTARROW:
             case Keys.K_RIGHTARROW:
                 if (vid_line == 0)
+                {
                     ToggleFullscreen();
+                }
+
                 break;
 
             case Keys.K_ENTER:
@@ -184,11 +194,17 @@ public static unsafe class VidMenu
         int modeIndex = vid_line - 1;
 
         if (modeIndex < 0)
+        {
             vid_scroll_top = 0;
+        }
         else if (modeIndex < vid_scroll_top)
+        {
             vid_scroll_top = modeIndex;
+        }
         else if (modeIndex >= vid_scroll_top + visibleRows)
+        {
             vid_scroll_top = modeIndex - visibleRows + 1;
+        }
 
         vid_scroll_top = Math.Clamp(vid_scroll_top, 0, Math.Max(0, count - visibleRows));
     }

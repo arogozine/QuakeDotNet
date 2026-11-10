@@ -33,11 +33,13 @@ public ref struct Fixed3AsciiInt
         uint u = v < 0 ? (uint)(-(long)v) : (uint)v;
         do
         {
-            t[--pos] = (byte)('0' + u % 10);
+            t[--pos] = (byte)('0' + (u % 10));
             u /= 10;
         } while (u != 0);
         if (v < 0)
+        {
             t[--pos] = (byte)'-';
+        }
 
         ReadOnlySpan<byte> s = t[pos..]; // full "%i" text
         int len = Math.Min(s.Length, Alignment);

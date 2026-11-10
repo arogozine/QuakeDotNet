@@ -162,7 +162,9 @@ public sealed unsafe class NetDgrmTests
         Sv.host_protocol_datagram_maxsize = QuakeDef.MAX_DATAGRAM; // protocol 15 size so the payload fragments (restored in Setup)
         byte[] payload = new byte[QuakeDef.MAX_DATAGRAM + 400];
         for (int i = 0; i < payload.Length; i++)
+        {
             payload[i] = (byte)(i & 0xff);
+        }
 
         fixed (byte* p = payload)
         {
@@ -184,7 +186,9 @@ public sealed unsafe class NetDgrmTests
         Assert.AreEqual(1, finalRet);
         Assert.AreEqual(payload.Length, Net.net_message->CurSize);
         for (int i = 0; i < payload.Length; i++)
+        {
             Assert.AreEqual(payload[i], Net.net_message->Data[i]);
+        }
     }
 
     [TestMethod]
@@ -403,7 +407,9 @@ public sealed unsafe class NetDgrmTests
 
         DateTime deadline = DateTime.UtcNow.AddSeconds(5);
         while (Net.slistInProgress && DateTime.UtcNow < deadline)
+        {
             Net.Poll();
+        }
 
         Assert.IsFalse(Net.slistInProgress);
         Assert.IsFalse(Net.slistSilent);

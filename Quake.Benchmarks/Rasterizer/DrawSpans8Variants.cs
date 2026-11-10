@@ -88,7 +88,7 @@ public unsafe partial class DrawSpans8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -123,15 +123,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     sstep = (snext - s) >> 3;
                     tstep = (tnext - t) >> 3;
@@ -146,15 +154,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     if (spancount > 1)
                     {
@@ -163,9 +179,9 @@ public unsafe partial class DrawSpans8Benchmarks
                     }
                 }
 
-                Vector256<int> sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                Vector256<int> tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                Vector256<int> idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                Vector256<int> sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                Vector256<int> tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                Vector256<int> idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                 if (spancount == 8)
                 {
@@ -193,13 +209,17 @@ public unsafe partial class DrawSpans8Benchmarks
                         texels >>= 16;
                     }
                     if ((spancount & 1) != 0)
+                    {
                         *pdest++ = (byte)texels;
+                    }
                 }
                 else
                 {
                     idxV.Store(idx);
                     for (int j = 0; j < spancount; j++)
+                    {
                         *pdest++ = pbase[idx[j]];
+                    }
                 }
 
                 s = snext;
@@ -225,13 +245,13 @@ public unsafe partial class DrawSpans8Benchmarks
 
             ulong texels =
                   pbase[(uint)i01]
-                | (ulong)pbase[(uint)(i01 >> 32)] << 8
-                | (ulong)pbase[(uint)i23] << 16
-                | (ulong)pbase[(uint)(i23 >> 32)] << 24
-                | (ulong)pbase[(uint)i45] << 32
-                | (ulong)pbase[(uint)(i45 >> 32)] << 40
-                | (ulong)pbase[(uint)i67] << 48
-                | (ulong)pbase[(uint)(i67 >> 32)] << 56;
+                | ((ulong)pbase[(uint)(i01 >> 32)] << 8)
+                | ((ulong)pbase[(uint)i23] << 16)
+                | ((ulong)pbase[(uint)(i23 >> 32)] << 24)
+                | ((ulong)pbase[(uint)i45] << 32)
+                | ((ulong)pbase[(uint)(i45 >> 32)] << 40)
+                | ((ulong)pbase[(uint)i67] << 48)
+                | ((ulong)pbase[(uint)(i67 >> 32)] << 56);
 
             return texels;
         }
@@ -264,7 +284,7 @@ public unsafe partial class DrawSpans8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -299,15 +319,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     sstep = (snext - s) >> 3;
                     tstep = (tnext - t) >> 3;
@@ -322,15 +350,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     if (spancount > 1)
                     {
@@ -339,9 +375,9 @@ public unsafe partial class DrawSpans8Benchmarks
                     }
                 }
 
-                Vector256<int> sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                Vector256<int> tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                Vector256<int> idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                Vector256<int> sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                Vector256<int> tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                Vector256<int> idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                 if (spancount == 8)
                 {
@@ -352,7 +388,9 @@ public unsafe partial class DrawSpans8Benchmarks
                 {
                     idxV.Store(idx);
                     for (int j = 0; j < spancount; j++)
+                    {
                         *pdest++ = pbase[idx[j]];
+                    }
                 }
 
                 s = snext;
@@ -422,23 +460,31 @@ public unsafe partial class DrawSpans8Benchmarks
 
                 snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                 if (snext > bbextents) // snext | bbextents
+                {
                     snext = bbextents;
+                }
                 else if (snext < 8)
+                {
                     snext = 8;
+                }
 
                 tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                 if (tnext > bbextentt)
+                {
                     tnext = bbextentt;
+                }
                 else if (tnext < 8)
+                {
                     tnext = 8;
+                }
 
                 sstep = (snext - s) >> 3;
                 tstep = (tnext - t) >> 3;
 
 
-                Vector256<int> sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                Vector256<int> tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                ((sV >> 16) + (tV >> 16) * cachewidthV).StoreAligned(idx);
+                Vector256<int> sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                Vector256<int> tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                ((sV >> 16) + ((tV >> 16) * cachewidthV)).StoreAligned(idx);
 
 
 
@@ -465,15 +511,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                 snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                 if (snext > bbextents)
+                {
                     snext = bbextents;
+                }
                 else if (snext < 8)
+                {
                     snext = 8;
+                }
 
                 tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                 if (tnext > bbextentt)
+                {
                     tnext = bbextentt;
+                }
                 else if (tnext < 8)
+                {
                     tnext = 8;
+                }
 
                 if (spancount > 1)
                 {
@@ -482,14 +536,14 @@ public unsafe partial class DrawSpans8Benchmarks
                 }
 
 
-                Vector256<int> sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                Vector256<int> tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                ((sV >> 16) + (tV >> 16) * cachewidthV).StoreAligned(idx);
+                Vector256<int> sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                Vector256<int> tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                ((sV >> 16) + ((tV >> 16) * cachewidthV)).StoreAligned(idx);
             }
 
 
             // Pass 2: gather texels through the precomputed indices into pdest.
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
             idx = indices;
             count = pspan->Count;
 
@@ -511,13 +565,13 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     texels =
                           pbase[(uint)i01]
-                        | (ulong)pbase[(uint)(i01 >> 32)] << 8
-                        | (ulong)pbase[(uint)i23] << 16
-                        | (ulong)pbase[(uint)(i23 >> 32)] << 24
-                        | (ulong)pbase[(uint)i45] << 32
-                        | (ulong)pbase[(uint)(i45 >> 32)] << 40
-                        | (ulong)pbase[(uint)i67] << 48
-                        | (ulong)pbase[(uint)(i67 >> 32)] << 56;
+                        | ((ulong)pbase[(uint)(i01 >> 32)] << 8)
+                        | ((ulong)pbase[(uint)i23] << 16)
+                        | ((ulong)pbase[(uint)(i23 >> 32)] << 24)
+                        | ((ulong)pbase[(uint)i45] << 32)
+                        | ((ulong)pbase[(uint)(i45 >> 32)] << 40)
+                        | ((ulong)pbase[(uint)i67] << 48)
+                        | ((ulong)pbase[(uint)(i67 >> 32)] << 56);
                 }
 
                 Unsafe.WriteUnaligned(pdest, texels);
@@ -526,8 +580,9 @@ public unsafe partial class DrawSpans8Benchmarks
             }
 
             for (; count > 0; count--)
+            {
                 *pdest++ = pbase[*idx++];
-
+            }
         } while ((pspan = pspan->PNext) != null);
     }
 
@@ -559,7 +614,7 @@ public unsafe partial class DrawSpans8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -595,23 +650,31 @@ public unsafe partial class DrawSpans8Benchmarks
 
                         snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                         if (snext > bbextents)
+                        {
                             snext = bbextents;
+                        }
                         else if (snext < 8)
+                        {
                             snext = 8;
+                        }
 
                         tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                         if (tnext > bbextentt)
+                        {
                             tnext = bbextentt;
+                        }
                         else if (tnext < 8)
+                        {
                             tnext = 8;
+                        }
 
                         sstep = (snext - s) >> 3;
                         tstep = (tnext - t) >> 3;
 
 
-                        sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                        tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                        idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                        sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                        tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                        idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                         Vector256<int> gathered = Avx2.GatherVector256((int*)pbase, idxV, 1);
 
@@ -642,15 +705,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     sstep = (snext - s) >> 3;
                     tstep = (tnext - t) >> 3;
@@ -665,15 +736,23 @@ public unsafe partial class DrawSpans8Benchmarks
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     if (spancount > 1)
                     {
@@ -682,9 +761,9 @@ public unsafe partial class DrawSpans8Benchmarks
                     }
                 }
 
-                sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                 if (spancount == 8)
                 {
@@ -699,7 +778,9 @@ public unsafe partial class DrawSpans8Benchmarks
                 {
                     idxV.Store(idx);
                     for (int j = 0; j < spancount; j++)
+                    {
                         *pdest++ = pbase[idx[j]];
+                    }
                 }
 
                 s = snext;
@@ -727,15 +808,15 @@ public unsafe partial class DrawSpans8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
             int count = pspan->Count;
 
             float du = pspan->U;
             float dv = pspan->V;
 
-            float sdivz = DLocal.d_sdivzorigin + dv * DLocal.d_sdivzstepv + du * sdivzstepu;
-            float tdivz = DLocal.d_tdivzorigin + dv * DLocal.d_tdivzstepv + du * tdivzstepu;
-            float zi = DLocal.d_ziorigin + dv * DLocal.d_zistepv + du * zistepu;
+            float sdivz = DLocal.d_sdivzorigin + (dv * DLocal.d_sdivzstepv) + (du * sdivzstepu);
+            float tdivz = DLocal.d_tdivzorigin + (dv * DLocal.d_tdivzstepv) + (du * tdivzstepu);
+            float zi = DLocal.d_ziorigin + (dv * DLocal.d_zistepv) + (du * zistepu);
 
             do
             {
@@ -743,17 +824,25 @@ public unsafe partial class DrawSpans8Benchmarks
 
                 int s = (int)(sdivz * z) + sadjust;
                 if (s > bbextents)
+                {
                     s = bbextents;
+                }
                 else if (s < 0)
+                {
                     s = 0;
+                }
 
                 int t = (int)(tdivz * z) + tadjust;
                 if (t > bbextentt)
+                {
                     t = bbextentt;
+                }
                 else if (t < 0)
+                {
                     t = 0;
+                }
 
-                *pdest++ = pbase[(s >> 16) + (t >> 16) * cachewidth];
+                *pdest++ = pbase[(s >> 16) + ((t >> 16) * cachewidth)];
 
                 sdivz += sdivzstepu;
                 tdivz += tdivzstepu;
@@ -808,7 +897,7 @@ public unsafe partial class DrawSpans8Benchmarks
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -833,7 +922,7 @@ public unsafe partial class DrawSpans8Benchmarks
                         tV = Vector256.ConvertToInt32Native((Vector256.Create(tdivz) + tdivzLane) * zV) + tadjustV;
                         sV = Vector256.ClampNative(sV, zeroV, bbextentsV);
                         tV = Vector256.ClampNative(tV, zeroV, bbextenttV);
-                        idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                        idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                         Vector256<int> gathered = Avx2.GatherVector256((int*)pbase, idxV, 1);
 
@@ -851,7 +940,9 @@ public unsafe partial class DrawSpans8Benchmarks
                 }
 
                 if (count == 0)
+                {
                     break;
+                }
 
                 int spancount = count >= 8 ? 8 : count;
                 count -= spancount;
@@ -861,7 +952,7 @@ public unsafe partial class DrawSpans8Benchmarks
                 tV = Vector256.ConvertToInt32Native((Vector256.Create(tdivz) + tdivzLane) * zV) + tadjustV;
                 sV = Vector256.ClampNative(sV, zeroV, bbextentsV);
                 tV = Vector256.ClampNative(tV, zeroV, bbextenttV);
-                idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                 if (spancount == 8)
                 {
@@ -874,7 +965,9 @@ public unsafe partial class DrawSpans8Benchmarks
                 {
                     idxV.Store(idx);
                     for (int j = 0; j < spancount; j++)
+                    {
                         *pdest++ = pbase[idx[j]];
+                    }
                 }
 
                 sdivz += sdivz8stepu;

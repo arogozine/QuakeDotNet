@@ -59,8 +59,13 @@ public sealed unsafe class RealCdAudioTests
         SndDma.Shutdown();
 
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
+
         Com.com_searchpaths = null;
 
         NativeMemory.Free(_buf);
@@ -71,17 +76,23 @@ public sealed unsafe class RealCdAudioTests
     {
         string? dir = TestConfiguration.PakFilesDirectory;
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive("PakFilesDirectory is not configured in configuration.json; skipping real CD audio test.");
+        }
 
         string music = Path.Combine(dir, "music");
         if (!Directory.Exists(music))
+        {
             Assert.Inconclusive($"No music directory in the configured PakFilesDirectory ({dir}); skipping real CD audio test.");
+        }
 
         foreach (int track in tracks)
         {
             string file = Path.Combine(music, $"track{track:D2}.ogg");
             if (!File.Exists(file))
+            {
                 Assert.Inconclusive($"{file} was not found; skipping real CD audio test.");
+            }
         }
 
         return dir;
@@ -112,14 +123,21 @@ public sealed unsafe class RealCdAudioTests
         }
 
         if (found == 0)
+        {
             Assert.Inconclusive("The music directory holds no trackNN.ogg files; skipping real CD audio test.");
+        }
     }
 
     private static bool IsPakHandle(FileStream h)
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null && ReferenceEquals(Sys.sys_handles[s->Pack->Handle], h))
+            {
                 return true;
+            }
+        }
+
         return false;
     }
 
@@ -141,7 +159,10 @@ public sealed unsafe class RealCdAudioTests
 
         bool nonSilent = false;
         for (int i = 0; i < got && !nonSilent; i++)
+        {
             nonSilent = CdAudio.pcmBuf[i] != 0;
+        }
+
         Assert.IsTrue(nonSilent, "decoded audio should not be all zeros");
     }
 
@@ -164,7 +185,7 @@ public sealed unsafe class RealCdAudioTests
 
         int got;
         int chunks = 0;
-        long maxChunks = tail / CdAudio.BUFFER_FRAMES + 2;
+        long maxChunks = (tail / CdAudio.BUFFER_FRAMES) + 2;
         do
         {
             got = CdAudio.DecodeChunk();
@@ -189,9 +210,11 @@ public sealed unsafe class RealCdAudioTests
         CdAudio.reader.SamplePosition = start;
 
         // decode one chunk past the end of the track
-        long chunks = tail / CdAudio.BUFFER_FRAMES + 1;
+        long chunks = (tail / CdAudio.BUFFER_FRAMES) + 1;
         for (long i = 0; i < chunks; i++)
+        {
             Assert.AreEqual(full, CdAudio.DecodeChunk(), "every buffer should be filled, including across the loop point");
+        }
 
         Assert.IsFalse(CdAudio.streamEnded);
         Assert.IsLessThan(start, CdAudio.reader.SamplePosition, "the reader should have wrapped to the start");
@@ -240,7 +263,9 @@ public sealed unsafe class RealCdAudioTests
         SndDma.Init();
 
         if (!SndHost.Initialized)
+        {
             Assert.Inconclusive("No real audio device is available in this environment; skipping playback test.");
+        }
 
         Assert.AreEqual(0, CdAudio.Init());
 

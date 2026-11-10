@@ -21,21 +21,36 @@ public unsafe class LightmapBenchmarks
     public void Setup()
     {
         _a = NativeMemory.AllocArrayZeroed<uint>(324 + 16); _b = NativeMemory.AllocArrayZeroed<uint>(324 + 16); _lm = NativeMemory.AllocArrayZeroed<byte>(324 + 16);
-        Random r = new(3); for (int i = 0; i < 324; i++) _lm[i] = (byte)r.Next(256);
-        for (int i = 0; i < 324; i++) _a[i] = _b[i] = (uint)r.Next(0, 60000);
+        Random r = new(3); for (int i = 0; i < 324; i++)
+        {
+            _lm[i] = (byte)r.Next(256);
+        }
+
+        for (int i = 0; i < 324; i++)
+        {
+            _a[i] = _b[i] = (uint)r.Next(0, 60000);
+        }
+
         AddO(); AddN(); BoundO(); BoundN();
-        if (!new ReadOnlySpan<uint>(_a, 324).SequenceEqual(new ReadOnlySpan<uint>(_b, 324))) throw new Exception("mismatch");
+        if (!new ReadOnlySpan<uint>(_a, 324).SequenceEqual(new ReadOnlySpan<uint>(_b, 324)))
+        {
+            throw new Exception("mismatch");
+        }
     }
 
     [GlobalCleanup] public void Cleanup() { NativeMemory.Free(_a); NativeMemory.Free(_b); NativeMemory.Free(_lm); }
 
     #endregion
 
-    void AddO() { for (int i = 0; i < Size; i++) _a[i] += _lm[i] * 200u; }
+    void AddO() { for (int i = 0; i < Size; i++)
+        {
+            _a[i] += _lm[i] * 200u;
+        }
+    }
 
     void AddN() => RSurfSimd.AddScaled(_b, _lm, Size, 200u);
 
-    void BoundO() { for (int i = 0; i < Size; i++) { int t = (int)(255 * 256 - _a[i]) >> 2; if (t < 64) t = 64; _a[i] = (uint)t; } }
+    void BoundO() { for (int i = 0; i < Size; i++) { int t = (int)((255 * 256) - _a[i]) >> 2; if (t < 64) { t = 64; } _a[i] = (uint)t; } }
 
     void BoundN() => RSurfSimd.BoundInvertShift(_b, Size, 2);
 

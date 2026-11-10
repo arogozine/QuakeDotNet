@@ -8,7 +8,7 @@ namespace Quake.UnitTests;
 // Utf3String.Format must match sbar.c's sprintf (num, "%3i", v) as read through num[0..2]:
 // right-aligned, space padded, first 3 characters when the text is wider.
 [TestClass]
-public sealed unsafe class Fixed3AsciiIntTests
+public sealed class Fixed3AsciiIntTests
 {
     private static string Format(int v)
     {
@@ -63,7 +63,9 @@ public sealed unsafe class Fixed3AsciiIntTests
     public void Format_MatchesPrintfReference_Sweep()
     {
         for (int v = -2000; v <= 2000; v++)
+        {
             Assert.AreEqual(Expected(v), Format(v), $"v={v}");
+        }
     }
 
     [TestMethod]

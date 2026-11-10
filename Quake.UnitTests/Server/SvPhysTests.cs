@@ -54,7 +54,10 @@ public sealed unsafe class SvPhysTests
     public void Teardown()
     {
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
+
         NativeMemory.Free(_buf);
     }
 
@@ -140,11 +143,16 @@ public sealed unsafe class SvPhysTests
         const float STOP_EPSILON = 0.1f;
         int blocked = 0;
         if (normal[2] > 0)
+        {
             blocked |= 1;
-        if (normal[2] == 0)
-            blocked |= 2;
+        }
 
-        float backoff = (@in[0] * normal[0] + @in[1] * normal[1] + @in[2] * normal[2]) * overbounce;
+        if (normal[2] == 0)
+        {
+            blocked |= 2;
+        }
+
+        float backoff = ((@in[0] * normal[0]) + (@in[1] * normal[1]) + (@in[2] * normal[2])) * overbounce;
 
         @out = default;
         for (int i = 0; i < 3; i++)
@@ -152,7 +160,9 @@ public sealed unsafe class SvPhysTests
             float change = normal[i] * backoff;
             @out[i] = @in[i] - change;
             if (@out[i] > -STOP_EPSILON && @out[i] < STOP_EPSILON)
+            {
                 @out[i] = 0;
+            }
         }
         return blocked;
     }
@@ -161,7 +171,7 @@ public sealed unsafe class SvPhysTests
     private static readonly float[] ClipSpecials = [0f, -0f, 0.1f, -0.1f, 0.09999999f, -0.09999999f, 0.10000001f, -0.10000001f, 1f, -1f, float.NaN];
 
     private static float ClipValue(Random rng) =>
-        rng.Next(3) == 0 ? ClipSpecials[rng.Next(ClipSpecials.Length)] : (float)(rng.NextDouble() * 1000 - 500);
+        rng.Next(3) == 0 ? ClipSpecials[rng.Next(ClipSpecials.Length)] : (float)((rng.NextDouble() * 1000) - 500);
 
     [TestMethod]
     public void ClipVelocity_RandomAndEdgeInputs_MatchOriginalBitwise()
@@ -182,8 +192,10 @@ public sealed unsafe class SvPhysTests
 
             Assert.AreEqual(expectedBlocked, actualBlocked, $"iteration {iter}: blocked");
             for (int i = 0; i < 3; i++)
+            {
                 Assert.AreEqual(BitConverter.SingleToInt32Bits(expected[i]), BitConverter.SingleToInt32Bits(actual[i]),
                     $"iteration {iter}: out[{i}] in={velocity} normal={normal}");
+            }
         }
     }
 
@@ -350,7 +362,10 @@ public sealed unsafe class SvPhysTests
 
         byte* sample = new Utf8String("weapons/r_exp3.wav"u8);
         for (int i = 1; i < 300; i++)
+        {
             Sv.sound_precache[i] = new Utf8String("dummy"u8);
+        }
+
         Sv.sound_precache[300] = sample;
 
         EDict_t* ent = TestEnt;
@@ -374,7 +389,10 @@ public sealed unsafe class SvPhysTests
 
         byte* sample = new Utf8String("weapons/r_exp3.wav"u8);
         for (int i = 1; i < 300; i++)
+        {
             Sv.sound_precache[i] = new Utf8String("dummy"u8);
+        }
+
         Sv.sound_precache[300] = sample;
 
         SvPhys.StartSound(TestEnt, 0, sample, 255, 1);

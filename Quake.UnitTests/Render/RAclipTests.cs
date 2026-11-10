@@ -151,8 +151,8 @@ public sealed unsafe class RAclipTests
                 pfv1->V[k] = rng.Next(-1000, 1000);
             }
             // pfv0 is in front of the clip plane, pfv1 behind it
-            float[] a0 = [(float)(rng.NextDouble() * 200 - 100), (float)(rng.NextDouble() * 200 - 100), (float)(RLocal.ALIAS_Z_CLIP_PLANE + 1 + rng.NextDouble() * 50)];
-            float[] a1 = [(float)(rng.NextDouble() * 200 - 100), (float)(rng.NextDouble() * 200 - 100), (float)(RLocal.ALIAS_Z_CLIP_PLANE - 1 - rng.NextDouble() * 50)];
+            float[] a0 = [(float)((rng.NextDouble() * 200) - 100), (float)((rng.NextDouble() * 200) - 100), (float)(RLocal.ALIAS_Z_CLIP_PLANE + 1 + (rng.NextDouble() * 50))];
+            float[] a1 = [(float)((rng.NextDouble() * 200) - 100), (float)((rng.NextDouble() * 200) - 100), (float)(RLocal.ALIAS_Z_CLIP_PLANE - 1 - (rng.NextDouble() * 50))];
             RAclip.av[0] = new Vector3(a0[0], a0[1], a0[2]);
             RAclip.av[1] = new Vector3(a1[0], a1[1], a1[2]);
 
@@ -161,24 +161,24 @@ public sealed unsafe class RAclipTests
             if (pfv0->V[1] >= pfv1->V[1])
             {
                 scale = (RLocal.ALIAS_Z_CLIP_PLANE - a0[2]) / (a1[2] - a0[2]);
-                x = a0[0] + (a1[0] - a0[0]) * scale;
-                y = a0[1] + (a1[1] - a0[1]) * scale;
-                e2 = (int)(pfv0->V[2] + (pfv1->V[2] - pfv0->V[2]) * scale);
-                e3 = (int)(pfv0->V[3] + (pfv1->V[3] - pfv0->V[3]) * scale);
-                e4 = (int)(pfv0->V[4] + (pfv1->V[4] - pfv0->V[4]) * scale);
+                x = a0[0] + ((a1[0] - a0[0]) * scale);
+                y = a0[1] + ((a1[1] - a0[1]) * scale);
+                e2 = (int)(pfv0->V[2] + ((pfv1->V[2] - pfv0->V[2]) * scale));
+                e3 = (int)(pfv0->V[3] + ((pfv1->V[3] - pfv0->V[3]) * scale));
+                e4 = (int)(pfv0->V[4] + ((pfv1->V[4] - pfv0->V[4]) * scale));
             }
             else
             {
                 scale = (RLocal.ALIAS_Z_CLIP_PLANE - a1[2]) / (a0[2] - a1[2]);
-                x = a1[0] + (a0[0] - a1[0]) * scale;
-                y = a1[1] + (a0[1] - a1[1]) * scale;
-                e2 = (int)(pfv1->V[2] + (pfv0->V[2] - pfv1->V[2]) * scale);
-                e3 = (int)(pfv1->V[3] + (pfv0->V[3] - pfv1->V[3]) * scale);
-                e4 = (int)(pfv1->V[4] + (pfv0->V[4] - pfv1->V[4]) * scale);
+                x = a1[0] + ((a0[0] - a1[0]) * scale);
+                y = a1[1] + ((a0[1] - a1[1]) * scale);
+                e2 = (int)(pfv1->V[2] + ((pfv0->V[2] - pfv1->V[2]) * scale));
+                e3 = (int)(pfv1->V[3] + ((pfv0->V[3] - pfv1->V[3]) * scale));
+                e4 = (int)(pfv1->V[4] + ((pfv0->V[4] - pfv1->V[4]) * scale));
             }
             float zi = 1.0f / RLocal.ALIAS_Z_CLIP_PLANE;
-            int e0 = (int)(x * RMain.aliasxscale * zi + RMain.aliasxcenter);
-            int e1 = (int)(y * RMain.aliasyscale * zi + RMain.aliasycenter);
+            int e0 = (int)((x * RMain.aliasxscale * zi) + RMain.aliasxcenter);
+            int e1 = (int)((y * RMain.aliasyscale * zi) + RMain.aliasycenter);
 
             FinalVert_t @out = default;
             RAclip.ClipZ(pfv0, pfv1, &@out);

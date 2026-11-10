@@ -39,8 +39,12 @@ public sealed unsafe class BspFileTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -62,7 +66,7 @@ public sealed unsafe class BspFileTests
     // entity lump, and 1 submodel.
     private static byte[] BuildBspFile()
     {
-        const int headerSize = 4 + BspFile.HEADER_LUMPS * 8; // version + 15 lump_t
+        const int headerSize = 4 + (BspFile.HEADER_LUMPS * 8); // version + 15 lump_t
 
         using var body = new MemoryStream();
         using var bw = new BinaryWriter(body);
@@ -300,7 +304,11 @@ public sealed unsafe class BspFileTests
         try
         {
             float[] src = [1.5f, -2.25f, 3f, 0f, 1024f, -8192.5f, 4f, 5f, 6f];
-            for (int i = 0; i < src.Length; i++) file[i] = src[i];
+            for (int i = 0; i < src.Length; i++)
+            {
+                file[i] = src[i];
+            }
+
             Lump_t lump = new() { FileOfs = 0, FileLen = 3 * sizeof(System.Numerics.Vector3) };
 
             Model.mod_base = (byte*)file;

@@ -36,7 +36,9 @@ internal static class TestConfiguration
     private static void ReadInto(Dictionary<string, string> values, string path)
     {
         if (!File.Exists(path))
+        {
             return;
+        }
 
         using FileStream fs = File.OpenRead(path);
         using JsonDocument doc = JsonDocument.Parse(fs);
@@ -45,7 +47,9 @@ internal static class TestConfiguration
         {
             string? value = property.Value.ValueKind == JsonValueKind.String ? property.Value.GetString() : null;
             if (!string.IsNullOrWhiteSpace(value))
+            {
                 values[property.Name] = value;
+            }
         }
     }
 }

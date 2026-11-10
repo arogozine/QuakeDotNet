@@ -32,7 +32,7 @@ public unsafe class PolysetCalcGradientsBenchmarks
 
         int* p0 = DPolyse.r_p0, p1 = DPolyse.r_p1, p2 = DPolyse.r_p2;
         // front-facing (negative), as D_DrawNonSubdiv requires: -2670
-        DPolyse.d_xdenom = (p0[1] - p1[1]) * (p0[0] - p2[0]) - (p0[0] - p1[0]) * (p0[1] - p2[1]);
+        DPolyse.d_xdenom = ((p0[1] - p1[1]) * (p0[0] - p2[0])) - ((p0[0] - p1[0]) * (p0[1] - p2[1]));
     }
 
     #endregion
@@ -82,8 +82,8 @@ public unsafe class PolysetCalcGradientsBenchmarks
         Vector128<float> t0 = Vector128.ConvertToSingle(Vector128.Load(r_p0 + 2) - p2);
         Vector128<float> t1 = Vector128.ConvertToSingle(Vector128.Load(r_p1 + 2) - p2);
 
-        Vector128<float> stepx = (t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv;
-        Vector128<float> stepy = (t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv;
+        Vector128<float> stepx = ((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv;
+        Vector128<float> stepy = ((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv;
 
         // ceil () for light so positive steps are exaggerated, negative steps
         // diminished,  pushing us away from underflow toward overflow. Underflow is
@@ -107,7 +107,7 @@ public unsafe class PolysetCalcGradientsBenchmarks
         a_sstepxfrac = r_sstepx & 0xFFFF;
         a_tstepxfrac = r_tstepx & 0xFFFF;
 
-        a_ststepxwhole = skinwidthParam * (r_tstepx >> 16) + (r_sstepx >> 16);
+        a_ststepxwhole = (skinwidthParam * (r_tstepx >> 16)) + (r_sstepx >> 16);
     }
 
     // D_PolysetCalcGradients (d_polyse.c) -- original scalar form
@@ -125,27 +125,27 @@ public unsafe class PolysetCalcGradientsBenchmarks
 
         float t0 = r_p0[4] - r_p2[4];
         float t1 = r_p1[4] - r_p2[4];
-        r_lstepx = float.ConvertToIntegerNative<int>(MathF.Ceiling((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv));
-        r_lstepy = float.ConvertToIntegerNative<int>(MathF.Ceiling((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv));
+        r_lstepx = float.ConvertToIntegerNative<int>(MathF.Ceiling(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv));
+        r_lstepy = float.ConvertToIntegerNative<int>(MathF.Ceiling(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv));
 
         t0 = r_p0[2] - r_p2[2];
         t1 = r_p1[2] - r_p2[2];
-        r_sstepx = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-        r_sstepy = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+        r_sstepx = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+        r_sstepy = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
         t0 = r_p0[3] - r_p2[3];
         t1 = r_p1[3] - r_p2[3];
-        r_tstepx = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-        r_tstepy = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+        r_tstepx = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+        r_tstepy = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
         t0 = r_p0[5] - r_p2[5];
         t1 = r_p1[5] - r_p2[5];
-        r_zistepx = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-        r_zistepy = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+        r_zistepx = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+        r_zistepy = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
         a_sstepxfrac = r_sstepx & 0xFFFF;
         a_tstepxfrac = r_tstepx & 0xFFFF;
 
-        a_ststepxwhole = skinwidth * (r_tstepx >> 16) + (r_sstepx >> 16);
+        a_ststepxwhole = (skinwidth * (r_tstepx >> 16)) + (r_sstepx >> 16);
     }
 }

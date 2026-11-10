@@ -26,14 +26,17 @@ public unsafe class PaletteBenchmarks
         _out = NativeMemory.AllocArrayZeroed<byte>(768);
         Random r = new(5); for (int i = 0; i < 768; i++) { _pal[i] = (byte)r.Next(256); _base[i] = _pal[i]; }
         Orig(); Simd();
-        if (!new ReadOnlySpan<uint>(_a, 256).SequenceEqual(new ReadOnlySpan<uint>(_b, 256))) throw new Exception("mismatch");
+        if (!new ReadOnlySpan<uint>(_a, 256).SequenceEqual(new ReadOnlySpan<uint>(_b, 256)))
+        {
+            throw new Exception("mismatch");
+        }
     }
 
     [GlobalCleanup] public void Cleanup() { NativeMemory.Free(_pal); NativeMemory.Free(_a); NativeMemory.Free(_b); NativeMemory.Free(_out); }
 
     #endregion
 
-    void Orig() { for (int i = 0; i < 256; i++) { byte r = _pal[i * 3], g = _pal[i * 3 + 1], b = _pal[i * 3 + 2]; _a[i] = (uint)(r | (g << 8) | (b << 16) | (0xFFu << 24)); } }
+    void Orig() { for (int i = 0; i < 256; i++) { byte r = _pal[i * 3], g = _pal[(i * 3) + 1], b = _pal[(i * 3) + 2]; _a[i] = (uint)(r | (g << 8) | (b << 16) | (0xFFu << 24)); } }
 
     void Simd()
     {
@@ -42,10 +45,10 @@ public unsafe class PaletteBenchmarks
         int i = 0;
         for (; i < 252; i += 4)
         {
-            var v = System.Runtime.Intrinsics.Vector128.Load(_pal + i * 3);
+            var v = System.Runtime.Intrinsics.Vector128.Load(_pal + (i * 3));
             (System.Runtime.Intrinsics.Vector128.AsUInt32(System.Runtime.Intrinsics.Vector128.Shuffle(v, idx)) | alpha).Store(_b + i);
         }
-        for (; i < 256; i++) { byte r = _pal[i * 3], g = _pal[i * 3 + 1], b = _pal[i * 3 + 2]; _b[i] = (uint)(r | (g << 8) | (b << 16) | (0xFFu << 24)); }
+        for (; i < 256; i++) { byte r = _pal[i * 3], g = _pal[(i * 3) + 1], b = _pal[(i * 3) + 2]; _b[i] = (uint)(r | (g << 8) | (b << 16) | (0xFFu << 24)); }
     }
 
     [Benchmark(Baseline = true)] public void SetPaletteOriginal() => Orig();

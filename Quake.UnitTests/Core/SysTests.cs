@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace Quake.UnitTests;
 
 [TestClass]
-public sealed unsafe class SysTests
+public sealed class SysTests
 {
     // PAUSE_SLEEP/NOT_FOCUS_SLEEP -- sys_win.c's #defines (50ms/20ms).
     // MSTEST0032 flags these as "always true" because both sides are

@@ -41,8 +41,12 @@ public sealed unsafe class CmdTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -165,8 +169,13 @@ public sealed unsafe class CmdTests
         finally
         {
             for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+            {
                 if (s->Pack != null)
+                {
                     Sys.FileClose(s->Pack->Handle);
+                }
+            }
+
             Com.com_searchpaths = null;
             Directory.Delete(gamedir, true);
         }
@@ -208,8 +217,13 @@ public sealed unsafe class CmdTests
         finally
         {
             for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+            {
                 if (s->Pack != null)
+                {
                     Sys.FileClose(s->Pack->Handle);
+                }
+            }
+
             Com.com_searchpaths = null;
             Directory.Delete(gamedir, true);
         }

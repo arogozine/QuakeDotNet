@@ -41,7 +41,10 @@ public sealed unsafe class CdAudioTests
     private static void EnableWithoutDevice()
     {
         for (int n = 0; n < CdAudio.MAX_TRACKS; n++)
+        {
             CdAudio.remap[n] = (byte)n;
+        }
+
         CdAudio.enabled = true;
         CdAudio.cdValid = true;
         CdAudio.maxTrack = CdAudio.MAX_TRACKS - 1;

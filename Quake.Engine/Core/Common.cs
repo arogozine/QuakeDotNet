@@ -44,7 +44,10 @@ public static unsafe class Com
     public static byte* Va(string s)
     {
         if (s.Length >= VA_BUFFER_SIZE)
+        {
             s = s[..(VA_BUFFER_SIZE - 1)];
+        }
+
         CStr.Write(va_string, s);
         return va_string;
     }
@@ -173,9 +176,14 @@ public static unsafe class Com
         for (int i = 1; i < com_argc; i++)
         {
             if (com_argv[i] == null)
+            {
                 continue; // NEXTSTEP sometimes clears appkit vars.
+            }
+
             if (Q.StrCmp(parm, com_argv[i]) == 0)
+            {
                 return i;
+            }
         }
 
         return 0;
@@ -197,9 +205,13 @@ public static unsafe class Com
             }
 
             if (n < CMDLINE_LENGTH - 1)
+            {
                 com_cmdline[n++] = (byte)' ';
+            }
             else
+            {
                 break;
+            }
         }
 
         com_cmdline[n] = 0;
@@ -210,7 +222,9 @@ public static unsafe class Com
         {
             largv[com_argc] = argv[com_argc];
             if (Q.StrCmp(new Utf8String("-safe"u8), argv[com_argc]) == 0)
+            {
                 safe = true;
+            }
         }
 
         if (safe)
@@ -276,8 +290,13 @@ public static unsafe class Com
     public static int MemSearch(byte* start, int count, int search)
     {
         for (int i = 0; i < count; i++)
+        {
             if (start[i] == search)
+            {
                 return i;
+            }
+        }
+
         return -1;
     }
 
@@ -294,7 +313,10 @@ public static unsafe class Com
         while (*pathname != 0)
         {
             if (*pathname == (byte)'/')
+            {
                 last = pathname + 1;
+            }
+
             pathname++;
         }
         return last;
@@ -304,7 +326,10 @@ public static unsafe class Com
     public static void StripExtension(byte* @in, byte* @out)
     {
         while (*@in != 0 && *@in != (byte)'.')
+        {
             *@out++ = *@in++;
+        }
+
         *@out = 0;
     }
 
@@ -314,7 +339,9 @@ public static unsafe class Com
     public static byte* FileExtension(byte* @in)
     {
         while (*@in != 0 && *@in != (byte)'.')
+        {
             @in++;
+        }
 
         if (*@in == 0)
         {
@@ -325,7 +352,10 @@ public static unsafe class Com
         @in++;
         int i;
         for (i = 0; i < 7 && *@in != 0; i++, @in++)
+        {
             extenBuf[i] = *@in;
+        }
+
         extenBuf[i] = 0;
         return extenBuf;
     }
@@ -338,7 +368,9 @@ public static unsafe class Com
         byte* s = @in + Q.StrLen(@in) - 1;
 
         while (s != @in && *s != (byte)'.')
+        {
             s--;
+        }
 
         byte* s2;
         for (s2 = s; *s2 != 0 && *s2 != (byte)'/'; s2--)
@@ -354,7 +386,10 @@ public static unsafe class Com
             s--;
             int count = (int)(s - s2);
             for (int i = 0; i < count; i++)
+            {
                 @out[i] = s2[1 + i];
+            }
+
             @out[count] = 0;
         }
     }
@@ -369,7 +404,10 @@ public static unsafe class Com
         while (*src != (byte)'/' && src != path)
         {
             if (*src == (byte)'.')
+            {
                 return; // it has an extension
+            }
+
             src--;
         }
 
@@ -384,14 +422,19 @@ public static unsafe class Com
         com_token[0] = 0;
 
         if (data == null)
+        {
             return null;
+        }
 
         int c;
     skipwhite:
         while ((c = *data) <= ' ')
         {
             if (c == 0)
+            {
                 return null; // end of file;
+            }
+
             data++;
         }
 
@@ -399,7 +442,10 @@ public static unsafe class Com
         if (c == '/' && data[1] == '/')
         {
             while (*data != 0 && *data != '\n')
+            {
                 data++;
+            }
+
             goto skipwhite;
         }
 
@@ -437,7 +483,9 @@ public static unsafe class Com
             len++;
             c = *data;
             if (c is '{' or '}' or ')' or '(' or '\'' or ':')
+            {
                 break;
+            }
         } while (c > 32);
 
         com_token[len] = 0;
@@ -547,7 +595,9 @@ public static unsafe class Com
         {
             // gross hack to use quake 1 progs with quake 2 maps
             if (Q.StrCmp(filename, "progs.dat"u8) == 0)
+            {
                 search = search->Next;
+            }
         }
 
         for (; search != null; search = search->Next)
@@ -574,7 +624,9 @@ public static unsafe class Com
                             // open a new file on the pakfile
                             Sys.FileOpenRead(pak->FileName, &handle);
                             if (handle != -1)
+                            {
                                 Sys.FileSeek(handle, pak->Files[i].FilePos);
+                            }
                         }
 
                         *outHandle = handle;
@@ -590,7 +642,9 @@ public static unsafe class Com
                 {
                     // if not a registered version, don't ever go beyond base
                     if (Q.StrRChr(filename, (byte)'/') != null || Q.StrRChr(filename, (byte)'\\') != null)
+                    {
                         continue;
+                    }
                 }
 
                 byte* netpath = stackalloc byte[MAX_OSPATH];
@@ -600,7 +654,9 @@ public static unsafe class Com
 
                 int findtime = Sys.FileTime(netpath);
                 if (findtime == -1)
+                {
                     continue;
+                }
 
                 // see if the file needs to be updated in the cache
                 byte* cachepath = stackalloc byte[MAX_OSPATH];
@@ -615,13 +671,20 @@ public static unsafe class Com
                     // it to com_cachedir, instead of concatenating it whole.
                     Q.StrCpy(cachepath, com_cachedir);
                     if (Q.StrLen(netpath) < 2 || netpath[1] != (byte)':')
+                    {
                         Q.StrCat(cachepath, netpath);
+                    }
                     else
+                    {
                         Q.StrCat(cachepath, netpath + 2);
+                    }
 
                     int cachetime = Sys.FileTime(cachepath);
                     if (cachetime < findtime)
+                    {
                         CopyFile(netpath, cachepath);
+                    }
+
                     Q.StrCpy(netpath, cachepath);
                 }
 
@@ -676,8 +739,12 @@ public static unsafe class Com
     public static void CloseFile(int h)
     {
         for (SearchPath_t* s = com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null && s->Pack->Handle == h)
+            {
                 return;
+            }
+        }
 
         Sys.FileClose(h);
     }
@@ -690,7 +757,9 @@ public static unsafe class Com
         int h;
         int len = OpenFile(path, &h);
         if (h == -1)
+        {
             return null;
+        }
 
         // extract the filename base name for hunk tag
         byte* baseName = stackalloc byte[32];
@@ -698,15 +767,25 @@ public static unsafe class Com
 
         byte* buf;
         if (usehunk == 1)
+        {
             buf = (byte*)Hunk.AllocName(len + 1, baseName);
+        }
         else if (usehunk == 2)
+        {
             buf = (byte*)Hunk.TempAlloc(len + 1);
+        }
         else if (usehunk == 0)
+        {
             buf = (byte*)Zone.Malloc(len + 1);
+        }
         else if (usehunk == 3)
+        {
             buf = (byte*)Cache.Alloc(loadcache, len + 1, baseName);
+        }
         else if (usehunk == 4)
+        {
             buf = len + 1 > loadsize ? (byte*)Hunk.TempAlloc(len + 1) : loadbuf;
+        }
         else
         {
             Sys.Error("COM_LoadFile: bad usehunk"u8);
@@ -714,7 +793,9 @@ public static unsafe class Com
         }
 
         if (buf == null)
+        {
             Sys.Error($"COM_LoadFile: not enough space for {path}");
+        }
 
         buf[len] = 0;
 
@@ -753,13 +834,17 @@ public static unsafe class Com
     {
         int packhandle;
         if (Sys.FileOpenRead(packfile, &packhandle) == -1)
+        {
             return null;
+        }
 
         DPackHeader_t header;
         Sys.FileRead(packhandle, &header, sizeof(DPackHeader_t));
         if (header.Id[0] != (byte)'P' || header.Id[1] != (byte)'A' ||
             header.Id[2] != (byte)'C' || header.Id[3] != (byte)'K')
+        {
             Sys.Error($"{packfile} is not a packfile");
+        }
 
         header.DirOfs = LittleLong(header.DirOfs);
         header.DirLen = LittleLong(header.DirLen);
@@ -770,10 +855,14 @@ public static unsafe class Com
         int numpackfiles = header.DirLen / sizeof(DPackFile_t);
 
         if (numpackfiles > MAX_FILES_IN_PACK)
+        {
             Sys.Error($"{packfile} has {numpackfiles} files");
+        }
 
         if (numpackfiles != PAK0_COUNT)
+        {
             com_modified = true; // not the original file
+        }
 
         PackFile_t* newfiles = (PackFile_t*)Hunk.AllocName(numpackfiles * sizeof(PackFile_t), "packfile"u8);
 
@@ -792,9 +881,14 @@ public static unsafe class Com
             Crc.Init(out ushort crc);
             byte* infoBytes = (byte*)info;
             for (int i = 0; i < dirLen; i++)
+            {
                 Crc.ProcessByte(ref crc, infoBytes[i]);
+            }
+
             if (Crc.Value(crc) != PAK0_CRC)
+            {
                 com_modified = true;
+            }
 
             // parse the directory
             for (int i = 0; i < numpackfiles; i++)
@@ -852,7 +946,9 @@ public static unsafe class Com
 
             Pack_t* pak = LoadPackFile(pakfile);
             if (pak == null)
+            {
                 break;
+            }
 
             search = (SearchPath_t*)Hunk.Alloc(sizeof(SearchPath_t));
             search->Pack = pak;
@@ -870,13 +966,19 @@ public static unsafe class Com
         // Overrides the system supplied base directory (under GAMENAME)
         int i = CheckParm("-basedir"u8);
         if (i != 0 && i < com_argc - 1)
+        {
             Q.StrCpy(basedir, com_argv[i + 1]);
+        }
         else
+        {
             Q.StrCpy(basedir, Host.host_parms.BaseDir);
+        }
 
         int j = Q.StrLen(basedir);
         if (j > 0 && (basedir[j - 1] == (byte)'\\' || basedir[j - 1] == (byte)'/'))
+        {
             basedir[j - 1] = 0;
+        }
 
         // -cachedir <path>
         // Overrides the system supplied cache directory (NULL or /qcache)
@@ -885,9 +987,13 @@ public static unsafe class Com
         if (i != 0 && i < com_argc - 1)
         {
             if (com_argv[i + 1][0] == (byte)'-')
+            {
                 com_cachedir[0] = 0;
+            }
             else
+            {
                 Q.StrCpy(com_cachedir, com_argv[i + 1]);
+            }
         }
         else if (Host.host_parms.CacheDir != null && *Host.host_parms.CacheDir != 0)
         {
@@ -941,14 +1047,18 @@ public static unsafe class Com
             while (++i < com_argc)
             {
                 if (com_argv[i] == null || com_argv[i][0] == (byte)'+' || com_argv[i][0] == (byte)'-')
+                {
                     break;
+                }
 
                 SearchPath_t* search = (SearchPath_t*)Hunk.Alloc(sizeof(SearchPath_t));
                 if (Q.StrCmp(FileExtension(com_argv[i]), "pak"u8) == 0)
                 {
                     search->Pack = LoadPackFile(com_argv[i]);
                     if (search->Pack == null)
+                    {
                         Sys.Error($"Couldn't load packfile: {com_argv[i]}");
+                    }
                 }
                 else
                 {
@@ -961,7 +1071,9 @@ public static unsafe class Com
         }
 
         if (CheckParm("-proghack"u8) != 0)
+        {
             proghack = true;
+        }
     }
 
     // COM_Path_f
@@ -971,9 +1083,13 @@ public static unsafe class Com
         for (SearchPath_t* s = com_searchpaths; s != null; s = s->Next)
         {
             if (s->Pack != null)
+            {
                 Con.Printf($"{s->Pack->FileName} ({s->Pack->NumFiles} files)\n");
+            }
             else
+            {
                 Con.Printf($"{s->FileName}\n");
+            }
         }
     }
 
@@ -994,7 +1110,10 @@ public static unsafe class Com
         {
             Con.Printf("Playing shareware version.\n"u8);
             if (com_modified)
+            {
                 Sys.Error("You must have the registered version to use modified games"u8);
+            }
+
             return;
         }
 
@@ -1002,8 +1121,12 @@ public static unsafe class Com
         CloseFile(h);
 
         for (int i = 0; i < 128; i++)
+        {
             if (pop[i] != (ushort)BigShort((short)check[i]))
+            {
                 Sys.Error("Corrupted data file."u8);
+            }
+        }
 
         Cvar.Set(cmdline_cvar->Name, com_cmdline);
         Cvar.Set(registered_cvar->Name, "1"u8);

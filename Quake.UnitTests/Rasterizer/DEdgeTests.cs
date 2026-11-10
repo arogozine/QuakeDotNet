@@ -52,7 +52,10 @@ public sealed unsafe class DEdgeTests
             DEdge.DrawSolidSurface(&surf, 0x55);
 
             for (int i = 0; i < 5; i++)
+            {
                 Assert.AreEqual((byte)0x55, viewbuf[2 + i]);
+            }
+
             Assert.AreEqual(0, viewbuf[1]);
             Assert.AreEqual(0, viewbuf[7]);
         }
@@ -103,8 +106,8 @@ public sealed unsafe class DEdgeTests
         Assert.AreEqual(6f, DLocal.d_tdivzorigin);
         Assert.AreEqual(7 * 0x10000, DLocal.tadjust);
 
-        Assert.AreEqual(100 * 0x10000 - 1, DLocal.bbextents);
-        Assert.AreEqual(200 * 0x10000 - 1, DLocal.bbextentt);
+        Assert.AreEqual((100 * 0x10000) - 1, DLocal.bbextents);
+        Assert.AreEqual((200 * 0x10000) - 1, DLocal.bbextentt);
     }
 
     [TestMethod]

@@ -28,7 +28,10 @@ public static unsafe class Sz
     public static void Alloc(SizeBuf_t* buf, int startsize)
     {
         if (startsize < 256)
+        {
             startsize = 256;
+        }
+
         buf->Data = (byte*)Hunk.AllocName(startsize, "sizebuf"u8);
         buf->MaxSize = startsize;
         buf->CurSize = 0;
@@ -52,10 +55,14 @@ public static unsafe class Sz
         if (buf->CurSize + length > buf->MaxSize)
         {
             if (!buf->AllowOverflow)
+            {
                 Sys.Error("SZ_GetSpace: overflow without allowoverflow set"u8);
+            }
 
             if (length > buf->MaxSize)
+            {
                 Sys.Error($"SZ_GetSpace: {length} is > full buffer size");
+            }
 
             buf->Overflowed = true;
             Con.Printf("SZ_GetSpace: overflow"u8);
@@ -77,7 +84,9 @@ public static unsafe class Sz
     public static void Write(SizeBuf_t* buf, scoped ReadOnlySpan<byte> data)
     {
         if (data.IsEmpty)
+        {
             return; // MemoryMarshal.AsRef throws on an empty span; SZ_Write with length 0 is a no-op
+        }
 
         ref readonly byte _data = ref MemoryMarshal.AsRef<byte>(data);
         Buffer.MemoryCopy(Unsafe.AsPointer(in _data), GetSpace(buf, data.Length), data.Length, data.Length);
@@ -89,8 +98,12 @@ public static unsafe class Sz
         int len = Q.StrLen(data) + 1;
 
         if (buf->Data[buf->CurSize - 1] != 0)
+        {
             Q.MemCpy(GetSpace(buf, len), data, len); // no trailing 0
+        }
         else
+        {
             Q.MemCpy((byte*)GetSpace(buf, len - 1) - 1, data, len); // write over trailing 0
+        }
     }
 }

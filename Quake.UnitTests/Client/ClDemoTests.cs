@@ -247,7 +247,9 @@ public sealed unsafe class ClDemoTests
             Com.AddGameDirectory(Ansi(gamedir));
 
             fixed (byte* text = Encoding.ASCII.GetBytes("play test\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             ClDemo.PlayDemo_f();
 
@@ -286,7 +288,9 @@ public sealed unsafe class ClDemoTests
             Com.AddGameDirectory(Ansi(gamedir));
 
             fixed (byte* text = Encoding.ASCII.GetBytes("play test\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             ClDemo.PlayDemo_f();
 
@@ -313,7 +317,9 @@ public sealed unsafe class ClDemoTests
             Com.AddGameDirectory(Ansi(gamedir));
 
             fixed (byte* text = Encoding.ASCII.GetBytes("record demo1\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             ClDemo.Record_f();
 
@@ -360,7 +366,9 @@ public sealed unsafe class ClDemoTests
     public void RecordF_RejectsRelativePathnames()
     {
         fixed (byte* text = Encoding.ASCII.GetBytes("record ../evil\0"))
+        {
             Cmd.TokenizeString(text);
+        }
 
         ClDemo.Record_f();
 

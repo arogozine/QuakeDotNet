@@ -84,7 +84,9 @@ public static unsafe class Con
     public static void ClearNotify()
     {
         for (int i = 0; i < NUM_CON_TIMES; i++)
+        {
             con_times[i] = 0;
+        }
     }
 
     /*
@@ -102,7 +104,9 @@ public static unsafe class Con
     public static void CheckResize(int width)
     {
         if (width == con_linewidth)
+        {
             return;
+        }
 
         if (width < 1) // video hasn't been initialized yet
         {
@@ -120,12 +124,16 @@ public static unsafe class Con
             int numlines = oldtotallines;
 
             if (con_totallines < numlines)
+            {
                 numlines = con_totallines;
+            }
 
             int numchars = oldwidth;
 
             if (con_linewidth < numchars)
+            {
                 numchars = con_linewidth;
+            }
 
             byte* tbuf = stackalloc byte[CON_TEXTSIZE];
             Q.MemCpy(tbuf, con_text, CON_TEXTSIZE);
@@ -135,8 +143,8 @@ public static unsafe class Con
             {
                 for (int j = 0; j < numchars; j++)
                 {
-                    con_text[(con_totallines - 1 - i) * con_linewidth + j] =
-                        tbuf[((con_current - i + oldtotallines) % oldtotallines) * oldwidth + j];
+                    con_text[((con_totallines - 1 - i) * con_linewidth) + j] =
+                        tbuf[(((con_current - i + oldtotallines) % oldtotallines) * oldwidth) + j];
                 }
             }
 
@@ -253,7 +261,7 @@ public static unsafe class Con
     {
         con_x = 0;
         con_current++;
-        Q.MemSet(con_text + (con_current % con_totallines) * con_linewidth, ' ', con_linewidth);
+        Q.MemSet(con_text + ((con_current % con_totallines) * con_linewidth), ' ', con_linewidth);
     }
 
     /*
@@ -281,7 +289,9 @@ public static unsafe class Con
             txt++;
         }
         else
+        {
             mask = 0;
+        }
 
         bool cr = false;
         int c;
@@ -290,12 +300,18 @@ public static unsafe class Con
             // count word length
             int l;
             for (l = 0; l < con_linewidth; l++)
+            {
                 if (txt[l] <= (byte)' ')
+                {
                     break;
+                }
+            }
 
             // word wrap
             if (l != con_linewidth && con_x + l > con_linewidth)
+            {
                 con_x = 0;
+            }
 
             txt++;
 
@@ -310,7 +326,9 @@ public static unsafe class Con
                 Linefeed();
                 // mark time for transparent overlay
                 if (con_current >= 0)
+                {
                     con_times[con_current % NUM_CON_TIMES] = (float)Host.realtime;
+                }
             }
 
             switch (c)
@@ -326,10 +344,13 @@ public static unsafe class Con
 
                 default: // display character and advance
                     int y = con_current % con_totallines;
-                    con_text[y * con_linewidth + con_x] = (byte)(c | mask);
+                    con_text[(y * con_linewidth) + con_x] = (byte)(c | mask);
                     con_x++;
                     if (con_x >= con_linewidth)
+                    {
                         con_x = 0;
+                    }
+
                     break;
             }
         }
@@ -359,7 +380,9 @@ public static unsafe class Con
         Echo(written);
 
         if (!con_initialized || written.IsEmpty)
+        {
             return;
+        }
 
         // the handler's buffer is a native ring slot: no pinning needed
         Print(u8String.GetWrittenBufferPtr());
@@ -382,11 +405,15 @@ public static unsafe class Con
         finally
         {
             if (rented is not null)
+            {
                 ArrayPool<char>.Shared.Return(rented);
+            }
         }
 
         if (con_debuglog)
+        {
             DebugLog(CStr.ToString(Com.com_gamedir) + "/qconsole.log", u8String);
+        }
     }
 
     // Printf of arbitrary (possibly managed) bytes. Justified `fixed`
@@ -398,15 +425,21 @@ public static unsafe class Con
         Echo(u8String);
 
         if (!con_initialized)
+        {
             return;
+        }
 
         // an empty span pins to a null pointer, which Print would dereference
         if (u8String.IsEmpty)
+        {
             return;
+        }
 
         // write it to the scrollable buffer
         fixed (byte* p = u8String)
+        {
             Print(p);
+        }
     }
 
     /*
@@ -424,7 +457,9 @@ public static unsafe class Con
     public static void DPrintf(scoped ReadOnlySpan<byte> u8String)
     {
         if (Host.developer->Value == 0)
+        {
             return; // don't confuse non-developers with techie stuff...
+        }
 
         Printf(u8String);
     }
@@ -457,7 +492,9 @@ public static unsafe class Con
     public static void Clear_f()
     {
         if (con_text != null)
+        {
             Q.MemSet(con_text, ' ', CON_TEXTSIZE);
+        }
     }
 
     /*
@@ -478,7 +515,9 @@ public static unsafe class Con
     public static void DrawInput()
     {
         if (Keys.key_dest != KeyDest.Console && !con_forcedup)
+        {
             return; // don't draw anything
+        }
 
         byte* text = Keys.KeyLine(Keys.edit_line);
 
@@ -487,15 +526,21 @@ public static unsafe class Con
 
         // fill out remainder with spaces
         for (int i = Keys.key_linepos + 1; i < con_linewidth; i++)
+        {
             text[i] = (byte)' ';
+        }
 
         // prestep if horizontally scrolling
         if (Keys.key_linepos >= con_linewidth)
+        {
             text += 1 + Keys.key_linepos - con_linewidth;
+        }
 
         // draw it
         for (int i = 0; i < con_linewidth; i++)
+        {
             Draw.Character((i + 1) << 3, con_vislines - 16, text[i]);
+        }
 
         // remove cursor
         Keys.KeyLine(Keys.edit_line)[Keys.key_linepos] = 0;
@@ -514,20 +559,31 @@ public static unsafe class Con
         for (int i = con_current - NUM_CON_TIMES + 1; i <= con_current; i++)
         {
             if (i < 0)
+            {
                 continue;
+            }
+
             float time = con_times[i % NUM_CON_TIMES];
             if (time == 0)
+            {
                 continue;
+            }
+
             time = (float)Host.realtime - time;
             if (time > con_notifytime->Value)
+            {
                 continue;
-            byte* text = con_text + (i % con_totallines) * con_linewidth;
+            }
+
+            byte* text = con_text + ((i % con_totallines) * con_linewidth);
 
             Screen.clearnotify = 0;
             Screen.scr_copytop = 1;
 
             for (int x = 0; x < con_linewidth; x++)
+            {
                 Draw.Character((x + 1) << 3, v, text[x]);
+            }
 
             v += 8;
         }
@@ -550,7 +606,9 @@ public static unsafe class Con
         }
 
         if (v > con_notifylines)
+        {
             con_notifylines = v;
+        }
     }
 
     /*
@@ -564,7 +622,9 @@ public static unsafe class Con
     public static void DrawConsole(float lines, bool drawinput)
     {
         if (lines <= 0)
+        {
             return;
+        }
 
         // draw the background
         Draw.ConsoleBackground((int)lines);
@@ -579,15 +639,22 @@ public static unsafe class Con
         {
             int j = i - con_backscroll;
             if (j < 0)
+            {
                 j = 0;
-            byte* text = con_text + (j % con_totallines) * con_linewidth;
+            }
+
+            byte* text = con_text + ((j % con_totallines) * con_linewidth);
 
             for (int x = 0; x < con_linewidth; x++)
+            {
                 Draw.Character((x + 1) << 3, y, text[x]);
+            }
         }
 
         // draw the input prompt, user text, and cursor if desired
         if (drawinput)
+        {
             DrawInput();
+        }
     }
 }

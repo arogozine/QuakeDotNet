@@ -130,7 +130,7 @@ public sealed unsafe class RLerpTests
 
         public Fixture()
         {
-            Hdr = (AliasHdr_t*)NativeMemory.AllocArrayZeroed<byte>(sizeof(AliasHdr_t) + 2 * sizeof(MAliasFrameDesc_t));
+            Hdr = (AliasHdr_t*)NativeMemory.AllocArrayZeroed<byte>(sizeof(AliasHdr_t) + (2 * sizeof(MAliasFrameDesc_t)));
             MAliasFrameDesc_t* f = &Hdr->Frames;
             f[0].Type = AliasFrameType_t.Single;
             f[0].Frame = 100;

@@ -34,17 +34,23 @@ public sealed unsafe class CacheSpotArrayTests
     public void CacheSpotArray_ZeroInit_AllSlotsNull()
     {
         for (int i = 0; i < BspFile.MIPLEVELS; i++)
+        {
             Assert.IsTrue(_surface->CacheSpots[i] == null, $"slot {i}");
+        }
     }
 
     [TestMethod]
     public void CacheSpotArray_SetGet_RoundTripsEachSlotIndependently()
     {
         for (int i = 0; i < BspFile.MIPLEVELS; i++)
+        {
             _surface->CacheSpots[i] = (SurfCache_t*)(nint)(0x1000 * (i + 1));
+        }
 
         for (int i = 0; i < BspFile.MIPLEVELS; i++)
+        {
             Assert.AreEqual((nint)(0x1000 * (i + 1)), (nint)_surface->CacheSpots[i], $"slot {i}");
+        }
     }
 
     [TestMethod]
@@ -54,7 +60,7 @@ public sealed unsafe class CacheSpotArrayTests
         {
             SurfCache_t** p = _surface->CacheSpots.AddressOf(i);
 
-            Assert.AreEqual((nint)((byte*)&_surface->CacheSpots + i * sizeof(nint)), (nint)p, $"slot {i}");
+            Assert.AreEqual((nint)((byte*)&_surface->CacheSpots + (i * sizeof(nint))), (nint)p, $"slot {i}");
 
             *p = (SurfCache_t*)(nint)0x2000;
             Assert.AreEqual((nint)0x2000, (nint)_surface->CacheSpots[i], $"slot {i}");

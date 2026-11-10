@@ -104,7 +104,10 @@ public unsafe class QBenchmarks
     private static void ReferenceStrCpy(byte* dest, byte* src)
     {
         while (*src != 0)
+        {
             *dest++ = *src++;
+        }
+
         *dest++ = 0;
     }
 
@@ -121,7 +124,13 @@ public unsafe class QBenchmarks
         int len = ReferenceStrLen(s);
         s += len;
         while (len-- != 0)
-            if (*--s == c) return s;
+        {
+            if (*--s == c)
+            {
+                return s;
+            }
+        }
+
         return null;
     }
 
@@ -133,12 +142,16 @@ public unsafe class QBenchmarks
             count >>= 2;
             fill = fill | (fill << 8) | (fill << 16) | (fill << 24);
             for (int i = 0; i < count; i++)
+            {
                 ((int*)dest)[i] = fill;
+            }
         }
         else
         {
             for (int i = 0; i < count; i++)
+            {
                 ((byte*)dest)[i] = (byte)fill;
+            }
         }
     }
 
@@ -149,7 +162,9 @@ public unsafe class QBenchmarks
         {
             count--;
             if (((byte*)m1)[count] != ((byte*)m2)[count])
+            {
                 return -1;
+            }
         }
         return 0;
     }
@@ -159,7 +174,9 @@ public unsafe class QBenchmarks
     {
         int count = 0;
         while (str[count] != 0)
+        {
             count++;
+        }
 
         return count;
     }

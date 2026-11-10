@@ -42,7 +42,7 @@ public static unsafe class MathLib
         float invDenom = 1.0f / Vector3.Dot(normal, normal);
         float d = Vector3.Dot(normal, p) * invDenom;
 
-        *dst = p - d * (normal * invDenom);
+        *dst = p - (d * (normal * invDenom));
     }
 
     // PerpendicularVector
@@ -86,13 +86,17 @@ public static unsafe class MathLib
         float* im = stackalloc float[9];
         for (int i = 0; i < 3; i++)
         {
-            m[i * 3 + 0] = vr[i];
-            m[i * 3 + 1] = vup[i];
-            m[i * 3 + 2] = vf[i];
+            m[(i * 3) + 0] = vr[i];
+            m[(i * 3) + 1] = vup[i];
+            m[(i * 3) + 2] = vf[i];
         }
         for (int i = 0; i < 3; i++)
+        {
             for (int j = 0; j < 3; j++)
-                im[i * 3 + j] = m[j * 3 + i];
+            {
+                im[(i * 3) + j] = m[(j * 3) + i];
+            }
+        }
 
         // rotation about Z
         float rad = degrees * DEG2RAD;
@@ -106,9 +110,9 @@ public static unsafe class MathLib
         R_ConcatRotations(tmpmat, im, rot);
 
         *dst = new Vec3_t(
-            rot[0 * 3 + 0] * point.X + rot[0 * 3 + 1] * point.Y + rot[0 * 3 + 2] * point.Z,
-            rot[1 * 3 + 0] * point.X + rot[1 * 3 + 1] * point.Y + rot[1 * 3 + 2] * point.Z,
-            rot[2 * 3 + 0] * point.X + rot[2 * 3 + 1] * point.Y + rot[2 * 3 + 2] * point.Z);
+            (rot[(0 * 3) + 0] * point.X) + (rot[(0 * 3) + 1] * point.Y) + (rot[(0 * 3) + 2] * point.Z),
+            (rot[(1 * 3) + 0] * point.X) + (rot[(1 * 3) + 1] * point.Y) + (rot[(1 * 3) + 2] * point.Z),
+            (rot[(2 * 3) + 0] * point.X) + (rot[(2 * 3) + 1] * point.Y) + (rot[(2 * 3) + 2] * point.Z));
     }
 
     // anglemod
@@ -150,9 +154,14 @@ public static unsafe class MathLib
 
         int sides = 0;
         if (dist1 >= p->Dist)
+        {
             sides = 1;
+        }
+
         if (dist2 < p->Dist)
+        {
             sides |= 2;
+        }
 
         return sides;
     }
@@ -163,9 +172,15 @@ public static unsafe class MathLib
         if (p->Type < 3)
         {
             if (p->Dist <= emins[p->Type])
+            {
                 return 1;
+            }
+
             if (p->Dist >= emaxs[p->Type])
+            {
                 return 2;
+            }
+
             return 3;
         }
 
@@ -184,12 +199,12 @@ public static unsafe class MathLib
 
         forward = new Vec3_t(cp * cy, cp * sy, -sp);
         right = new Vec3_t(
-            -1 * sr * sp * cy + -1 * cr * -sy,
-            -1 * sr * sp * sy + -1 * cr * cy,
+            (-1 * sr * sp * cy) + (-1 * cr * -sy),
+            (-1 * sr * sp * sy) + (-1 * cr * cy),
             -1 * sr * cp);
         up = new Vec3_t(
-            cr * sp * cy + -sr * -sy,
-            cr * sp * sy + -sr * cy,
+            (cr * sp * cy) + (-sr * -sy),
+            (cr * sp * sy) + (-sr * cy),
             cr * cp);
     }
 
@@ -197,11 +212,16 @@ public static unsafe class MathLib
     public static float VectoYaw(in Vec3_t value)
     {
         if (value.Y == 0 && value.X == 0)
+        {
             return 0;
+        }
 
         float yaw = (int)(MathF.Atan2(value.Y, value.X) * 180 / M_PI);
         if (yaw < 0)
+        {
             yaw += 360;
+        }
+
         return yaw;
     }
 
@@ -219,12 +239,16 @@ public static unsafe class MathLib
         {
             yaw = (int)(MathF.Atan2(value.Y, value.X) * 180 / M_PI);
             if (yaw < 0)
+            {
                 yaw += 360;
+            }
 
-            float forward = MathF.Sqrt(value.X * value.X + value.Y * value.Y);
+            float forward = MathF.Sqrt((value.X * value.X) + (value.Y * value.Y));
             pitch = (int)(MathF.Atan2(value.Z, forward) * 180 / M_PI);
             if (pitch < 0)
+            {
                 pitch += 360;
+            }
         }
 
         *result = new Vec3_t(pitch, yaw, 0);
@@ -236,7 +260,9 @@ public static unsafe class MathLib
         float length = v->Length();
 
         if (length != 0)
+        {
             *v *= 1 / length;
+        }
 
         return length;
     }
@@ -246,7 +272,10 @@ public static unsafe class MathLib
     {
         int answer = 0;
         while ((val >>= 1) != 0)
+        {
             answer++;
+        }
+
         return answer;
     }
 
@@ -260,14 +289,14 @@ public static unsafe class MathLib
     // written, so @out may alias either input.
     public static void R_ConcatRotations(float* in1, float* in2, float* @out)
     {
-        Vector3 b0 = *(Vector3*)(in2 + 0 * 3);
-        Vector3 b1 = *(Vector3*)(in2 + 1 * 3);
-        Vector3 b2 = *(Vector3*)(in2 + 2 * 3);
+        Vector3 b0 = *(Vector3*)(in2 + (0 * 3));
+        Vector3 b1 = *(Vector3*)(in2 + (1 * 3));
+        Vector3 b2 = *(Vector3*)(in2 + (2 * 3));
 
         for (int i = 0; i < 3; i++)
         {
-            float* a = in1 + i * 3;
-            *(Vector3*)(@out + i * 3) = a[0] * b0 + a[1] * b1 + a[2] * b2;
+            float* a = in1 + (i * 3);
+            *(Vector3*)(@out + (i * 3)) = (a[0] * b0) + (a[1] * b1) + (a[2] * b2);
         }
     }
 
@@ -279,16 +308,16 @@ public static unsafe class MathLib
     // up a "+ 0" (which would turn -0 into +0).
     public static void R_ConcatTransforms(float* in1, float* in2, float* @out)
     {
-        Vector4 b0 = *(Vector4*)(in2 + 0 * 4);
-        Vector4 b1 = *(Vector4*)(in2 + 1 * 4);
-        Vector4 b2 = *(Vector4*)(in2 + 2 * 4);
+        Vector4 b0 = *(Vector4*)(in2 + (0 * 4));
+        Vector4 b1 = *(Vector4*)(in2 + (1 * 4));
+        Vector4 b2 = *(Vector4*)(in2 + (2 * 4));
 
         for (int i = 0; i < 3; i++)
         {
-            float* a = in1 + i * 4;
-            Vector4 r = a[0] * b0 + a[1] * b1 + a[2] * b2;
+            float* a = in1 + (i * 4);
+            Vector4 r = (a[0] * b0) + (a[1] * b1) + (a[2] * b2);
             r.W += a[3];
-            *(Vector4*)(@out + i * 4) = r;
+            *(Vector4*)(@out + (i * 4)) = r;
         }
     }
 
@@ -301,7 +330,9 @@ public static unsafe class MathLib
         int q, r;
 
         if (denom <= 0.0)
+        {
             Sys.Error($"FloorDivMod: bad denominator {denom}\n");
+        }
 
         if (numer >= 0.0)
         {
@@ -332,13 +363,19 @@ public static unsafe class MathLib
         if (i1 > i2)
         {
             if (i2 == 0)
+            {
                 return i1;
+            }
+
             return GreatestCommonDivisor(i2, i1 % i2);
         }
         else
         {
             if (i1 == 0)
+            {
                 return i2;
+            }
+
             return GreatestCommonDivisor(i1, i2 % i1);
         }
     }
@@ -348,8 +385,10 @@ public static unsafe class MathLib
     public static int Invert24To16(int val)
     {
         if (val < 256)
+        {
             return unchecked((int)0xFFFFFFFF);
+        }
 
-        return (int)((double)0x10000 * 0x1000000 / val + 0.5);
+        return (int)(((double)0x10000 * 0x1000000 / val) + 0.5);
     }
 }

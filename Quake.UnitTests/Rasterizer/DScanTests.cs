@@ -68,7 +68,9 @@ public sealed unsafe class DScanTests
             DScan.Turbulent8(&span);
 
             for (int i = 0; i < 17; i++)
+            {
                 Assert.AreEqual((byte)7, viewbuf[i]);
+            }
         }
         finally
         {
@@ -85,16 +87,22 @@ public sealed unsafe class DScanTests
     {
         const int W = 256, H = 8, N = 70;
         Random rng = new(seed);
-        byte* tex = NativeMemory.AllocArrayZeroed<byte>(64 * 64 + 4);
+        byte* tex = NativeMemory.AllocArrayZeroed<byte>((64 * 64) + 4);
         byte* view = NativeMemory.AllocArrayZeroed<byte>(W * H);
         byte* expected = NativeMemory.AllocArrayZeroed<byte>(W * H);
         ESpan_t* spans = NativeMemory.AllocArray<ESpan_t>(N);
         try
         {
-            for (int i = 0; i < 64 * 64; i++) tex[i] = (byte)rng.Next(256);
+            for (int i = 0; i < 64 * 64; i++)
+            {
+                tex[i] = (byte)rng.Next(256);
+            }
+
             const float AMP = 8 * 0x10000;
             for (int i = 0; i < DIface.CYCLE * 2; i++)
-                RShared.sintable[i] = (int)(AMP + MathF.Sin(i * MathF.PI * 2 / DIface.CYCLE) * AMP);
+            {
+                RShared.sintable[i] = (int)(AMP + (MathF.Sin(i * MathF.PI * 2 / DIface.CYCLE) * AMP));
+            }
 
             RShared.cacheblock = tex;
             RShared.cl_time = 1.5f + seed;
@@ -106,7 +114,9 @@ public sealed unsafe class DScanTests
             DLocal.bbextents = (64 << 16) - 1; DLocal.bbextentt = (64 << 16) - 1;
 
             for (int i = 0; i < N; i++)
+            {
                 spans[i] = new ESpan_t { U = rng.Next(0, W - N), V = i % H, Count = i + 1, PNext = i + 1 < N ? &spans[i + 1] : null };
+            }
 
             DLocal.d_viewbuffer = view;
             DScan.Turbulent8(spans);
@@ -131,7 +141,7 @@ public sealed unsafe class DScanTests
         int sadjust = DLocal.sadjust, tadjust = DLocal.tadjust, bbextents = DLocal.bbextents, bbextentt = DLocal.bbextentt;
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
             int count = pspan->Count;
             float du = pspan->U, dv = pspan->V;
             float sdivz = MathF.FusedMultiplyAdd(du, DLocal.d_sdivzstepu, MathF.FusedMultiplyAdd(dv, DLocal.d_sdivzstepv, DLocal.d_sdivzorigin));
@@ -151,9 +161,25 @@ public sealed unsafe class DScanTests
                     sdivz += DLocal.d_sdivzstepu * 16; tdivz += DLocal.d_tdivzstepu * 16; zi += DLocal.d_zistepu * 16;
                     z = 0x10000 / zi;
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
-                    if (snext > bbextents) snext = bbextents; else if (snext < 16) snext = 16;
+                    if (snext > bbextents)
+                    {
+                        snext = bbextents;
+                    }
+                    else if (snext < 16)
+                    {
+                        snext = 16;
+                    }
+
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
-                    if (tnext > bbextentt) tnext = bbextentt; else if (tnext < 16) tnext = 16;
+                    if (tnext > bbextentt)
+                    {
+                        tnext = bbextentt;
+                    }
+                    else if (tnext < 16)
+                    {
+                        tnext = 16;
+                    }
+
                     sstep = (snext - s) >> 4; tstep = (tnext - t) >> 4;
                 }
                 else
@@ -162,9 +188,25 @@ public sealed unsafe class DScanTests
                     sdivz += DLocal.d_sdivzstepu * m1; tdivz += DLocal.d_tdivzstepu * m1; zi += DLocal.d_zistepu * m1;
                     z = 0x10000 / zi;
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
-                    if (snext > bbextents) snext = bbextents; else if (snext < 16) snext = 16;
+                    if (snext > bbextents)
+                    {
+                        snext = bbextents;
+                    }
+                    else if (snext < 16)
+                    {
+                        snext = 16;
+                    }
+
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
-                    if (tnext > bbextentt) tnext = bbextentt; else if (tnext < 16) tnext = 16;
+                    if (tnext > bbextentt)
+                    {
+                        tnext = bbextentt;
+                    }
+                    else if (tnext < 16)
+                    {
+                        tnext = 16;
+                    }
+
                     if (spancount > 1) { sstep = (snext - s) / (spancount - 1); tstep = (tnext - t) / (spancount - 1); }
                 }
                 s &= (DIface.CYCLE << 16) - 1;
@@ -237,7 +279,7 @@ public sealed unsafe class DScanTests
             DScan.DrawZSpans(&span);
 
             int izistep = (int)(DLocal.d_zistepu * 0x8000 * 0x10000);
-            double zi = DLocal.d_ziorigin + span.U * (double)DLocal.d_zistepu;
+            double zi = DLocal.d_ziorigin + (span.U * (double)DLocal.d_zistepu);
             int izi = (int)(zi * 0x8000 * 0x10000);
 
             for (int i = 0; i < count; i++)

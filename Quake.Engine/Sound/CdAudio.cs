@@ -89,11 +89,17 @@ public static unsafe class CdAudio
 
         byte* p = dest;
         foreach (byte b in prefix)
+        {
             *p++ = b;
-        *p++ = (byte)('0' + track / 10 % 10);
-        *p++ = (byte)('0' + track % 10);
+        }
+
+        *p++ = (byte)('0' + (track / 10 % 10));
+        *p++ = (byte)('0' + (track % 10));
         foreach (byte b in suffix)
+        {
             *p++ = b;
+        }
+
         *p = 0;
     }
 
@@ -110,7 +116,10 @@ public static unsafe class CdAudio
         if (len <= 0 || handle == -1)
         {
             if (handle != -1)
+            {
                 Sys.FileClose(handle);
+            }
+
             Con.DPrintf($"CDAudio: no file for track {track}\n");
             return false;
         }
@@ -121,7 +130,10 @@ public static unsafe class CdAudio
         {
             int read = Sys.FileRead(handle, data + total, len - total);
             if (read <= 0)
+            {
                 break;
+            }
+
             total += read;
         }
         Sys.FileClose(handle);
@@ -138,7 +150,9 @@ public static unsafe class CdAudio
         {
             r = new VorbisReader(new UnmanagedMemoryStream(data, len), true);
             if (r.Channels < 1 || r.Channels > CD_CHANNELS)
+            {
                 throw new InvalidDataException($"{r.Channels} channels");
+            }
         }
         catch (Exception e)
         {
@@ -214,9 +228,14 @@ public static unsafe class CdAudio
         {
             int v = (int)(src[i] * 32767.0f);
             if (v > short.MaxValue)
+            {
                 v = short.MaxValue;
+            }
             else if (v < short.MinValue)
+            {
                 v = short.MinValue;
+            }
+
             dst[i] = (short)v;
         }
 
@@ -229,7 +248,9 @@ public static unsafe class CdAudio
     {
         int got = DecodeChunk();
         if (got == 0)
+        {
             return false;
+        }
 
         VorbisReader r = reader!;
         ALFormat format = r.Channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
@@ -248,13 +269,17 @@ public static unsafe class CdAudio
     public static void Play(byte track, bool looping)
     {
         if (!enabled)
+        {
             return;
+        }
 
         if (!cdValid)
         {
             GetAudioDiskInfo();
             if (!cdValid)
+            {
                 return;
+            }
         }
 
         track = remap[track < MAX_TRACKS ? track : 0];
@@ -268,7 +293,10 @@ public static unsafe class CdAudio
         if (playing)
         {
             if (playTrack == track)
+            {
                 return;
+            }
+
             Stop();
         }
 
@@ -283,12 +311,18 @@ public static unsafe class CdAudio
 
         // don't try to play a missing or non-audio track
         if (!OpenTrack(track))
+        {
             return;
+        }
 
         playLooping = looping;
         for (int i = 0; i < NUM_BUFFERS; i++)
+        {
             if (!FillBuffer(alBuffers[i]))
+            {
                 break;
+            }
+        }
 
         AL.SourcePlay(source);
 
@@ -296,24 +330,32 @@ public static unsafe class CdAudio
         playing = true;
 
         if (cdvolume == 0.0f)
+        {
             Pause();
+        }
     }
 
     private static void UnqueueAll()
     {
         AL.GetSource(source, ALGetSourcei.BuffersQueued, out int queued);
         while (queued-- > 0)
+        {
             AL.SourceUnqueueBuffer(source);
+        }
     }
 
     // CDAudio_Stop
     public static void Stop()
     {
         if (!enabled)
+        {
             return;
+        }
 
         if (!playing && !wasPlaying)
+        {
             return;
+        }
 
         AL.SourceStop(source);
         UnqueueAll();
@@ -327,10 +369,14 @@ public static unsafe class CdAudio
     public static void Pause()
     {
         if (!enabled)
+        {
             return;
+        }
 
         if (!playing)
+        {
             return;
+        }
 
         AL.SourcePause(source);
 
@@ -342,13 +388,19 @@ public static unsafe class CdAudio
     public static void Resume()
     {
         if (!enabled)
+        {
             return;
+        }
 
         if (!cdValid)
+        {
             return;
+        }
 
         if (!wasPlaying)
+        {
             return;
+        }
 
         // MCI_PLAY with MCI_TO only resumes from the current position
         AL.SourcePlay(source);
@@ -359,7 +411,9 @@ public static unsafe class CdAudio
     internal static void CD_f()
     {
         if (Cmd.Argc() < 2)
+        {
             return;
+        }
 
         byte* command = Cmd.Argv(1);
 
@@ -372,7 +426,10 @@ public static unsafe class CdAudio
         if (Q.StrCaseCmp(command, "off"u8) == 0)
         {
             if (playing || wasPlaying)
+            {
                 Stop();
+            }
+
             enabled = false;
             return;
         }
@@ -381,9 +438,15 @@ public static unsafe class CdAudio
         {
             enabled = true;
             if (playing || wasPlaying)
+            {
                 Stop();
+            }
+
             for (int n = 0; n < MAX_TRACKS; n++)
+            {
                 remap[n] = (byte)n;
+            }
+
             GetAudioDiskInfo();
             return;
         }
@@ -394,17 +457,27 @@ public static unsafe class CdAudio
             if (ret <= 0)
             {
                 for (int n = 1; n < MAX_TRACKS; n++)
+                {
                     if (remap[n] != n)
+                    {
                         Con.Printf($"  {n} -> {remap[n]}\n");
+                    }
+                }
+
                 return;
             }
             for (int n = 1; n <= ret && n < MAX_TRACKS; n++)
+            {
                 remap[n] = (byte)Q.Atoi(Cmd.Argv(n + 1));
+            }
+
             return;
         }
 
         if (Q.StrCaseCmp(command, "close"u8) == 0)
+        {
             return; // CDAudio_CloseDoor -- no door
+        }
 
         if (!cdValid)
         {
@@ -449,7 +522,10 @@ public static unsafe class CdAudio
         if (Q.StrCaseCmp(command, "eject"u8) == 0)
         {
             if (playing || wasPlaying)
+            {
                 Stop();
+            }
+
             cdValid = false;
             return;
         }
@@ -458,9 +534,14 @@ public static unsafe class CdAudio
         {
             Con.Printf($"{maxTrack} tracks\n");
             if (playing)
+            {
                 Con.Printf($"Currently {(playLooping ? "looping" : "playing")} track {playTrack}\n");
+            }
             else if (wasPlaying)
+            {
                 Con.Printf($"Paused {(playLooping ? "looping" : "playing")} track {playTrack}\n");
+            }
+
             Con.Printf($"Volume is {cdvolume:F6}\n");
             return;
         }
@@ -472,7 +553,9 @@ public static unsafe class CdAudio
     public static void Update()
     {
         if (!enabled)
+        {
             return;
+        }
 
         float vol = SndDma.bgmvolume->Value;
         if (vol != cdvolume)
@@ -481,13 +564,19 @@ public static unsafe class CdAudio
             cdvolume = vol;
             SetGain();
             if (cdvolume <= 0)
+            {
                 Pause();
+            }
             else if (wasSilent)
+            {
                 Resume();
+            }
         }
 
         if (!playing)
+        {
             return;
+        }
 
         // refill buffers the source has finished with
         AL.GetSource(source, ALGetSourcei.BuffersProcessed, out int processed);
@@ -495,7 +584,9 @@ public static unsafe class CdAudio
         {
             int buffer = AL.SourceUnqueueBuffer(source);
             if (!streamEnded)
+            {
                 FillBuffer(buffer);
+            }
         }
 
         AL.GetSource(source, ALGetSourcei.BuffersQueued, out int queued);
@@ -519,10 +610,14 @@ public static unsafe class CdAudio
     public static int Init()
     {
         if (Cls.state == CActive.Dedicated)
+        {
             return -1;
+        }
 
         if (Com.CheckParm("-nocdaudio"u8) != 0)
+        {
             return -1;
+        }
 
         // the music source lives on SndHost's OpenAL context
         if (!SndHost.Initialized)
@@ -535,7 +630,10 @@ public static unsafe class CdAudio
         AL.GenBuffers(alBuffers);
 
         for (int n = 0; n < MAX_TRACKS; n++)
+        {
             remap[n] = (byte)n;
+        }
+
         initialized = true;
         enabled = true;
         playing = false;
@@ -557,7 +655,9 @@ public static unsafe class CdAudio
     public static void Shutdown()
     {
         if (!initialized)
+        {
             return;
+        }
 
         Stop();
         CloseTrack();

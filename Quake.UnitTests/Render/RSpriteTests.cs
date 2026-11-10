@@ -51,11 +51,11 @@ public sealed unsafe class RSpriteTests
         // A quad, all vertices at z=10, clipped against a plane requiring z>=0.
         for (int i = 0; i < 4; i++)
         {
-            row0[i * 5 + 0] = i; // x
-            row0[i * 5 + 1] = 0; // y
-            row0[i * 5 + 2] = 10; // z (in front)
-            row0[i * 5 + 3] = 0; // s
-            row0[i * 5 + 4] = 0; // t
+            row0[(i * 5) + 0] = i; // x
+            row0[(i * 5) + 1] = 0; // y
+            row0[(i * 5) + 2] = 10; // z (in front)
+            row0[(i * 5) + 3] = 0; // s
+            row0[(i * 5) + 4] = 0; // t
         }
 
         ClipPlane_t plane = default;
@@ -69,7 +69,9 @@ public sealed unsafe class RSpriteTests
 
         float* row1 = RSprite.Row(1);
         for (int i = 0; i < 4; i++)
-            Assert.AreEqual((float)i, row1[i * 5 + 0], 0.0001f);
+        {
+            Assert.AreEqual((float)i, row1[(i * 5) + 0], 0.0001f);
+        }
     }
 
     [TestMethod]
@@ -84,11 +86,11 @@ public sealed unsafe class RSpriteTests
         float[] zs = { 10, 10, -10, -10 };
         for (int i = 0; i < 4; i++)
         {
-            row0[i * 5 + 0] = i;
-            row0[i * 5 + 1] = 0;
-            row0[i * 5 + 2] = zs[i];
-            row0[i * 5 + 3] = 0;
-            row0[i * 5 + 4] = 0;
+            row0[(i * 5) + 0] = i;
+            row0[(i * 5) + 1] = 0;
+            row0[(i * 5) + 2] = zs[i];
+            row0[(i * 5) + 3] = 0;
+            row0[(i * 5) + 4] = 0;
         }
 
         ClipPlane_t plane = default;

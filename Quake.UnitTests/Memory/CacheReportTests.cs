@@ -68,7 +68,7 @@ public sealed unsafe class CacheReportTests
         try
         {
             Host.developer->Value = 1;
-            Hunk.hunk_low_used = Hunk.hunk_size - 512 * 1024;
+            Hunk.hunk_low_used = Hunk.hunk_size - (512 * 1024);
             Hunk.hunk_high_used = 0;
 
             string output = CaptureOutput(Cache.Report);

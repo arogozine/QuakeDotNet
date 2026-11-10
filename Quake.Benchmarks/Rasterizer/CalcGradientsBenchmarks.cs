@@ -103,18 +103,18 @@ public unsafe class CalcGradientsBenchmarks
         DLocal.d_sdivzstepv = -p_saxis[1] * t;
         DLocal.d_tdivzstepv = -p_taxis[1] * t;
 
-        DLocal.d_sdivzorigin = p_saxis[2] * mipscale - RShared.xcenter * DLocal.d_sdivzstepu -
-                                RShared.ycenter * DLocal.d_sdivzstepv;
-        DLocal.d_tdivzorigin = p_taxis[2] * mipscale - RShared.xcenter * DLocal.d_tdivzstepu -
-                                RShared.ycenter * DLocal.d_tdivzstepv;
+        DLocal.d_sdivzorigin = (p_saxis[2] * mipscale) - (RShared.xcenter * DLocal.d_sdivzstepu) -
+                                (RShared.ycenter * DLocal.d_sdivzstepv);
+        DLocal.d_tdivzorigin = (p_taxis[2] * mipscale) - (RShared.xcenter * DLocal.d_tdivzstepu) -
+                                (RShared.ycenter * DLocal.d_tdivzstepv);
 
         Vector3 p_temp1 = DEdge.transformed_modelorg * mipscale;
 
         t = 0x10000 * mipscale;
-        DLocal.sadjust = (int)(Vector3.Dot(p_temp1, p_saxis) * 0x10000 + 0.5f)
+        DLocal.sadjust = (int)((Vector3.Dot(p_temp1, p_saxis) * 0x10000) + 0.5f)
                          - ((pface->TextureMins[0] << 16) >> miplevel)
                          + (int)(pface->TexInfo->Vecs[3] * t);
-        DLocal.tadjust = (int)(Vector3.Dot(p_temp1, p_taxis) * 0x10000 + 0.5f)
+        DLocal.tadjust = (int)((Vector3.Dot(p_temp1, p_taxis) * 0x10000) + 0.5f)
                          - ((pface->TextureMins[1] << 16) >> miplevel)
                          + (int)(pface->TexInfo->Vecs[7] * t);
 

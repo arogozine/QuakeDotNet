@@ -44,7 +44,10 @@ public sealed unsafe class WorldTests
     public void Teardown()
     {
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
+
         NativeMemory.Free(_buf);
     }
 
@@ -431,7 +434,7 @@ public sealed unsafe class WorldTests
     private static readonly float[] MoveBoundsSpecials = [0f, -0f, 1f, -1f, 0.5f, float.NaN, 4096f, -4096f];
 
     private static float MoveBoundsValue(Random rng) =>
-        rng.Next(2) == 0 ? MoveBoundsSpecials[rng.Next(MoveBoundsSpecials.Length)] : (float)(rng.NextDouble() * 8192 - 4096);
+        rng.Next(2) == 0 ? MoveBoundsSpecials[rng.Next(MoveBoundsSpecials.Length)] : (float)((rng.NextDouble() * 8192) - 4096);
 
     [TestMethod]
     public void MoveBounds_RandomAndEdgeInputs_MatchOriginalBitwise()
@@ -445,7 +448,9 @@ public sealed unsafe class WorldTests
             Vec3_t mins = new(MoveBoundsValue(rng), MoveBoundsValue(rng), MoveBoundsValue(rng));
             Vec3_t maxs = new(MoveBoundsValue(rng), MoveBoundsValue(rng), MoveBoundsValue(rng));
             if (rng.Next(4) == 0)
+            {
                 end = start; // ties take the else branch
+            }
 
             MoveBoundsReference(start, mins, maxs, end, out Vec3_t expectedMins, out Vec3_t expectedMaxs);
             Vec3_t actualMins = default, actualMaxs = default;

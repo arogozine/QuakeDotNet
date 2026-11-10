@@ -27,18 +27,26 @@ internal static unsafe class DrawSimd
             uint pat = 0xFFu << (t << 3);
             Vector256<uint> mask = Vector256.Create(pat);
             for (; x + 32 <= width; x += 32)
+            {
                 (Vector256.Load(pbuf + x) & mask.AsByte()).Store(pbuf + x);
+            }
         }
         else
         {
             ulong pat = 0xFFul << (t << 3);
             pat |= pat << 32;
             for (; x + 8 <= width; x += 8)
+            {
                 *(ulong*)(pbuf + x) &= pat;
+            }
         }
         for (; x < width; x++)
+        {
             if ((x & 3) != t)
+            {
                 pbuf[x] = 0;
+            }
+        }
     }
 
     // Draw_TransPic inner row: dest[u] = src[u] where src[u] != transparent.
@@ -64,13 +72,17 @@ internal static unsafe class DrawSimd
         else
         {
             for (; u + 8 <= width; u += 8)
+            {
                 TransRow8Swar(dest + u, src + u, transparent);
+            }
         }
         for (; u < width; u++)
         {
             byte tbyte = src[u];
             if (tbyte != transparent)
+            {
                 dest[u] = tbyte;
+            }
         }
     }
 
@@ -100,9 +112,13 @@ internal static unsafe class DrawSimd
     public static void TransRow8(byte* dest, byte* src, byte transparent)
     {
         if (Vector128.IsHardwareAccelerated)
+        {
             TransRow8V128(dest, src, transparent);
+        }
         else
+        {
             TransRow8Swar(dest, src, transparent);
+        }
     }
 
     // for (i < count) dst[i] |= src[i]  (Sv.AddToFatPVS's PVS merge)
@@ -110,9 +126,16 @@ internal static unsafe class DrawSimd
     {
         int i = 0;
         if (Vector256.IsHardwareAccelerated)
+        {
             for (; i + 32 <= count; i += 32)
+            {
                 (Vector256.Load(dst + i) | Vector256.Load(src + i)).Store(dst + i);
+            }
+        }
+
         for (; i < count; i++)
+        {
             dst[i] |= src[i];
+        }
     }
 }

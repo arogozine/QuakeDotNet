@@ -35,7 +35,9 @@ public static unsafe class SaveGame
     public static void SavegameComment(byte* text)
     {
         for (int i = 0; i < SAVEGAME_COMMENT_LENGTH; i++)
+        {
             text[i] = (byte)' ';
+        }
 
         int levelLen = Q.StrLen(Cl.levelname);
         Q.MemCpy(text, Cl.levelname, levelLen);
@@ -45,15 +47,23 @@ public static unsafe class SaveGame
 
         // convert space to _ to make stdio happy
         for (int i = 0; i < SAVEGAME_COMMENT_LENGTH; i++)
+        {
             if (text[i] == (byte)' ')
+            {
                 text[i] = (byte)'_';
+            }
+        }
+
         text[SAVEGAME_COMMENT_LENGTH] = 0;
     }
 
     private static byte* SkipWhitespace(byte* p)
     {
         while (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t')
+        {
             p++;
+        }
+
         return p;
     }
 
@@ -64,7 +74,10 @@ public static unsafe class SaveGame
         p = SkipWhitespace(p);
         int i = 0;
         while (*p != 0 && *p != ' ' && *p != '\n' && *p != '\r' && *p != '\t' && i < maxLen - 1)
+        {
             dest[i++] = *p++;
+        }
+
         dest[i] = 0;
         return p;
     }
@@ -89,7 +102,9 @@ public static unsafe class SaveGame
     public static void Savegame_f()
     {
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         if (!Sv.active)
         {
@@ -154,7 +169,10 @@ public static unsafe class SaveGame
         WriteText(f, $"{comment}\n");
 
         for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+        {
             WriteText(f, $"{Svs.clients->spawn_parms[i]:F6}\n");
+        }
+
         WriteText(f, $"{current_skill}\n");
         WriteText(f, $"{Sv.Name}\n");
         WriteText(f, $"{Sv.time:F6}\n");
@@ -163,9 +181,13 @@ public static unsafe class SaveGame
         for (int i = 0; i < MAX_LIGHTSTYLES; i++)
         {
             if (Sv.lightstyles[i] != null)
+            {
                 WriteText(f, $"{Sv.lightstyles[i]}\n");
+            }
             else
+            {
                 WriteText(f, "m\n"u8);
+            }
         }
 
         EdictSerialization.WriteGlobals(f);
@@ -182,7 +204,9 @@ public static unsafe class SaveGame
     public static void Loadgame_f()
     {
         if (Cmd.cmd_source != CmdSource_t.SrcCommand)
+        {
             return;
+        }
 
         if (Cmd.Argc() != 2)
         {
@@ -236,7 +260,9 @@ public static unsafe class SaveGame
             // float spawn_parms[Svs.NUM_SPAWN_PARMS] -- a local in the original too
             float* spawn_parms = stackalloc float[Svs.NUM_SPAWN_PARMS];
             for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+            {
                 p = ReadFloat(p, out spawn_parms[i]);
+            }
 
             // this silliness is so we can load 1.06 save files, which have float skill values
             p = ReadFloat(p, out float tfloat);
@@ -282,7 +308,10 @@ public static unsafe class SaveGame
                 {
                     byte c = *p;
                     if (c == 0)
+                    {
                         break;
+                    }
+
                     p++;
                     block[i] = c;
                     if (c == (byte)'}')
@@ -292,15 +321,22 @@ public static unsafe class SaveGame
                     }
                 }
                 if (i == 32768 - 1)
+                {
                     Sys.Error("Loadgame buffer overflow"u8);
+                }
+
                 block[i] = 0;
 
                 byte* start = Com.Parse(block);
                 if (Com.com_token[0] == 0)
+                {
                     break; // end of file
+                }
 
                 if (Q.StrCmp(Com.com_token, "{"u8) != 0)
+                {
                     Sys.Error("First token isn't a brace"u8);
+                }
 
                 if (entnum == -1)
                 {
@@ -317,7 +353,9 @@ public static unsafe class SaveGame
 
                     // link it into the bsp tree
                     if (ent->Free == 0)
+                    {
                         World.LinkEdict(ent, false);
+                    }
                 }
 
                 entnum++;
@@ -327,7 +365,9 @@ public static unsafe class SaveGame
             Sv.time = time;
 
             for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+            {
                 Svs.clients[0].spawn_parms[i] = spawn_parms[i];
+            }
 
             if (Cls.state != CActive.Dedicated)
             {

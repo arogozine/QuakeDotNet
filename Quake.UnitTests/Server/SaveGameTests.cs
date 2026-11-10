@@ -107,8 +107,12 @@ public sealed unsafe class SaveGameTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(Progs.progs);
         NativeMemory.Free(Progs.pr_strings);
@@ -150,7 +154,9 @@ public sealed unsafe class SaveGameTests
             Sv.lightstyles[0] = Ansi("aaaaaaaa");
 
             fixed (byte* text = Encoding.ASCII.GetBytes("save mysave\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             SaveGame.Savegame_f();
 
@@ -201,7 +207,9 @@ public sealed unsafe class SaveGameTests
             Sv.time = 1234.56789;
 
             fixed (byte* text = Encoding.ASCII.GetBytes("save mysave\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             SaveGame.Savegame_f();
 
@@ -246,7 +254,9 @@ public sealed unsafe class SaveGameTests
             ent->Free = 0;
 
             fixed (byte* text = Encoding.ASCII.GetBytes("save mysave\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             SaveGame.Savegame_f();
 
@@ -276,7 +286,9 @@ public sealed unsafe class SaveGameTests
     public void SavegameF_RejectsRelativePathnames()
     {
         fixed (byte* text = Encoding.ASCII.GetBytes("save ../evil\0"))
+        {
             Cmd.TokenizeString(text);
+        }
 
         SaveGame.Savegame_f();
 
@@ -309,7 +321,10 @@ public sealed unsafe class SaveGameTests
             Sv.time = 42f;
 
             fixed (byte* text = Encoding.ASCII.GetBytes("save roundtrip\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
+
             SaveGame.Savegame_f();
 
             // reset observable state before reloading
@@ -318,7 +333,9 @@ public sealed unsafe class SaveGameTests
             Sv.time = 0;
 
             fixed (byte* text = Encoding.ASCII.GetBytes("load roundtrip\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             // Loadgame_f now calls the real Sv.SpawnServer, which needs a
             // real progs.dat/maps/e1m1.bsp to actually spawn a level; this
@@ -350,7 +367,9 @@ public sealed unsafe class SaveGameTests
             File.WriteAllText(Path.Combine(gamedir, "bad.sav"), "99\ncomment\n");
 
             fixed (byte* text = Encoding.ASCII.GetBytes("load bad\0"))
+            {
                 Cmd.TokenizeString(text);
+            }
 
             SaveGame.Loadgame_f(); // should return quietly, not throw
         }

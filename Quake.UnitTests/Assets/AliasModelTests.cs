@@ -39,8 +39,12 @@ public sealed unsafe class AliasModelTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -79,7 +83,9 @@ public sealed unsafe class AliasModelTests
         // skins: 1 single skin (daliasskintype_t + raw pixel payload)
         bw.Write((int)AliasSkinType_t.Single);
         for (int i = 0; i < skinSize; i++)
+        {
             bw.Write((byte)(i & 0xFF));
+        }
 
         // base s/t vertices (stvert_t): onseam, s, t
         for (int i = 0; i < numVerts; i++)

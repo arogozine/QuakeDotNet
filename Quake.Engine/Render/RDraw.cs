@@ -81,24 +81,36 @@ public static unsafe class RDraw
             RMisc.TransformVector(local, out Vec3_t transformed);
 
             if (transformed[2] < RLocal.NEAR_CLIP)
+            {
                 transformed[2] = RLocal.NEAR_CLIP;
+            }
 
             lzi0 = 1.0f / transformed[2];
 
             // FIXME (original comment): build x/yscale into transform?
             float scale = RShared.xscale * lzi0;
-            u0 = RShared.xcenter + scale * transformed[0];
+            u0 = RShared.xcenter + (scale * transformed[0]);
             if (u0 < RShared.r_refdef->FVrectxAdj)
+            {
                 u0 = RShared.r_refdef->FVrectxAdj;
+            }
+
             if (u0 > RShared.r_refdef->FVrectRightAdj)
+            {
                 u0 = RShared.r_refdef->FVrectRightAdj;
+            }
 
             scale = RShared.yscale * lzi0;
-            v0 = RShared.ycenter - scale * transformed[1];
+            v0 = RShared.ycenter - (scale * transformed[1]);
             if (v0 < RShared.r_refdef->FVrectyAdj)
+            {
                 v0 = RShared.r_refdef->FVrectyAdj;
+            }
+
             if (v0 > RShared.r_refdef->FVrectBottomAdj)
+            {
                 v0 = RShared.r_refdef->FVrectBottomAdj;
+            }
 
             ceilv0 = (int)MathF.Ceiling(v0);
         }
@@ -111,34 +123,52 @@ public static unsafe class RDraw
             RMisc.TransformVector(local, out Vec3_t transformed);
 
             if (transformed[2] < RLocal.NEAR_CLIP)
+            {
                 transformed[2] = RLocal.NEAR_CLIP;
+            }
 
             r_lzi1 = 1.0f / transformed[2];
 
             float scale = RShared.xscale * r_lzi1;
-            r_u1 = RShared.xcenter + scale * transformed[0];
+            r_u1 = RShared.xcenter + (scale * transformed[0]);
             if (r_u1 < RShared.r_refdef->FVrectxAdj)
+            {
                 r_u1 = RShared.r_refdef->FVrectxAdj;
+            }
+
             if (r_u1 > RShared.r_refdef->FVrectRightAdj)
+            {
                 r_u1 = RShared.r_refdef->FVrectRightAdj;
+            }
 
             scale = RShared.yscale * r_lzi1;
-            r_v1 = RShared.ycenter - scale * transformed[1];
+            r_v1 = RShared.ycenter - (scale * transformed[1]);
             if (r_v1 < RShared.r_refdef->FVrectyAdj)
+            {
                 r_v1 = RShared.r_refdef->FVrectyAdj;
+            }
+
             if (r_v1 > RShared.r_refdef->FVrectBottomAdj)
+            {
                 r_v1 = RShared.r_refdef->FVrectBottomAdj;
+            }
         }
 
         if (r_lzi1 > lzi0)
+        {
             lzi0 = r_lzi1;
+        }
 
         if (lzi0 > r_nearzi) // for mipmap finding
+        {
             r_nearzi = lzi0;
+        }
 
         // for right edges, all we want is the effect on 1/z
         if (r_nearzionly)
+        {
             return;
+        }
 
         r_emitted = 1;
 
@@ -176,7 +206,7 @@ public static unsafe class RDraw
             edge->Surfs[1] = 0;
 
             u_step = (r_u1 - u0) / (r_v1 - v0);
-            u = u0 + (v - v0) * u_step;
+            u = u0 + ((v - v0) * u_step);
         }
         else
         {
@@ -188,7 +218,7 @@ public static unsafe class RDraw
             edge->Surfs[1] = (ushort)(RShared.surface_p - RShared.surfaces);
 
             u_step = (u0 - r_u1) / (v0 - r_v1);
-            u = r_u1 + (v - r_v1) * u_step;
+            u = r_u1 + ((v - r_v1) * u_step);
         }
 
         edge->UStep = (long)(u_step * 0x100000);
@@ -200,14 +230,21 @@ public static unsafe class RDraw
         // the edge of the screen
         // FIXME (original comment): is this actually needed?
         if (edge->U < RShared.r_refdef->VrectXAdjShift20)
+        {
             edge->U = RShared.r_refdef->VrectXAdjShift20;
+        }
+
         if (edge->U > RShared.r_refdef->VrectRightAdjShift20)
+        {
             edge->U = RShared.r_refdef->VrectRightAdjShift20;
+        }
 
         // sort the edge in normally
         long u_check = edge->U;
         if (edge->Surfs[0] != 0)
+        {
             u_check++; // sort trailers after leaders
+        }
 
         if (RShared.newedges[v] == null || RShared.newedges[v]->U >= u_check)
         {
@@ -218,7 +255,10 @@ public static unsafe class RDraw
         {
             Edge_t* pcheck = RShared.newedges[v];
             while (pcheck->Next != null && pcheck->Next->U < u_check)
+            {
                 pcheck = pcheck->Next;
+            }
+
             edge->Next = pcheck->Next;
             pcheck->Next = edge;
         }
@@ -252,7 +292,7 @@ public static unsafe class RDraw
                     cacheoffset = 0x7FFFFFFF;
 
                     float f = d0 / (d0 - d1);
-                    MVertex_t clipvert = *pv0 + f * (*pv1 - *pv0);
+                    MVertex_t clipvert = *pv0 + (f * (*pv1 - *pv0));
 
                     if (clip->LeftEdge != 0)
                     {
@@ -276,7 +316,10 @@ public static unsafe class RDraw
                         // both points are clipped
                         // we do cache fully clipped edges
                         if (!r_leftclipped)
+                        {
                             cacheoffset = FULLY_CLIPPED_CACHED | ((uint)DIface.r_framecount & FRAMECOUNT_MASK);
+                        }
+
                         return;
                     }
 
@@ -287,7 +330,7 @@ public static unsafe class RDraw
                     cacheoffset = 0x7FFFFFFF;
 
                     float f = d0 / (d0 - d1);
-                    MVertex_t clipvert = *pv0 + f * (*pv1 - *pv0);
+                    MVertex_t clipvert = *pv0 + (f * (*pv1 - *pv0));
 
                     if (clip->LeftEdge != 0)
                     {
@@ -316,12 +359,18 @@ public static unsafe class RDraw
         Edge_t* pedge_t = (Edge_t*)((byte*)RShared.r_edges + r_pedge->CachedEdgeOffset);
 
         if (pedge_t->Surfs[0] == 0)
+        {
             pedge_t->Surfs[0] = (ushort)(RShared.surface_p - RShared.surfaces);
+        }
         else
+        {
             pedge_t->Surfs[1] = (ushort)(RShared.surface_p - RShared.surfaces);
+        }
 
         if (pedge_t->NearZi > r_nearzi) // for mipmap finding
+        {
             r_nearzi = pedge_t->NearZi;
+        }
 
         r_emitted = 1;
     }
@@ -406,9 +455,15 @@ public static unsafe class RDraw
                     r_pedge->CachedEdgeOffset = cacheoffset;
 
                     if (r_leftclipped)
+                    {
                         makeleftedge = true;
+                    }
+
                     if (r_rightclipped)
+                    {
                         makerightedge = true;
+                    }
+
                     r_lastvertvalid = true;
                 }
                 else
@@ -448,9 +503,15 @@ public static unsafe class RDraw
                     r_pedge->CachedEdgeOffset = cacheoffset;
 
                     if (r_leftclipped)
+                    {
                         makeleftedge = true;
+                    }
+
                     if (r_rightclipped)
+                    {
                         makerightedge = true;
+                    }
+
                     r_lastvertvalid = true;
                 }
             }
@@ -478,7 +539,9 @@ public static unsafe class RDraw
 
         // if no edges made it out, return without posting the surface
         if (r_emitted == 0)
+        {
             return;
+        }
 
         RMain.r_polycount++;
 
@@ -499,9 +562,9 @@ public static unsafe class RDraw
 
         RShared.surface_p->DZiStepU = p_normal[0] * RShared.xscaleinv * distinv;
         RShared.surface_p->DZiStepV = -p_normal[1] * RShared.yscaleinv * distinv;
-        RShared.surface_p->DZiOrigin = p_normal[2] * distinv
-            - RShared.xcenter * RShared.surface_p->DZiStepU
-            - RShared.ycenter * RShared.surface_p->DZiStepV;
+        RShared.surface_p->DZiOrigin = (p_normal[2] * distinv)
+            - (RShared.xcenter * RShared.surface_p->DZiStepU)
+            - (RShared.ycenter * RShared.surface_p->DZiStepV);
 
         RShared.surface_p++;
     }
@@ -559,9 +622,14 @@ public static unsafe class RDraw
                 ClipEdge(pedges->V0, pedges->V1, pclip);
 
                 if (r_leftclipped)
+                {
                     makeleftedge = true;
+                }
+
                 if (r_rightclipped)
+                {
                     makerightedge = true;
+                }
             }
 
             // if there was a clip off the left edge, add that edge too
@@ -582,7 +650,9 @@ public static unsafe class RDraw
 
         // if no edges made it out, return without posting the surface
         if (r_emitted == 0)
+        {
             return;
+        }
 
         RMain.r_polycount++;
 
@@ -603,9 +673,9 @@ public static unsafe class RDraw
 
         RShared.surface_p->DZiStepU = p_normal[0] * RShared.xscaleinv * distinv;
         RShared.surface_p->DZiStepV = -p_normal[1] * RShared.yscaleinv * distinv;
-        RShared.surface_p->DZiOrigin = p_normal[2] * distinv
-            - RShared.xcenter * RShared.surface_p->DZiStepU
-            - RShared.ycenter * RShared.surface_p->DZiStepV;
+        RShared.surface_p->DZiOrigin = (p_normal[2] * distinv)
+            - (RShared.xcenter * RShared.surface_p->DZiStepU)
+            - (RShared.ycenter * RShared.surface_p->DZiStepV);
 
         RShared.surface_p++;
     }
@@ -687,7 +757,7 @@ public static unsafe class RDraw
                 if ((lastdist > 0) != (dist > 0))
                 {
                     float frac = dist / (dist - lastdist);
-                    dst[newverts++] = cur + (src[lastvert] - cur) * frac;
+                    dst[newverts++] = cur + ((src[lastvert] - cur) * frac);
                 }
 
                 if (dist >= 0)
@@ -701,7 +771,9 @@ public static unsafe class RDraw
             }
 
             if (!visible || newverts < 3)
+            {
                 return;
+            }
 
             lnumverts = newverts;
             vertpage ^= 1;
@@ -739,27 +811,41 @@ public static unsafe class RDraw
             RMisc.TransformVector(local, out Vec3_t transformed);
 
             if (transformed[2] < RLocal.NEAR_CLIP)
+            {
                 transformed[2] = RLocal.NEAR_CLIP;
+            }
 
             float lzi = 1.0f / transformed[2];
 
             if (lzi > r_nearzi) // for mipmap finding
+            {
                 r_nearzi = lzi;
+            }
 
             // FIXME (original comment): build x/yscale into transform?
             float scale = RShared.xscale * lzi;
-            float u = RShared.xcenter + scale * transformed[0];
+            float u = RShared.xcenter + (scale * transformed[0]);
             if (u < RShared.r_refdef->FVrectxAdj)
+            {
                 u = RShared.r_refdef->FVrectxAdj;
+            }
+
             if (u > RShared.r_refdef->FVrectRightAdj)
+            {
                 u = RShared.r_refdef->FVrectRightAdj;
+            }
 
             scale = RShared.yscale * lzi;
-            float v = RShared.ycenter - scale * transformed[1];
+            float v = RShared.ycenter - (scale * transformed[1]);
             if (v < RShared.r_refdef->FVrectyAdj)
+            {
                 v = RShared.r_refdef->FVrectyAdj;
+            }
+
             if (v > RShared.r_refdef->FVrectBottomAdj)
+            {
                 v = RShared.r_refdef->FVrectBottomAdj;
+            }
 
             pverts[i].U = u;
             pverts[i].V = v;

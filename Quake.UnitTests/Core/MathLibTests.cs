@@ -111,7 +111,9 @@ public sealed unsafe class MathLibTests
         MathLib.R_ConcatRotations(identity, m, @out);
 
         for (int i = 0; i < 9; i++)
+        {
             Assert.AreEqual(m[i], @out[i]);
+        }
     }
 
     [TestMethod]
@@ -124,15 +126,21 @@ public sealed unsafe class MathLibTests
         MathLib.R_ConcatTransforms(identity, m, @out);
 
         for (int i = 0; i < 12; i++)
+        {
             Assert.AreEqual(m[i], @out[i]);
+        }
     }
 
     // R_ConcatRotations (mathlib.c) reference: the original scalar expressions
     private static void ConcatRotationsReference(float* in1, float* in2, float* @out)
     {
         for (int i = 0; i < 3; i++)
+        {
             for (int j = 0; j < 3; j++)
-                @out[i * 3 + j] = in1[i * 3 + 0] * in2[0 * 3 + j] + in1[i * 3 + 1] * in2[1 * 3 + j] + in1[i * 3 + 2] * in2[2 * 3 + j];
+            {
+                @out[(i * 3) + j] = (in1[(i * 3) + 0] * in2[(0 * 3) + j]) + (in1[(i * 3) + 1] * in2[(1 * 3) + j]) + (in1[(i * 3) + 2] * in2[(2 * 3) + j]);
+            }
+        }
     }
 
     // R_ConcatTransforms (mathlib.c) reference: the original scalar expressions
@@ -141,22 +149,29 @@ public sealed unsafe class MathLibTests
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
-                @out[i * 4 + j] = in1[i * 4 + 0] * in2[0 * 4 + j] + in1[i * 4 + 1] * in2[1 * 4 + j] + in1[i * 4 + 2] * in2[2 * 4 + j];
-            @out[i * 4 + 3] = in1[i * 4 + 0] * in2[0 * 4 + 3] + in1[i * 4 + 1] * in2[1 * 4 + 3] + in1[i * 4 + 2] * in2[2 * 4 + 3] + in1[i * 4 + 3];
+            {
+                @out[(i * 4) + j] = (in1[(i * 4) + 0] * in2[(0 * 4) + j]) + (in1[(i * 4) + 1] * in2[(1 * 4) + j]) + (in1[(i * 4) + 2] * in2[(2 * 4) + j]);
+            }
+
+            @out[(i * 4) + 3] = (in1[(i * 4) + 0] * in2[(0 * 4) + 3]) + (in1[(i * 4) + 1] * in2[(1 * 4) + 3]) + (in1[(i * 4) + 2] * in2[(2 * 4) + 3]) + in1[(i * 4) + 3];
         }
     }
 
     private static void FillRandom(Random rng, float* m, int count)
     {
         for (int i = 0; i < count; i++)
-            m[i] = (float)(rng.NextDouble() * 2000.0 - 1000.0);
+        {
+            m[i] = (float)((rng.NextDouble() * 2000.0) - 1000.0);
+        }
     }
 
     private static void AssertBitwiseEqual(float* expected, float* actual, int count, string context)
     {
         for (int i = 0; i < count; i++)
+        {
             Assert.AreEqual(BitConverter.SingleToInt32Bits(expected[i]), BitConverter.SingleToInt32Bits(actual[i]),
                 $"{context}: element {i} expected {expected[i]} got {actual[i]}");
+        }
     }
 
     [TestMethod]
@@ -258,7 +273,9 @@ public sealed unsafe class MathLibTests
 
         float* expected = stackalloc float[12] { 1, 2, 3, 14, 5, 6, 7, 28, 9, 10, 11, 42 };
         for (int i = 0; i < 12; i++)
+        {
             Assert.AreEqual(expected[i], @out[i]);
+        }
     }
 
     [TestMethod]
@@ -514,11 +531,11 @@ public sealed unsafe class MathLibTests
             Assert.AreEqual(cp * cy, forward.X, 1e-6f);
             Assert.AreEqual(cp * sy, forward.Y, 1e-6f);
             Assert.AreEqual(-sp, forward.Z, 1e-6f);
-            Assert.AreEqual(-1 * sr * sp * cy + -1 * cr * -sy, right.X, 1e-6f);
-            Assert.AreEqual(-1 * sr * sp * sy + -1 * cr * cy, right.Y, 1e-6f);
+            Assert.AreEqual((-1 * sr * sp * cy) + (-1 * cr * -sy), right.X, 1e-6f);
+            Assert.AreEqual((-1 * sr * sp * sy) + (-1 * cr * cy), right.Y, 1e-6f);
             Assert.AreEqual(-1 * sr * cp, right.Z, 1e-6f);
-            Assert.AreEqual(cr * sp * cy + -sr * -sy, up.X, 1e-6f);
-            Assert.AreEqual(cr * sp * sy + -sr * cy, up.Y, 1e-6f);
+            Assert.AreEqual((cr * sp * cy) + (-sr * -sy), up.X, 1e-6f);
+            Assert.AreEqual((cr * sp * sy) + (-sr * cy), up.Y, 1e-6f);
             Assert.AreEqual(cr * cp, up.Z, 1e-6f);
         }
     }
@@ -553,9 +570,9 @@ public sealed unsafe class MathLibTests
     {
         switch (rng.Next(4))
         {
-            case 0: return (float)(rng.NextDouble() * 2 - 1);
-            case 1: return (float)((rng.NextDouble() * 2 - 1) * 8192);
-            case 2: return (float)((rng.NextDouble() * 2 - 1) * Math.Pow(10, rng.Next(-30, 30)));
+            case 0: return (float)((rng.NextDouble() * 2) - 1);
+            case 1: return (float)(((rng.NextDouble() * 2) - 1) * 8192);
+            case 2: return (float)(((rng.NextDouble() * 2) - 1) * Math.Pow(10, rng.Next(-30, 30)));
             default: return BitConverter.Int32BitsToSingle(rng.Next()) * (rng.Next(2) == 0 ? -1 : 1);
         }
     }
@@ -571,9 +588,9 @@ public sealed unsafe class MathLibTests
     private static Vec3_t CrossProductReference(Vec3_t v1, Vec3_t v2)
     {
         return Vec(
-            v1[1] * v2[2] - v1[2] * v2[1],
-            v1[2] * v2[0] - v1[0] * v2[2],
-            v1[0] * v2[1] - v1[1] * v2[0]);
+            (v1[1] * v2[2]) - (v1[2] * v2[1]),
+            (v1[2] * v2[0]) - (v1[0] * v2[2]),
+            (v1[0] * v2[1]) - (v1[1] * v2[0]));
     }
 
     // Length (mathlib.c) reference: sum of squares in index order, then
@@ -582,14 +599,17 @@ public sealed unsafe class MathLibTests
     {
         float length = 0;
         for (int i = 0; i < 3; i++)
+        {
             length += v[i] * v[i];
+        }
+
         return (float)Math.Sqrt(length);
     }
 
     // VectorNormalize (mathlib.c) reference: multiply by 1/length
     private static float VectorNormalizeReference(ref Vec3_t v)
     {
-        float length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+        float length = (v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]);
         length = (float)Math.Sqrt(length);
         if (length != 0)
         {

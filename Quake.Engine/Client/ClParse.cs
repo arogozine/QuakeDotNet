@@ -42,7 +42,9 @@ public static unsafe class ClParse
     private static void ShowNet(Utf8String x)
     {
         if (Cl.cl_shownet->Value == 2)
+        {
             Con.Printf($"{Msg.msg_readcount - 1}:{x}\n");
+        }
     }
 
 
@@ -58,7 +60,10 @@ public static unsafe class ClParse
         if (num >= Cl.num_entities)
         {
             if (num >= QuakeDef.MAX_EDICTS)
+            {
                 Host.Error($"CL_EntityNum: {num} is an invalid number");
+            }
+
             while (Cl.num_entities <= num)
             {
                 ClEntities.cl_entities[Cl.num_entities].ColorMap = Vid.vid.Colormap;
@@ -99,14 +104,20 @@ public static unsafe class ClParse
         int sound_num = (field_mask & Protocol.SND_LARGESOUND) != 0 ? Msg.ReadShort() : Msg.ReadByte();
 
         if ((uint)sound_num >= QuakeDef.MAX_SOUNDS)
+        {
             Host.Error($"CL_ParseStartSoundPacket: {sound_num} > MAX_SOUNDS");
+        }
 
         if (ent > QuakeDef.MAX_EDICTS)
+        {
             Host.Error($"CL_ParseStartSoundPacket: ent = {ent}");
+        }
 
         Vec3_t pos = default;
         for (int i = 0; i < 3; i++)
+        {
             pos[i] = Msg.ReadCoord();
+        }
 
         SndDma.StartSound(ent, channel, Cl.sound_precache[sound_num], pos, volume / 255.0f, attenuation);
     }
@@ -127,9 +138,14 @@ public static unsafe class ClParse
     public static void KeepaliveMessage()
     {
         if (Sv.active)
+        {
             return; // no need if server is local
+        }
+
         if (ClDemo.demoplayback)
+        {
             return;
+        }
 
         // The original re-reads from the network here, preserving
         // net_message/msg_readcount around the read so precache-loop
@@ -195,13 +211,16 @@ public static unsafe class ClParse
         {
             str = Msg.ReadString();
             if (str[0] == 0)
+            {
                 break;
+            }
+
             if (nummodels == QuakeDef.MAX_MODELS)
             {
                 Con.Printf("Server sent too many model precaches\n"u8);
                 return;
             }
-            Q.StrCpy(modelNames + nummodels * QuakeDef.MAX_QPATH, str);
+            Q.StrCpy(modelNames + (nummodels * QuakeDef.MAX_QPATH), str);
             Model.TouchModel(str);
         }
 
@@ -212,23 +231,26 @@ public static unsafe class ClParse
         {
             str = Msg.ReadString();
             if (str[0] == 0)
+            {
                 break;
+            }
+
             if (numsounds == QuakeDef.MAX_SOUNDS)
             {
                 Con.Printf("Server sent too many sound precaches\n"u8);
                 return;
             }
-            Q.StrCpy(soundNames + numsounds * QuakeDef.MAX_QPATH, str);
+            Q.StrCpy(soundNames + (numsounds * QuakeDef.MAX_QPATH), str);
             SndDma.TouchSound(str);
         }
 
         // now we try to load everything else until a cache allocation fails
         for (i = 1; i < nummodels; i++)
         {
-            Cl.model_precache[i] = Model.ForName(modelNames + i * QuakeDef.MAX_QPATH, false);
+            Cl.model_precache[i] = Model.ForName(modelNames + (i * QuakeDef.MAX_QPATH), false);
             if (Cl.model_precache[i] == null)
             {
-                Con.Printf($"Model {modelNames + i * QuakeDef.MAX_QPATH} not found\n");
+                Con.Printf($"Model {modelNames + (i * QuakeDef.MAX_QPATH)} not found\n");
                 return;
             }
             KeepaliveMessage();
@@ -237,7 +259,7 @@ public static unsafe class ClParse
         SndDma.BeginPrecaching();
         for (i = 1; i < numsounds; i++)
         {
-            Cl.sound_precache[i] = SndDma.PrecacheSound(soundNames + i * QuakeDef.MAX_QPATH);
+            Cl.sound_precache[i] = SndDma.PrecacheSound(soundNames + (i * QuakeDef.MAX_QPATH));
             KeepaliveMessage();
         }
         SndDma.EndPrecaching();
@@ -280,9 +302,14 @@ public static unsafe class ClParse
         if (Cl.protocol == Protocol.PROTOCOL_FITZQUAKE)
         {
             if ((bits & Protocol.U_EXTEND1) != 0)
+            {
                 bits |= Msg.ReadByte() << 16;
+            }
+
             if ((bits & Protocol.U_EXTEND2) != 0)
+            {
                 bits |= Msg.ReadByte() << 24;
+            }
         }
 
         int num = (bits & Protocol.U_LONGENTITY) != 0 ? Msg.ReadShort() : Msg.ReadByte();
@@ -293,7 +320,9 @@ public static unsafe class ClParse
 
         // johnfitz -- lerping
         if (ent->MsgTime + 0.2 < Cl.mtime[0]) // more than 0.2 seconds since the last message (most entities think every 0.1 sec)
+        {
             ent->LerpFlags |= LerpFlags.RESETANIM; // if we missed a think, we'd be lerping from the wrong frame
+        }
 
         ent->MsgTime = Cl.mtime[0];
 
@@ -302,20 +331,29 @@ public static unsafe class ClParse
         {
             modnum = Msg.ReadByte();
             if (modnum >= QuakeDef.MAX_MODELS)
+            {
                 Host.Error("CL_ParseModel: bad modnum"u8);
+            }
         }
         else
+        {
             modnum = ent->Baseline.ModelIndex;
+        }
 
         ent->Frame = (bits & Protocol.U_FRAME) != 0 ? Msg.ReadByte() : ent->Baseline.Frame;
 
         int colorIndex = (bits & Protocol.U_COLORMAP) != 0 ? Msg.ReadByte() : ent->Baseline.ColorMap;
         if (colorIndex == 0)
+        {
             ent->ColorMap = Vid.vid.Colormap;
+        }
         else
         {
             if (colorIndex > Cl.maxclients)
+            {
                 Sys.Error("i >= cl.maxclients"u8); // the original genuinely calls Sys_Error directly here, not Host_Error
+            }
+
             ent->ColorMap = Cl.scores[colorIndex - 1].Translations;
         }
 
@@ -344,7 +382,9 @@ public static unsafe class ClParse
             ent->ForceLink = true;
         }
         else
+        {
             ent->LerpFlags &= unchecked((byte)~LerpFlags.MOVESTEP);
+        }
 
         // johnfitz -- PROTOCOL_FITZQUAKE
         if (Cl.protocol == Protocol.PROTOCOL_FITZQUAKE)
@@ -352,22 +392,32 @@ public static unsafe class ClParse
             ent->Alpha = (bits & Protocol.U_ALPHA) != 0 ? (byte)Msg.ReadByte() : ent->Baseline.Alpha;
 
             if ((bits & Protocol.U_FRAME2) != 0)
+            {
                 ent->Frame = (ent->Frame & 0x00FF) | (Msg.ReadByte() << 8);
+            }
+
             if ((bits & Protocol.U_MODEL2) != 0)
+            {
                 modnum = (modnum & 0x00FF) | (Msg.ReadByte() << 8);
+            }
 
             if ((bits & Protocol.U_LERPFINISH) != 0)
             {
-                ent->LerpFinish = (float)ent->MsgTime + Msg.ReadByte() / 255.0f;
+                ent->LerpFinish = (float)ent->MsgTime + (Msg.ReadByte() / 255.0f);
                 ent->LerpFlags |= LerpFlags.FINISH;
             }
             else
+            {
                 ent->LerpFlags &= unchecked((byte)~LerpFlags.FINISH);
+            }
         }
 
         // johnfitz -- moved here from above
         if (modnum >= QuakeDef.MAX_MODELS)
+        {
             Host.Error("CL_ParseModel: bad modnum"u8);
+        }
+
         Model_t* model = Cl.model_precache[modnum];
         if (model != ent->Model)
         {
@@ -377,7 +427,9 @@ public static unsafe class ClParse
                 ent->SyncBase = model->SyncType == SyncType_t.Rand ? (Q.Rand() & 0x7fff) / (float)0x7fff : 0.0f;
             }
             else
+            {
                 forcelink = true; // hack to make null model players work
+            }
 
             ent->LerpFlags |= LerpFlags.RESETANIM; // johnfitz -- don't lerp animation across model changes
         }
@@ -427,9 +479,14 @@ public static unsafe class ClParse
     {
         // johnfitz -- PROTOCOL_FITZQUAKE
         if ((bits & Protocol.SU_EXTEND1) != 0)
+        {
             bits |= Msg.ReadByte() << 16;
+        }
+
         if ((bits & Protocol.SU_EXTEND2) != 0)
+        {
             bits |= Msg.ReadByte() << 24;
+        }
 
         Cl.viewheight = (bits & Protocol.SU_VIEWHEIGHT) != 0 ? Msg.ReadChar() : Protocol.DEFAULT_VIEWHEIGHT;
         Cl.idealpitch = (bits & Protocol.SU_IDEALPITCH) != 0 ? Msg.ReadChar() : 0;
@@ -449,8 +506,13 @@ public static unsafe class ClParse
             // set flash times
             Sbar.Changed();
             for (int j = 0; j < 32; j++)
+            {
                 if ((i2 & (1 << j)) != 0 && (Cl.items & (1 << j)) == 0)
+                {
                     Cl.item_gettime[j] = (float)Cl.time;
+                }
+            }
+
             Cl.items = i2;
         }
 
@@ -465,21 +527,41 @@ public static unsafe class ClParse
         int ammo = Msg.ReadByte();
         int* ammos = stackalloc int[4];
         for (int i = 0; i < 4; i++)
+        {
             ammos[i] = Msg.ReadByte();
+        }
+
         int activeWeapon = Msg.ReadByte();
 
         // johnfitz -- PROTOCOL_FITZQUAKE
         if ((bits & Protocol.SU_WEAPON2) != 0)
+        {
             weapon |= Msg.ReadByte() << 8;
+        }
+
         if ((bits & Protocol.SU_ARMOR2) != 0)
+        {
             armor |= Msg.ReadByte() << 8;
+        }
+
         if ((bits & Protocol.SU_AMMO2) != 0)
+        {
             ammo |= Msg.ReadByte() << 8;
+        }
+
         for (int i = 0; i < 4; i++)
+        {
             if ((bits & (Protocol.SU_SHELLS2 << i)) != 0)
+            {
                 ammos[i] |= Msg.ReadByte() << 8;
+            }
+        }
+
         if ((bits & Protocol.SU_WEAPONFRAME2) != 0)
+        {
             weaponFrame |= Msg.ReadByte() << 8;
+        }
+
         Cl.viewent->Alpha = (bits & Protocol.SU_WEAPONALPHA) != 0 ? (byte)Msg.ReadByte() : (byte)Protocol.ENTALPHA_DEFAULT;
 
         Cl.stats[(int)Stat.WeaponFrame] = weaponFrame;
@@ -544,7 +626,9 @@ public static unsafe class ClParse
     public static void NewTranslation(int slot)
     {
         if (slot > Cl.maxclients)
+        {
             Sys.Error("CL_NewTranslation: slot > cl.maxclients"u8);
+        }
 
         ScoreBoard_t* score = &Cl.scores[slot];
         byte* dest = score->Translations;
@@ -557,16 +641,28 @@ public static unsafe class ClParse
         for (int i = 0; i < Vid.VID_GRADES; i++, dest += 256, source += 256)
         {
             if (top < 128) // the artists made some backwards ranges. sigh.
+            {
                 new Span<byte>(source + top, 16).CopyTo(new Span<byte>(dest + RMain.TOP_RANGE, 16));
+            }
             else
+            {
                 for (int j = 0; j < 16; j++)
+                {
                     dest[RMain.TOP_RANGE + j] = source[top + 15 - j];
+                }
+            }
 
             if (bottom < 128)
+            {
                 new Span<byte>(source + bottom, 16).CopyTo(new Span<byte>(dest + RMain.BOTTOM_RANGE, 16));
+            }
             else
+            {
                 for (int j = 0; j < 16; j++)
+                {
                     dest[RMain.BOTTOM_RANGE + j] = source[bottom + 15 - j];
+                }
+            }
         }
     }
 
@@ -579,7 +675,10 @@ public static unsafe class ClParse
     {
         int i = Cl.num_statics;
         if (i >= ClEntities.MAX_STATIC_ENTITIES)
+        {
             Host.Error("Too many static entities"u8);
+        }
+
         Entity_t* ent = &ClEntities.cl_static_entities[i];
         Cl.num_statics++;
         ParseBaseline(ent, version);
@@ -607,10 +706,16 @@ public static unsafe class ClParse
     {
         Unsafe.SkipInit(out Vec3_t org);
         for (int i = 0; i < 3; i++)
+        {
             org[i] = Msg.ReadCoord();
+        }
+
         int sound_num = version == 2 ? Msg.ReadShort() : Msg.ReadByte(); // johnfitz -- PROTOCOL_FITZQUAKE
         if ((uint)sound_num >= QuakeDef.MAX_SOUNDS)
+        {
             Host.Error($"CL_ParseStaticSound: bad sound_num {sound_num}");
+        }
+
         int vol = Msg.ReadByte();
         int atten = Msg.ReadByte();
 
@@ -667,9 +772,13 @@ public static unsafe class ClParse
     public static void ParseServerMessage()
     {
         if (Cl.cl_shownet->Value == 1)
+        {
             Con.Printf($"{Net.net_message->CurSize} ");
+        }
         else if (Cl.cl_shownet->Value == 2)
+        {
             Con.Printf("------------------\n"u8);
+        }
 
         Cl.onground = false; // unless the server says otherwise
 
@@ -678,7 +787,9 @@ public static unsafe class ClParse
         while (true)
         {
             if (Msg.msg_badread)
+            {
                 Host.Error("CL_ParseServerMessage: Bad server message"u8);
+            }
 
             int cmd = Msg.ReadByte();
 
@@ -701,7 +812,9 @@ public static unsafe class ClParse
             // only look up the name when it will be printed, and bounds-check
             // so unknown commands reach the "Illegible server message" default.
             if (Cl.cl_shownet->Value == 2)
+            {
                 ShowNet((uint)cmd < (uint)svc_strings.Length ? svc_strings[cmd] : "unknown svc"u8);
+            }
 
             switch ((Svc)cmd)
             {
@@ -724,7 +837,10 @@ public static unsafe class ClParse
                 case Svc.Version:
                     int version = Msg.ReadLong();
                     if (version != Protocol.PROTOCOL_NETQUAKE && version != Protocol.PROTOCOL_FITZQUAKE)
+                    {
                         Host.Error($"CL_ParseServerMessage: Server is protocol {version} instead of {Protocol.PROTOCOL_NETQUAKE} or {Protocol.PROTOCOL_FITZQUAKE}\n");
+                    }
+
                     Cl.protocol = version;
                     break;
 
@@ -755,7 +871,10 @@ public static unsafe class ClParse
 
                 case Svc.SetAngle:
                     for (int i = 0; i < 3; i++)
+                    {
                         Cl.viewangles[i] = Msg.ReadAngle();
+                    }
+
                     break;
 
                 case Svc.SetView:
@@ -766,7 +885,10 @@ public static unsafe class ClParse
                     {
                         int i = Msg.ReadByte();
                         if (i >= QuakeDef.MAX_LIGHTSTYLES)
+                        {
                             Sys.Error("Svc.LightStyle > MAX_LIGHTSTYLES"u8);
+                        }
+
                         {
                             LightStyle_t* ls = &ClLightStyle.cl_lightstyle[i];
                             Q.StrCpy(ls->Map, Msg.ReadString());
@@ -791,7 +913,10 @@ public static unsafe class ClParse
                         Sbar.Changed();
                         int i = Msg.ReadByte();
                         if (i >= Cl.maxclients)
+                        {
                             Host.Error("CL_ParseServerMessage: (int)Svc.UpdateName > MAX_SCOREBOARD"u8);
+                        }
+
                         Q.StrCpy(Cl.scores[i].Name, Msg.ReadString());
                         break;
                     }
@@ -801,7 +926,10 @@ public static unsafe class ClParse
                         Sbar.Changed();
                         int i = Msg.ReadByte();
                         if (i >= Cl.maxclients)
+                        {
                             Host.Error("CL_ParseServerMessage: (int)Svc.UpdateFrags > MAX_SCOREBOARD"u8);
+                        }
+
                         Cl.scores[i].Frags = Msg.ReadShort();
                         break;
                     }
@@ -811,7 +939,10 @@ public static unsafe class ClParse
                         Sbar.Changed();
                         int i = Msg.ReadByte();
                         if (i >= Cl.maxclients)
+                        {
                             Host.Error("CL_ParseServerMessage: (int)Svc.UpdateColors > MAX_SCOREBOARD"u8);
+                        }
+
                         Cl.scores[i].Colors = Msg.ReadByte();
                         NewTranslation(i);
                         break;
@@ -874,9 +1005,13 @@ public static unsafe class ClParse
                     {
                         Cl.paused = Msg.ReadByte() != 0;
                         if (Cl.paused)
+                        {
                             CdAudio.Pause();
+                        }
                         else
+                        {
                             CdAudio.Resume();
+                        }
                         // VID_HandlePause is Win32-only (sys_win.c) -- skipped per CLAUDE.md rule 5.
                         break;
                     }
@@ -885,7 +1020,10 @@ public static unsafe class ClParse
                     {
                         int i = Msg.ReadByte();
                         if (i <= Cls.signon)
+                        {
                             Host.Error($"Received signon {i} when at {Cls.signon}");
+                        }
+
                         Cls.signon = i;
                         SignonReply();
                         break;
@@ -903,7 +1041,10 @@ public static unsafe class ClParse
                     {
                         int i = Msg.ReadByte();
                         if (i is < 0 or >= 32) // MAX_CL_STATS
+                        {
                             Sys.Error($"(int)Svc.UpdateStat: {i} is invalid");
+                        }
+
                         Cl.stats[i] = Msg.ReadLong();
                         break;
                     }
@@ -916,9 +1057,14 @@ public static unsafe class ClParse
                     Cl.cdtrack = Msg.ReadByte();
                     Cl.looptrack = Msg.ReadByte();
                     if ((ClDemo.demoplayback || ClDemo.demorecording) && ClDemo.forcetrack != -1)
+                    {
                         CdAudio.Play((byte)ClDemo.forcetrack, true);
+                    }
                     else
+                    {
                         CdAudio.Play((byte)Cl.cdtrack, true);
+                    }
+
                     break;
 
                 case Svc.Intermission:

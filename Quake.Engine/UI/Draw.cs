@@ -59,20 +59,22 @@ public static unsafe class Draw
         // Opaque, untranslated, horizontally unclipped: every one of the s
         // output rows of a source row is identical, so expand the row once
         // and copy it for the remaining rows.
-        if (transparent < 0 && translation == null && px >= 0 && px + w * s <= bufW)
+        if (transparent < 0 && translation == null && px >= 0 && px + (w * s) <= bufW)
         {
             int rowLen = w * s;
             for (int sy = 0; sy < h; sy++)
             {
-                byte* srow = src + sy * srcStride;
+                byte* srow = src + (sy * srcStride);
                 byte* first = null;
                 for (int k = 0; k < s; k++)
                 {
-                    int dy = py + sy * s + k;
+                    int dy = py + (sy * s) + k;
                     if ((uint)dy >= (uint)bufH)
+                    {
                         continue;
+                    }
 
-                    byte* drow = dstBase + dy * dstRowBytes + px;
+                    byte* drow = dstBase + (dy * dstRowBytes) + px;
                     if (first == null)
                     {
                         first = drow;
@@ -80,7 +82,9 @@ public static unsafe class Draw
                         {
                             byte p = srow[sx];
                             for (int j = 0; j < s; j++)
+                            {
                                 drow[dx++] = p;
+                            }
                         }
                     }
                     else
@@ -94,26 +98,37 @@ public static unsafe class Draw
 
         for (int sy = 0; sy < h; sy++)
         {
-            byte* srow = src + sy * srcStride;
+            byte* srow = src + (sy * srcStride);
             for (int k = 0; k < s; k++)
             {
-                int dy = py + sy * s + k;
+                int dy = py + (sy * s) + k;
                 if ((uint)dy >= (uint)bufH)
+                {
                     continue;
+                }
 
-                byte* drow = dstBase + dy * dstRowBytes;
+                byte* drow = dstBase + (dy * dstRowBytes);
                 for (int sx = 0; sx < w; sx++)
                 {
                     byte p = srow[sx];
                     if (p == transparent)
+                    {
                         continue;
-                    if (translation != null)
-                        p = translation[p];
+                    }
 
-                    int dx = px + sx * s;
+                    if (translation != null)
+                    {
+                        p = translation[p];
+                    }
+
+                    int dx = px + (sx * s);
                     for (int j = 0; j < s; j++, dx++)
+                    {
                         if ((uint)dx < (uint)bufW)
+                        {
                             drow[dx] = p;
+                        }
+                    }
                 }
             }
         }
@@ -122,11 +137,13 @@ public static unsafe class Draw
     private static void CharacterScaled(int x, int y, int num)
     {
         int s = Canvas.Scale;
-        int px = x * s + Canvas.OriginX;
-        int py = y * s + Canvas.OriginY;
+        int px = (x * s) + Canvas.OriginX;
+        int py = (y * s) + Canvas.OriginY;
 
         if (y <= -8)
+        {
             return; // totally off screen (clipped to the top for console scroll)
+        }
 
         byte* source = draw_chars + ((num >> 4) << 10) + ((num & 15) << 3);
         BlitScaled(Vid.vid.ConBuffer, (int)Vid.vid.ConRowBytes, px, py, source, 128, 8, 8, s, 0, null);
@@ -135,24 +152,26 @@ public static unsafe class Draw
     private static void PicScaled(int x, int y, QPic_t* pic, int transparent, byte* translation)
     {
         int s = Canvas.Scale;
-        byte* source = (byte*)pic + sizeof(int) * 2;
-        BlitScaled(Vid.vid.Buffer, (int)Vid.vid.RowBytes, x * s + Canvas.OriginX, y * s + Canvas.OriginY,
+        byte* source = (byte*)pic + (sizeof(int) * 2);
+        BlitScaled(Vid.vid.Buffer, (int)Vid.vid.RowBytes, (x * s) + Canvas.OriginX, (y * s) + Canvas.OriginY,
             source, pic->Width, pic->Width, pic->Height, s, transparent, translation);
     }
 
     private static void FillScaled(int x, int y, int w, int h, int c)
     {
         int s = Canvas.Scale;
-        int x0 = Math.Max(0, x * s + Canvas.OriginX);
-        int y0 = Math.Max(0, y * s + Canvas.OriginY);
-        int x1 = Math.Min((int)Vid.vid.Width, (x + w) * s + Canvas.OriginX);
-        int y1 = Math.Min((int)Vid.vid.Height, (y + h) * s + Canvas.OriginY);
+        int x0 = Math.Max(0, (x * s) + Canvas.OriginX);
+        int y0 = Math.Max(0, (y * s) + Canvas.OriginY);
+        int x1 = Math.Min((int)Vid.vid.Width, ((x + w) * s) + Canvas.OriginX);
+        int y1 = Math.Min((int)Vid.vid.Height, ((y + h) * s) + Canvas.OriginY);
 
         for (int v = y0; v < y1; v++)
         {
-            byte* dest = Vid.vid.Buffer + v * Vid.vid.RowBytes;
+            byte* dest = Vid.vid.Buffer + (v * Vid.vid.RowBytes);
             if (x1 > x0)
+            {
                 new Span<byte>(dest + x0, x1 - x0).Fill((byte)c);
+            }
         }
     }
 
@@ -167,13 +186,20 @@ public static unsafe class Draw
         CachePic_t* pic = menu_cachepics;
         int i;
         for (i = 0; i < menu_numcachepics; pic++, i++)
+        {
             if (Q.StrCmp(path, pic->Name) == 0)
+            {
                 break;
+            }
+        }
 
         if (i == menu_numcachepics)
         {
             if (menu_numcachepics == MAX_CACHED_PICS)
+            {
                 Sys.Error("menu_numcachepics == MAX_CACHED_PICS"u8);
+            }
+
             menu_numcachepics++;
             Q.StrCpy(pic->Name, path);
         }
@@ -181,14 +207,18 @@ public static unsafe class Draw
         CacheUser* cache = &pic->Cache;
         void* dat = Cache.Check(cache);
         if (dat != null)
+        {
             return (QPic_t*)dat;
+        }
 
         // load the pic from disk
         Com.LoadCacheFile(path, cache);
 
         dat = pic->Cache.Data;
         if (dat == null)
+        {
             Sys.Error($"Draw_CachePic: failed to load {path}");
+        }
 
         Wad.SwapPic((QPic_t*)dat);
 
@@ -204,7 +234,7 @@ public static unsafe class Draw
 
         r_rectdesc.Width = draw_backtile->Width;
         r_rectdesc.Height = draw_backtile->Height;
-        r_rectdesc.PTexBytes = (byte*)draw_backtile + sizeof(int) * 2;
+        r_rectdesc.PTexBytes = (byte*)draw_backtile + (sizeof(int) * 2);
         r_rectdesc.RowBytes = draw_backtile->Width;
     }
 
@@ -224,7 +254,9 @@ public static unsafe class Draw
         }
 
         if (y <= -8)
+        {
             return; // totally off screen
+        }
 
         int row = num >> 4;
         int col = num & 15;
@@ -238,11 +270,13 @@ public static unsafe class Draw
             y = 0;
         }
         else
+        {
             drawline = 8;
+        }
 
         if (DIface.r_pixbytes == 1)
         {
-            byte* dest = Vid.vid.ConBuffer + y * Vid.vid.ConRowBytes + x;
+            byte* dest = Vid.vid.ConBuffer + (y * Vid.vid.ConRowBytes) + x;
 
             while (drawline-- != 0)
             {
@@ -254,18 +288,49 @@ public static unsafe class Draw
         else
         {
             // FIXME: pre-expand to native format?
-            ushort* pusdest = (ushort*)(Vid.vid.ConBuffer + y * Vid.vid.ConRowBytes + (x << 1));
+            ushort* pusdest = (ushort*)(Vid.vid.ConBuffer + (y * Vid.vid.ConRowBytes) + (x << 1));
 
             while (drawline-- != 0)
             {
-                if (source[0] != 0) pusdest[0] = Vid.d_8to16table[source[0]];
-                if (source[1] != 0) pusdest[1] = Vid.d_8to16table[source[1]];
-                if (source[2] != 0) pusdest[2] = Vid.d_8to16table[source[2]];
-                if (source[3] != 0) pusdest[3] = Vid.d_8to16table[source[3]];
-                if (source[4] != 0) pusdest[4] = Vid.d_8to16table[source[4]];
-                if (source[5] != 0) pusdest[5] = Vid.d_8to16table[source[5]];
-                if (source[6] != 0) pusdest[6] = Vid.d_8to16table[source[6]];
-                if (source[7] != 0) pusdest[7] = Vid.d_8to16table[source[7]];
+                if (source[0] != 0)
+                {
+                    pusdest[0] = Vid.d_8to16table[source[0]];
+                }
+
+                if (source[1] != 0)
+                {
+                    pusdest[1] = Vid.d_8to16table[source[1]];
+                }
+
+                if (source[2] != 0)
+                {
+                    pusdest[2] = Vid.d_8to16table[source[2]];
+                }
+
+                if (source[3] != 0)
+                {
+                    pusdest[3] = Vid.d_8to16table[source[3]];
+                }
+
+                if (source[4] != 0)
+                {
+                    pusdest[4] = Vid.d_8to16table[source[4]];
+                }
+
+                if (source[5] != 0)
+                {
+                    pusdest[5] = Vid.d_8to16table[source[5]];
+                }
+
+                if (source[6] != 0)
+                {
+                    pusdest[6] = Vid.d_8to16table[source[6]];
+                }
+
+                if (source[7] != 0)
+                {
+                    pusdest[7] = Vid.d_8to16table[source[7]];
+                }
 
                 source += 128;
                 pusdest += Vid.vid.ConRowBytes >> 1;
@@ -297,13 +362,15 @@ public static unsafe class Draw
         }
 
         if (x < 0 || x + pic->Width > Vid.vid.Width || y < 0 || y + pic->Height > Vid.vid.Height)
+        {
             Sys.Error("Draw_Pic: bad coordinates"u8);
+        }
 
-        byte* source = (byte*)pic + sizeof(int) * 2;
+        byte* source = (byte*)pic + (sizeof(int) * 2);
 
         if (DIface.r_pixbytes == 1)
         {
-            byte* dest = Vid.vid.Buffer + y * Vid.vid.RowBytes + x;
+            byte* dest = Vid.vid.Buffer + (y * Vid.vid.RowBytes) + x;
 
             for (int v = 0; v < pic->Height; v++)
             {
@@ -315,12 +382,14 @@ public static unsafe class Draw
         else
         {
             // FIXME: pretranslate at load time?
-            ushort* pusdest = (ushort*)Vid.vid.Buffer + y * (Vid.vid.RowBytes >> 1) + x;
+            ushort* pusdest = (ushort*)Vid.vid.Buffer + (y * (Vid.vid.RowBytes >> 1)) + x;
 
             for (int v = 0; v < pic->Height; v++)
             {
                 for (int u = 0; u < pic->Width; u++)
+                {
                     pusdest[u] = Vid.d_8to16table[source[u]];
+                }
 
                 pusdest += Vid.vid.RowBytes >> 1;
                 source += pic->Width;
@@ -338,13 +407,15 @@ public static unsafe class Draw
         }
 
         if (x < 0 || (uint)(x + pic->Width) > Vid.vid.Width || y < 0 || (uint)(y + pic->Height) > Vid.vid.Height)
+        {
             Sys.Error("Draw_TransPic: bad coordinates"u8);
+        }
 
-        byte* source = (byte*)pic + sizeof(int) * 2;
+        byte* source = (byte*)pic + (sizeof(int) * 2);
 
         if (DIface.r_pixbytes == 1)
         {
-            byte* dest = Vid.vid.Buffer + y * Vid.vid.RowBytes + x;
+            byte* dest = Vid.vid.Buffer + (y * Vid.vid.RowBytes) + x;
 
             // Original had a general loop and an 8-wide unwound loop; both
             // copy every non-transparent pixel, which TransRow does 16 at a time.
@@ -358,7 +429,7 @@ public static unsafe class Draw
         else
         {
             // FIXME: pretranslate at load time?
-            ushort* pusdest = (ushort*)Vid.vid.Buffer + y * (Vid.vid.RowBytes >> 1) + x;
+            ushort* pusdest = (ushort*)Vid.vid.Buffer + (y * (Vid.vid.RowBytes >> 1)) + x;
 
             for (int v = 0; v < pic->Height; v++)
             {
@@ -366,7 +437,9 @@ public static unsafe class Draw
                 {
                     byte tbyte = source[u];
                     if (tbyte != DIface.TRANSPARENT_COLOR)
+                    {
                         pusdest[u] = Vid.d_8to16table[tbyte];
+                    }
                 }
 
                 pusdest += Vid.vid.RowBytes >> 1;
@@ -385,13 +458,15 @@ public static unsafe class Draw
         }
 
         if (x < 0 || (uint)(x + pic->Width) > Vid.vid.Width || y < 0 || (uint)(y + pic->Height) > Vid.vid.Height)
+        {
             Sys.Error("Draw_TransPic: bad coordinates"u8);
+        }
 
-        byte* source = (byte*)pic + sizeof(int) * 2;
+        byte* source = (byte*)pic + (sizeof(int) * 2);
 
         if (DIface.r_pixbytes == 1)
         {
-            byte* dest = Vid.vid.Buffer + y * Vid.vid.RowBytes + x;
+            byte* dest = Vid.vid.Buffer + (y * Vid.vid.RowBytes) + x;
 
             if ((pic->Width & 7) != 0)
             { // general
@@ -401,7 +476,9 @@ public static unsafe class Draw
                     {
                         byte tbyte = source[u];
                         if (tbyte != DIface.TRANSPARENT_COLOR)
+                        {
                             dest[u] = translation[tbyte];
+                        }
                     }
 
                     dest += Vid.vid.RowBytes;
@@ -418,7 +495,9 @@ public static unsafe class Draw
                         {
                             byte tbyte = source[u + k];
                             if (tbyte != DIface.TRANSPARENT_COLOR)
+                            {
                                 dest[u + k] = translation[tbyte];
+                            }
                         }
                     }
                     dest += Vid.vid.RowBytes;
@@ -429,7 +508,7 @@ public static unsafe class Draw
         else
         {
             // FIXME: pretranslate at load time?
-            ushort* pusdest = (ushort*)Vid.vid.Buffer + y * (Vid.vid.RowBytes >> 1) + x;
+            ushort* pusdest = (ushort*)Vid.vid.Buffer + (y * (Vid.vid.RowBytes >> 1)) + x;
 
             for (int v = 0; v < pic->Height; v++)
             {
@@ -437,7 +516,9 @@ public static unsafe class Draw
                 {
                     byte tbyte = source[u];
                     if (tbyte != DIface.TRANSPARENT_COLOR)
+                    {
                         pusdest[u] = Vid.d_8to16table[tbyte];
+                    }
                 }
 
                 pusdest += Vid.vid.RowBytes >> 1;
@@ -458,8 +539,13 @@ public static unsafe class Draw
         while (drawline-- != 0)
         {
             for (int x = 0; x < 8; x++)
+            {
                 if (source[x] != 0)
+                {
                     dest[x] = (byte)(0x60 + source[x]);
+                }
+            }
+
             source += 128;
             dest += 320;
         }
@@ -471,11 +557,13 @@ public static unsafe class Draw
         QPic_t* conback = CachePic("gfx/conback.lmp"u8);
 
         ReadOnlySpan<byte> ver = "(WinQuake) 1.09f"u8;
-        byte* conbackData = (byte*)conback + sizeof(int) * 2;
-        byte* verDest = conbackData + 320 * 186 + 320 - 11 - 8 * ver.Length;
+        byte* conbackData = (byte*)conback + (sizeof(int) * 2);
+        byte* verDest = conbackData + (320 * 186) + 320 - 11 - (8 * ver.Length);
 
         for (int x = 0; x < ver.Length; x++)
+        {
             CharToConback(ver[x], verDest + (x << 3));
+        }
 
         // draw the pic
         if (DIface.r_pixbytes == 1)
@@ -491,7 +579,7 @@ public static unsafe class Draw
                 // FIXME: pre-expand to native format?
                 // FIXME: does the endian switching go away in production?
                 int v = (int)((Vid.vid.ConHeight - lines + y) * 200 / Vid.vid.ConHeight);
-                byte* src = conbackData + v * 320;
+                byte* src = conbackData + (v * 320);
                 int f = 0;
                 int fstep = (int)(320 * 0x10000 / Vid.vid.ConWidth);
                 for (int x = 0; x < Vid.vid.ConWidth; x += 4)
@@ -533,7 +621,7 @@ public static unsafe class Draw
         byte* prevDest = null;
         for (int y = 0; y < rows; y++, dest += Vid.vid.ConRowBytes)
         {
-            int v = Math.Clamp((conHeight - lines + y / s) * 200 / conHeight, 0, 199);
+            int v = Math.Clamp((conHeight - lines + (y / s)) * 200 / conHeight, 0, 199);
             if (v == prevV)
             {
                 // same source line as the previous row: identical output
@@ -543,9 +631,11 @@ public static unsafe class Draw
 
             prevV = v;
             prevDest = dest;
-            byte* src = conbackData + v * 320;
+            byte* src = conbackData + (v * 320);
             for (int x = 0; x < physWidth; x++)
+            {
                 dest[x] = src[cols[x]];
+            }
         }
     }
 
@@ -574,7 +664,7 @@ public static unsafe class Draw
     // R_DrawRect8
     public static void DrawRect8(VRect_t* prect, int rowbytes, byte* psrc, int transparent)
     {
-        byte* pdest = Vid.vid.Buffer + prect->Y * Vid.vid.RowBytes + prect->X;
+        byte* pdest = Vid.vid.Buffer + (prect->Y * Vid.vid.RowBytes) + prect->X;
 
         int srcdelta = rowbytes - prect->Width;
         int destdelta = (int)Vid.vid.RowBytes - prect->Width;
@@ -587,7 +677,9 @@ public static unsafe class Draw
                 {
                     byte t = *psrc;
                     if (t != DIface.TRANSPARENT_COLOR)
+                    {
                         *pdest = t;
+                    }
 
                     psrc++;
                     pdest++;
@@ -612,7 +704,7 @@ public static unsafe class Draw
     public static void DrawRect16(VRect_t* prect, int rowbytes, byte* psrc, int transparent)
     {
         // FIXME: would it be better to pre-expand native-format versions?
-        ushort* pdest = (ushort*)Vid.vid.Buffer + prect->Y * (Vid.vid.RowBytes >> 1) + prect->X;
+        ushort* pdest = (ushort*)Vid.vid.Buffer + (prect->Y * (Vid.vid.RowBytes >> 1)) + prect->X;
 
         int srcdelta = rowbytes - prect->Width;
         int destdelta = (int)(Vid.vid.RowBytes >> 1) - prect->Width;
@@ -625,7 +717,9 @@ public static unsafe class Draw
                 {
                     byte t = *psrc;
                     if (t != DIface.TRANSPARENT_COLOR)
+                    {
                         *pdest = Vid.d_8to16table[t];
+                    }
 
                     psrc++;
                     pdest++;
@@ -677,7 +771,9 @@ public static unsafe class Draw
             vr.Height = tileoffsety != 0 ? r_rectdesc.Height - tileoffsety : r_rectdesc.Height;
 
             if (vr.Height > height)
+            {
                 vr.Height = height;
+            }
 
             int tileoffsetx = vr.X % r_rectdesc.Width;
 
@@ -686,14 +782,20 @@ public static unsafe class Draw
                 vr.Width = tileoffsetx != 0 ? r_rectdesc.Width - tileoffsetx : r_rectdesc.Width;
 
                 if (vr.Width > width)
+                {
                     vr.Width = width;
+                }
 
-                byte* psrc = r_rectdesc.PTexBytes + tileoffsety * r_rectdesc.RowBytes + tileoffsetx;
+                byte* psrc = r_rectdesc.PTexBytes + (tileoffsety * r_rectdesc.RowBytes) + tileoffsetx;
 
                 if (DIface.r_pixbytes == 1)
+                {
                     DrawRect8(&vr, r_rectdesc.RowBytes, psrc, 0);
+                }
                 else
+                {
                     DrawRect16(&vr, r_rectdesc.RowBytes, psrc, 0);
+                }
 
                 vr.X += vr.Width;
                 width -= vr.Width;
@@ -719,18 +821,24 @@ public static unsafe class Draw
 
         if (DIface.r_pixbytes == 1)
         {
-            byte* dest = Vid.vid.Buffer + y * Vid.vid.RowBytes + x;
+            byte* dest = Vid.vid.Buffer + (y * Vid.vid.RowBytes) + x;
             for (int v = 0; v < h; v++, dest += Vid.vid.RowBytes)
+            {
                 new Span<byte>(dest, w).Fill((byte)c);
+            }
         }
         else
         {
             ushort uc = Vid.d_8to16table[c];
 
-            ushort* pusdest = (ushort*)Vid.vid.Buffer + y * (Vid.vid.RowBytes >> 1) + x;
+            ushort* pusdest = (ushort*)Vid.vid.Buffer + (y * (Vid.vid.RowBytes >> 1)) + x;
             for (int v = 0; v < h; v++, pusdest += Vid.vid.RowBytes >> 1)
+            {
                 for (int u = 0; u < w; u++)
+                {
                     pusdest[u] = uc;
+                }
+            }
         }
     }
 
@@ -744,7 +852,7 @@ public static unsafe class Draw
 
         for (int y = 0; y < Vid.vid.Height; y++)
         {
-            byte* pbuf = Vid.vid.Buffer + Vid.vid.RowBytes * y;
+            byte* pbuf = Vid.vid.Buffer + (Vid.vid.RowBytes * y);
             int t = (y & 1) << 1;
 
             DrawSimd.FadeRow(pbuf, (int)Vid.vid.Width, t);
@@ -762,7 +870,9 @@ public static unsafe class Draw
     public static void BeginDisc()
     {
         if (draw_disc == null)
+        {
             return;
+        }
 
         Vid.D_BeginDirectRect((int)Vid.vid.Width - 24, 0, draw_disc->Data, 24, 24);
     }
@@ -774,7 +884,9 @@ public static unsafe class Draw
     public static void EndDisc()
     {
         if (draw_disc == null)
+        {
             return;
+        }
 
         Vid.D_EndDirectRect((int)Vid.vid.Width - 24, 0, 24, 24);
     }

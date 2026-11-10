@@ -18,7 +18,9 @@ public static unsafe class DModech
 
         DLocal.scale_for_mip = RShared.xscale;
         if (RShared.yscale > RShared.xscale)
+        {
             DLocal.scale_for_mip = RShared.yscale;
+        }
 
         DLocal.d_zrowbytes = Vid.vid.Width * 2;
         DLocal.d_zwidth = Vid.vid.Width;
@@ -46,12 +48,16 @@ public static unsafe class DModech
 
         DLocal.d_pix_min = (int)pixScale;
         if (DLocal.d_pix_min < 1)
+        {
             DLocal.d_pix_min = 1;
+        }
 
-        DLocal.d_pix_max = (int)(pixScale * 4.0f + 0.5f);
+        DLocal.d_pix_max = (int)((pixScale * 4.0f) + 0.5f);
         DLocal.d_pix_scale = pixScale / 128.0f;
         if (DLocal.d_pix_max < 1)
+        {
             DLocal.d_pix_max = 1;
+        }
 
         DLocal.d_y_aspect_shift = RShared.pixelAspect > 1.4f ? 1 : 0;
 
@@ -63,7 +69,7 @@ public static unsafe class DModech
         for (int i = 0; i < Vid.vid.Height; i++)
         {
             DLocal.d_scantable[i] = i * rowbytes;
-            DLocal.zspantable[i] = DLocal.d_pzbuffer + i * DLocal.d_zwidth;
+            DLocal.zspantable[i] = DLocal.d_pzbuffer + (i * DLocal.d_zwidth);
         }
     }
 }

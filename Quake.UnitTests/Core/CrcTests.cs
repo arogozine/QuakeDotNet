@@ -6,7 +6,7 @@ using Quake.Engine;
 namespace Quake.UnitTests;
 
 [TestClass]
-public sealed unsafe class CrcTests
+public sealed class CrcTests
 {
     // Independent bitwise reference implementation of the same algorithm
     // (CRC-16/CCITT, poly 0x1021, init 0xffff, non-reflected) that crc.c's
@@ -19,7 +19,9 @@ public sealed unsafe class CrcTests
         {
             crc ^= (ushort)(b << 8);
             for (int i = 0; i < 8; i++)
+            {
                 crc = (crc & 0x8000) != 0 ? (ushort)((crc << 1) ^ 0x1021) : (ushort)(crc << 1);
+            }
         }
         return crc;
     }
@@ -28,7 +30,10 @@ public sealed unsafe class CrcTests
     {
         Crc.Init(out ushort crc);
         foreach (byte b in data)
+        {
             Crc.ProcessByte(ref crc, b);
+        }
+
         return Crc.Value(crc);
     }
 
@@ -56,7 +61,9 @@ public sealed unsafe class CrcTests
         ];
 
         foreach (byte[] data in cases)
+        {
             Assert.AreEqual(ReferenceCrc(data), PortCrc(data));
+        }
     }
 
     [TestMethod]

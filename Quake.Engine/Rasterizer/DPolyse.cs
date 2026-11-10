@@ -126,9 +126,13 @@ public static unsafe class DPolyse
     public static void PolysetDraw()
     {
         if (DIface.r_affinetridesc.DrawType != 0)
+        {
             DrawSubdiv();
+        }
         else
+        {
             DrawNonSubdiv();
+        }
     }
 
     // D_PolysetDrawFinalVerts
@@ -173,8 +177,8 @@ public static unsafe class DPolyse
             FinalVert_t* index1 = pfv + ptri[i].VertIndex[1];
             FinalVert_t* index2 = pfv + ptri[i].VertIndex[2];
 
-            if ((index0->V[1] - index1->V[1]) * (index0->V[0] - index2->V[0]) -
-                (index0->V[0] - index1->V[0]) * (index0->V[1] - index2->V[1]) >= 0)
+            if (((index0->V[1] - index1->V[1]) * (index0->V[0] - index2->V[0])) -
+                ((index0->V[0] - index1->V[0]) * (index0->V[1] - index2->V[1])) >= 0)
             {
                 continue;
             }
@@ -192,11 +196,19 @@ public static unsafe class DPolyse
                 int s2 = index2->V[2];
 
                 if ((index0->Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     index0->V[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
+
                 if ((index1->Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     index1->V[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
+
                 if ((index2->Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     index2->V[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
 
                 PolysetRecursiveTriangle(index0->V, index1->V, index2->V);
 
@@ -220,11 +232,13 @@ public static unsafe class DPolyse
             FinalVert_t* index1 = pfv + ptri->VertIndex[1];
             FinalVert_t* index2 = pfv + ptri->VertIndex[2];
 
-            d_xdenom = (index0->V[1] - index1->V[1]) * (index0->V[0] - index2->V[0]) -
-                       (index0->V[0] - index1->V[0]) * (index0->V[1] - index2->V[1]);
+            d_xdenom = ((index0->V[1] - index1->V[1]) * (index0->V[0] - index2->V[0])) -
+                       ((index0->V[0] - index1->V[0]) * (index0->V[1] - index2->V[1]));
 
             if (d_xdenom >= 0)
+            {
                 continue;
+            }
 
             for (int k = 0; k < 3; k++)
             {
@@ -236,11 +250,19 @@ public static unsafe class DPolyse
             if (ptri->FacesFront == 0)
             {
                 if ((index0->Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     r_p0[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
+
                 if ((index1->Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     r_p1[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
+
                 if ((index2->Flags & DIface.ALIAS_ONSEAM) != 0)
+                {
                     r_p2[2] += DIface.r_affinetridesc.SeamFixupX16;
+                }
             }
 
             PolysetSetEdgeTable();
@@ -256,24 +278,39 @@ public static unsafe class DPolyse
 
         d = lp2[0] - lp1[0];
         if (d < -1 || d > 1)
+        {
             goto split;
+        }
+
         d = lp2[1] - lp1[1];
         if (d < -1 || d > 1)
+        {
             goto split;
+        }
 
         d = lp3[0] - lp2[0];
         if (d < -1 || d > 1)
+        {
             goto split2;
+        }
+
         d = lp3[1] - lp2[1];
         if (d < -1 || d > 1)
+        {
             goto split2;
+        }
 
         d = lp1[0] - lp3[0];
         if (d < -1 || d > 1)
+        {
             goto split3;
+        }
+
         d = lp1[1] - lp3[1];
         if (d >= -1 && d <= 1)
+        {
             return; // entire tri is filled
+        }
 
     split3:
         int* temp3 = lp1;
@@ -300,9 +337,14 @@ public static unsafe class DPolyse
 
         // draw the point if splitting a leading edge
         if (lp2[1] > lp1[1])
+        {
             goto nodraw;
+        }
+
         if (lp2[1] == lp1[1] && lp2[0] < lp1[0])
+        {
             goto nodraw;
+        }
 
         int z = newv[5] >> 16;
         short* zbuf = DLocal.zspantable[newv[1]] + newv[0];
@@ -328,7 +370,9 @@ public static unsafe class DPolyse
             skinstart = (byte*)DIface.r_affinetridesc.PSkin;
             byte* s = skinstart;
             for (int i = 0; i < DIface.MAX_LBM_HEIGHT; i++, s += skinwidth)
+            {
                 skintable[i] = s;
+            }
         }
     }
 
@@ -447,8 +491,8 @@ public static unsafe class DPolyse
             Vector128<float> t0 = Vector128.ConvertToSingle(Vector128.Load(r_p0 + 2) - p2);
             Vector128<float> t1 = Vector128.ConvertToSingle(Vector128.Load(r_p1 + 2) - p2);
 
-            Vector128<float> stepx = (t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv;
-            Vector128<float> stepy = (t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv;
+            Vector128<float> stepx = ((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv;
+            Vector128<float> stepy = ((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv;
 
             // ceil () for light so positive steps are exaggerated, negative steps
             // diminished,  pushing us away from underflow toward overflow. Underflow is
@@ -472,7 +516,7 @@ public static unsafe class DPolyse
             a_sstepxfrac = r_sstepx & 0xFFFF;
             a_tstepxfrac = r_tstepx & 0xFFFF;
 
-            a_ststepxwhole = skinwidthParam * (r_tstepx >> 16) + (r_sstepx >> 16);
+            a_ststepxwhole = (skinwidthParam * (r_tstepx >> 16)) + (r_sstepx >> 16);
         }
         else
         {
@@ -482,28 +526,28 @@ public static unsafe class DPolyse
             // very visible, overflow is very unlikely, because of ambient lighting
             float t0 = r_p0[4] - r_p2[4];
             float t1 = r_p1[4] - r_p2[4];
-            r_lstepx = float.ConvertToIntegerNative<int>(MathF.Ceiling((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv));
-            r_lstepy = float.ConvertToIntegerNative<int>(MathF.Ceiling((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv));
+            r_lstepx = float.ConvertToIntegerNative<int>(MathF.Ceiling(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv));
+            r_lstepy = float.ConvertToIntegerNative<int>(MathF.Ceiling(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv));
 
             t0 = r_p0[2] - r_p2[2];
             t1 = r_p1[2] - r_p2[2];
-            r_sstepx = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-            r_sstepy = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+            r_sstepx = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+            r_sstepy = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
             t0 = r_p0[3] - r_p2[3];
             t1 = r_p1[3] - r_p2[3];
-            r_tstepx = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-            r_tstepy = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+            r_tstepx = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+            r_tstepy = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
             t0 = r_p0[5] - r_p2[5];
             t1 = r_p1[5] - r_p2[5];
-            r_zistepx = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-            r_zistepy = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+            r_zistepx = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+            r_zistepy = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
             a_sstepxfrac = r_sstepx & 0xFFFF;
             a_tstepxfrac = r_tstepx & 0xFFFF;
 
-            a_ststepxwhole = skinwidthParam * (r_tstepx >> 16) + (r_sstepx >> 16);
+            a_ststepxwhole = (skinwidthParam * (r_tstepx >> 16)) + (r_sstepx >> 16);
         }
     }
 
@@ -582,7 +626,9 @@ public static unsafe class DPolyse
             int lcount = pspanpackage->Count;
 
             if (lcount == -1)
+            {
                 return;
+            }
 
             if (lcount != 0)
             {
@@ -621,14 +667,14 @@ public static unsafe class DPolyse
         ystart = plefttop[1];
         d_aspancount = plefttop[0] - prighttop[0];
 
-        d_ptex = (byte*)DIface.r_affinetridesc.PSkin + (plefttop[2] >> 16) + (plefttop[3] >> 16) * DIface.r_affinetridesc.SkinWidth;
+        d_ptex = (byte*)DIface.r_affinetridesc.PSkin + (plefttop[2] >> 16) + ((plefttop[3] >> 16) * DIface.r_affinetridesc.SkinWidth);
         d_sfrac = plefttop[2] & 0xFFFF;
         d_tfrac = plefttop[3] & 0xFFFF;
         d_light = plefttop[4];
         d_zi = plefttop[5];
 
-        d_pdest = DLocal.d_viewbuffer + ystart * RShared.screenwidth + plefttop[0];
-        d_pz = DLocal.d_pzbuffer + ystart * DLocal.d_zwidth + plefttop[0];
+        d_pdest = DLocal.d_viewbuffer + (ystart * RShared.screenwidth) + plefttop[0];
+        d_pz = DLocal.d_pzbuffer + (ystart * DLocal.d_zwidth) + plefttop[0];
 
         int working_lstepx;
 
@@ -660,17 +706,17 @@ public static unsafe class DPolyse
             working_lstepx = DEdge.ubasestep < 0 ? r_lstepx - 1 : r_lstepx;
 
             d_countextrastep = DEdge.ubasestep + 1;
-            d_ptexbasestep = ((r_sstepy + r_sstepx * DEdge.ubasestep) >> 16) +
-                              ((r_tstepy + r_tstepx * DEdge.ubasestep) >> 16) * DIface.r_affinetridesc.SkinWidth;
-            d_sfracbasestep = (r_sstepy + r_sstepx * DEdge.ubasestep) & 0xFFFF;
-            d_tfracbasestep = (r_tstepy + r_tstepx * DEdge.ubasestep) & 0xFFFF;
-            d_lightbasestep = r_lstepy + working_lstepx * DEdge.ubasestep;
-            d_zibasestep = r_zistepy + r_zistepx * DEdge.ubasestep;
+            d_ptexbasestep = ((r_sstepy + (r_sstepx * DEdge.ubasestep)) >> 16) +
+                              (((r_tstepy + (r_tstepx * DEdge.ubasestep)) >> 16) * DIface.r_affinetridesc.SkinWidth);
+            d_sfracbasestep = (r_sstepy + (r_sstepx * DEdge.ubasestep)) & 0xFFFF;
+            d_tfracbasestep = (r_tstepy + (r_tstepx * DEdge.ubasestep)) & 0xFFFF;
+            d_lightbasestep = r_lstepy + (working_lstepx * DEdge.ubasestep);
+            d_zibasestep = r_zistepy + (r_zistepx * DEdge.ubasestep);
 
-            d_ptexextrastep = ((r_sstepy + r_sstepx * d_countextrastep) >> 16) +
-                               ((r_tstepy + r_tstepx * d_countextrastep) >> 16) * DIface.r_affinetridesc.SkinWidth;
-            d_sfracextrastep = (r_sstepy + r_sstepx * d_countextrastep) & 0xFFFF;
-            d_tfracextrastep = (r_tstepy + r_tstepx * d_countextrastep) & 0xFFFF;
+            d_ptexextrastep = ((r_sstepy + (r_sstepx * d_countextrastep)) >> 16) +
+                               (((r_tstepy + (r_tstepx * d_countextrastep)) >> 16) * DIface.r_affinetridesc.SkinWidth);
+            d_sfracextrastep = (r_sstepy + (r_sstepx * d_countextrastep)) & 0xFFFF;
+            d_tfracextrastep = (r_tstepy + (r_tstepx * d_countextrastep)) & 0xFFFF;
             d_lightextrastep = d_lightbasestep + working_lstepx;
             d_ziextrastep = d_zibasestep + r_zistepx;
 
@@ -687,14 +733,14 @@ public static unsafe class DPolyse
 
             ystart = plefttop[1];
             d_aspancount = plefttop[0] - prighttop[0];
-            d_ptex = (byte*)DIface.r_affinetridesc.PSkin + (plefttop[2] >> 16) + (plefttop[3] >> 16) * DIface.r_affinetridesc.SkinWidth;
+            d_ptex = (byte*)DIface.r_affinetridesc.PSkin + (plefttop[2] >> 16) + ((plefttop[3] >> 16) * DIface.r_affinetridesc.SkinWidth);
             d_sfrac = 0;
             d_tfrac = 0;
             d_light = plefttop[4];
             d_zi = plefttop[5];
 
-            d_pdest = DLocal.d_viewbuffer + ystart * RShared.screenwidth + plefttop[0];
-            d_pz = DLocal.d_pzbuffer + ystart * DLocal.d_zwidth + plefttop[0];
+            d_pdest = DLocal.d_viewbuffer + (ystart * RShared.screenwidth) + plefttop[0];
+            d_pz = DLocal.d_pzbuffer + (ystart * DLocal.d_zwidth) + plefttop[0];
 
             if (height == 1)
             {
@@ -724,17 +770,17 @@ public static unsafe class DPolyse
                 working_lstepx = DEdge.ubasestep < 0 ? r_lstepx - 1 : r_lstepx;
 
                 d_countextrastep = DEdge.ubasestep + 1;
-                d_ptexbasestep = ((r_sstepy + r_sstepx * DEdge.ubasestep) >> 16) +
-                                  ((r_tstepy + r_tstepx * DEdge.ubasestep) >> 16) * DIface.r_affinetridesc.SkinWidth;
-                d_sfracbasestep = (r_sstepy + r_sstepx * DEdge.ubasestep) & 0xFFFF;
-                d_tfracbasestep = (r_tstepy + r_tstepx * DEdge.ubasestep) & 0xFFFF;
-                d_lightbasestep = r_lstepy + working_lstepx * DEdge.ubasestep;
-                d_zibasestep = r_zistepy + r_zistepx * DEdge.ubasestep;
+                d_ptexbasestep = ((r_sstepy + (r_sstepx * DEdge.ubasestep)) >> 16) +
+                                  (((r_tstepy + (r_tstepx * DEdge.ubasestep)) >> 16) * DIface.r_affinetridesc.SkinWidth);
+                d_sfracbasestep = (r_sstepy + (r_sstepx * DEdge.ubasestep)) & 0xFFFF;
+                d_tfracbasestep = (r_tstepy + (r_tstepx * DEdge.ubasestep)) & 0xFFFF;
+                d_lightbasestep = r_lstepy + (working_lstepx * DEdge.ubasestep);
+                d_zibasestep = r_zistepy + (r_zistepx * DEdge.ubasestep);
 
-                d_ptexextrastep = ((r_sstepy + r_sstepx * d_countextrastep) >> 16) +
-                                   ((r_tstepy + r_tstepx * d_countextrastep) >> 16) * DIface.r_affinetridesc.SkinWidth;
-                d_sfracextrastep = (r_sstepy + r_sstepx * d_countextrastep) & 0xFFFF;
-                d_tfracextrastep = (r_tstepy + r_tstepx * d_countextrastep) & 0xFFFF;
+                d_ptexextrastep = ((r_sstepy + (r_sstepx * d_countextrastep)) >> 16) +
+                                   (((r_tstepy + (r_tstepx * d_countextrastep)) >> 16) * DIface.r_affinetridesc.SkinWidth);
+                d_sfracextrastep = (r_sstepy + (r_sstepx * d_countextrastep)) & 0xFFFF;
+                d_tfracextrastep = (r_tstepy + (r_tstepx * d_countextrastep)) & 0xFFFF;
                 d_lightextrastep = d_lightbasestep + working_lstepx;
                 d_ziextrastep = d_zibasestep + r_zistepx;
 
@@ -802,10 +848,14 @@ public static unsafe class DPolyse
         }
 
         if (r_p0[1] > r_p2[1])
+        {
             edgetableindex += 2;
+        }
 
         if (r_p1[1] > r_p2[1])
+        {
             edgetableindex += 4;
+        }
 
         pedgetable = edgetables[edgetableindex];
     }

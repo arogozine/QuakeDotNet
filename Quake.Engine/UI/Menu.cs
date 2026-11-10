@@ -131,7 +131,9 @@ public static unsafe class Menu
     internal static void ConnectFailed(byte* reason)
     {
         if (reason != null)
+        {
             Q.StrNCpy(m_return_reason, reason, M_RETURN_REASON_LENGTH - 1);
+        }
 
         if (m_return_onerror)
         {
@@ -214,7 +216,10 @@ public static unsafe class Menu
     public static void DrawTransPic(int x, int y, QPic_t* pic)
     {
         if (pic == null)
+        {
             return;
+        }
+
         Draw.TransPic(x, y, pic);
     }
 
@@ -228,20 +233,35 @@ public static unsafe class Menu
     public static void BuildTranslationTable(int top, int bottom)
     {
         for (int j = 0; j < 256; j++)
+        {
             identityTable[j] = (byte)j;
+        }
+
         new Span<byte>(identityTable, 256).CopyTo(new Span<byte>(translationTable, 256));
 
         if (top < 128)
+        {
             new Span<byte>(identityTable + top, 16).CopyTo(new Span<byte>(translationTable + RMain.TOP_RANGE, 16));
+        }
         else
+        {
             for (int j = 0; j < 16; j++)
+            {
                 translationTable[RMain.TOP_RANGE + j] = identityTable[top + 15 - j];
+            }
+        }
 
         if (bottom < 128)
+        {
             new Span<byte>(identityTable + bottom, 16).CopyTo(new Span<byte>(translationTable + RMain.BOTTOM_RANGE, 16));
+        }
         else
+        {
             for (int j = 0; j < 16; j++)
+            {
                 translationTable[RMain.BOTTOM_RANGE + j] = identityTable[bottom + 15 - j];
+            }
+        }
     }
 
     public static void DrawTransPicTranslate(int x, int y, QPic_t* pic)
@@ -274,7 +294,10 @@ public static unsafe class Menu
             {
                 cy += 8;
                 if (n == 1)
+                {
                     p = Draw.CachePic("gfx/box_mm2.lmp"u8);
+                }
+
                 DrawTransPic(cx, cy, p);
             }
             p = Draw.CachePic("gfx/box_bm.lmp"u8);
@@ -357,7 +380,7 @@ public static unsafe class Menu
 
         int f = (int)(Host.host_time * 10) % 6;
 
-        DrawTransPic(54, 32 + m_main_cursor * 20, Draw.CachePic($"gfx/menudot{f + 1}.lmp"));
+        DrawTransPic(54, 32 + (m_main_cursor * 20), Draw.CachePic($"gfx/menudot{f + 1}.lmp"));
     }
 
     private static void Main_Key(int key)
@@ -369,19 +392,28 @@ public static unsafe class Menu
                 m_state = MenuState.None;
                 ClDemo.demonum = m_save_demonum;
                 if (ClDemo.demonum != -1 && !ClDemo.demoplayback && Cls.state != CActive.Connected)
+                {
                     ClDemo.NextDemo();
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 if (++m_main_cursor >= MAIN_ITEMS)
+                {
                     m_main_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_UPARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 if (--m_main_cursor < 0)
+                {
                     m_main_cursor = MAIN_ITEMS - 1;
+                }
+
                 break;
 
             case Keys.K_ENTER:
@@ -421,7 +453,7 @@ public static unsafe class Menu
 
         int f = (int)(Host.host_time * 10) % 6;
 
-        DrawTransPic(54, 32 + m_singleplayer_cursor * 20, Draw.CachePic($"gfx/menudot{f + 1}.lmp"));
+        DrawTransPic(54, 32 + (m_singleplayer_cursor * 20), Draw.CachePic($"gfx/menudot{f + 1}.lmp"));
     }
 
     private static void SinglePlayer_Key(int key)
@@ -435,13 +467,19 @@ public static unsafe class Menu
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 if (++m_singleplayer_cursor >= SINGLEPLAYER_ITEMS)
+                {
                     m_singleplayer_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_UPARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 if (--m_singleplayer_cursor < 0)
+                {
                     m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
+                }
+
                 break;
 
             case Keys.K_ENTER:
@@ -451,11 +489,19 @@ public static unsafe class Menu
                 {
                     case 0:
                         if (Sv.active)
+                        {
                             if (!Screen.ModalMessage("Are you sure you want to\nstart a new game?\n"u8))
+                            {
                                 break;
+                            }
+                        }
+
                         Keys.key_dest = KeyDest.Game;
                         if (Sv.active)
+                        {
                             Cmd.AddText("disconnect\n"u8);
+                        }
+
                         Cmd.AddText("maxplayers 1\n"u8);
                         Cmd.AddText("map start\n"u8);
                         break;
@@ -481,14 +527,16 @@ public static unsafe class Menu
     {
         for (int i = 0; i < MAX_SAVEGAMES; i++)
         {
-            byte* slot = m_filenames + i * M_FILENAME_SIZE;
+            byte* slot = m_filenames + (i * M_FILENAME_SIZE);
             Q.StrCpy(slot, "--- UNUSED SLOT ---"u8);
             loadable[i] = false;
 
             // The .NET file API takes a managed path (rule 8).
             string name = $"{CStr.ToString(Com.com_gamedir)}/s{i}.sav";
             if (!File.Exists(name))
+            {
                 continue;
+            }
 
             try
             {
@@ -496,12 +544,20 @@ public static unsafe class Menu
                 reader.ReadLine(); // version
                 string? comment = reader.ReadLine();
                 if (comment == null)
+                {
                     continue;
+                }
+
                 CStr.QStrncpy(slot, comment, SAVEGAME_COMMENT_LENGTH);
                 slot[SAVEGAME_COMMENT_LENGTH] = 0;
                 for (int j = 0; j < SAVEGAME_COMMENT_LENGTH; j++)
+                {
                     if (slot[j] == (byte)'_')
+                    {
                         slot[j] = (byte)' ';
+                    }
+                }
+
                 loadable[i] = true;
             }
             catch (IOException)
@@ -523,11 +579,20 @@ public static unsafe class Menu
     public static void Menu_Save_f()
     {
         if (!Sv.active)
+        {
             return;
+        }
+
         if (Cl.intermission != 0)
+        {
             return;
+        }
+
         if (Svs.maxclients != 1)
+        {
             return;
+        }
+
         m_entersound = true;
         m_state = MenuState.Save;
         Keys.key_dest = KeyDest.Menu;
@@ -540,9 +605,11 @@ public static unsafe class Menu
         DrawPic((320 - p->Width) / 2, 4, p);
 
         for (int i = 0; i < MAX_SAVEGAMES; i++)
-            Print(16, 32 + 8 * i, m_filenames + i * M_FILENAME_SIZE);
+        {
+            Print(16, 32 + (8 * i), m_filenames + (i * M_FILENAME_SIZE));
+        }
 
-        DrawCharacter(8, 32 + load_cursor * 8, 12 + ((int)(Host.realtime * 4) & 1));
+        DrawCharacter(8, 32 + (load_cursor * 8), 12 + ((int)(Host.realtime * 4) & 1));
     }
 
     private static void Save_Draw()
@@ -551,9 +618,11 @@ public static unsafe class Menu
         DrawPic((320 - p->Width) / 2, 4, p);
 
         for (int i = 0; i < MAX_SAVEGAMES; i++)
-            Print(16, 32 + 8 * i, m_filenames + i * M_FILENAME_SIZE);
+        {
+            Print(16, 32 + (8 * i), m_filenames + (i * M_FILENAME_SIZE));
+        }
 
-        DrawCharacter(8, 32 + load_cursor * 8, 12 + ((int)(Host.realtime * 4) & 1));
+        DrawCharacter(8, 32 + (load_cursor * 8), 12 + ((int)(Host.realtime * 4) & 1));
     }
 
     private static void Load_Key(int k)
@@ -567,7 +636,10 @@ public static unsafe class Menu
             case Keys.K_ENTER:
                 SndDma.LocalSound("misc/menu2.wav"u8);
                 if (!loadable[load_cursor])
+                {
                     return;
+                }
+
                 m_state = MenuState.None;
                 Keys.key_dest = KeyDest.Game;
 
@@ -580,7 +652,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 load_cursor--;
                 if (load_cursor < 0)
+                {
                     load_cursor = MAX_SAVEGAMES - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
@@ -588,7 +663,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 load_cursor++;
                 if (load_cursor >= MAX_SAVEGAMES)
+                {
                     load_cursor = 0;
+                }
+
                 break;
         }
     }
@@ -612,7 +690,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 load_cursor--;
                 if (load_cursor < 0)
+                {
                     load_cursor = MAX_SAVEGAMES - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
@@ -620,7 +701,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 load_cursor++;
                 if (load_cursor >= MAX_SAVEGAMES)
+                {
                     load_cursor = 0;
+                }
+
                 break;
         }
     }
@@ -646,10 +730,13 @@ public static unsafe class Menu
         DrawTransPic(72, 32, Draw.CachePic("gfx/mp_menu.lmp"u8));
 
         int f = (int)(Host.host_time * 10) % 6;
-        DrawTransPic(54, 32 + m_multiplayer_cursor * 20, Draw.CachePic($"gfx/menudot{f + 1}.lmp"));
+        DrawTransPic(54, 32 + (m_multiplayer_cursor * 20), Draw.CachePic($"gfx/menudot{f + 1}.lmp"));
 
         if (serialAvailable || ipxAvailable || tcpipAvailable)
+        {
             return;
+        }
+
         PrintWhite((320 / 2) - ((27 * 8) / 2), 148, "No Communications Available"u8);
     }
 
@@ -664,13 +751,19 @@ public static unsafe class Menu
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 if (++m_multiplayer_cursor >= MULTIPLAYER_ITEMS)
+                {
                     m_multiplayer_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_UPARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 if (--m_multiplayer_cursor < 0)
+                {
                     m_multiplayer_cursor = MULTIPLAYER_ITEMS - 1;
+                }
+
                 break;
 
             case Keys.K_ENTER:
@@ -680,7 +773,10 @@ public static unsafe class Menu
                     case 0:
                     case 1:
                         if (serialAvailable || ipxAvailable || tcpipAvailable)
+                        {
                             Menu_Net_f();
+                        }
+
                         break;
                     case 2:
                         Menu_Setup_f();
@@ -742,10 +838,14 @@ public static unsafe class Menu
         DrawCharacter(56, setup_cursor_table[setup_cursor], 12 + ((int)(Host.realtime * 4) & 1));
 
         if (setup_cursor == 0)
-            DrawCharacter(168 + 8 * Q.StrLen(setup_hostname), setup_cursor_table[setup_cursor], 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(168 + (8 * Q.StrLen(setup_hostname)), setup_cursor_table[setup_cursor], 10 + ((int)(Host.realtime * 4) & 1));
+        }
 
         if (setup_cursor == 1)
-            DrawCharacter(168 + 8 * Q.StrLen(setup_myname), setup_cursor_table[setup_cursor], 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(168 + (8 * Q.StrLen(setup_myname)), setup_cursor_table[setup_cursor], 10 + ((int)(Host.realtime * 4) & 1));
+        }
     }
 
     private static void Setup_Key(int k)
@@ -760,35 +860,55 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 setup_cursor--;
                 if (setup_cursor < 0)
+                {
                     setup_cursor = NUM_SETUP_CMDS - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 setup_cursor++;
                 if (setup_cursor >= NUM_SETUP_CMDS)
+                {
                     setup_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_LEFTARROW:
                 if (setup_cursor < 2)
+                {
                     return;
+                }
+
                 SndDma.LocalSound("misc/menu3.wav"u8);
                 if (setup_cursor == 2)
+                {
                     setup_top--;
+                }
+
                 if (setup_cursor == 3)
+                {
                     setup_bottom--;
+                }
+
                 break;
 
             case Keys.K_RIGHTARROW:
                 if (setup_cursor < 2)
+                {
                     return;
+                }
+
                 SetupForward();
                 break;
 
             case Keys.K_ENTER:
                 if (setup_cursor == 0 || setup_cursor == 1)
+                {
                     return;
+                }
 
                 if (setup_cursor == 2 || setup_cursor == 3)
                 {
@@ -798,45 +918,89 @@ public static unsafe class Menu
 
                 // setup_cursor == 4 (OK)
                 if (Q.StrCmp(setup_myname, Cl.cl_name->String) != 0)
+                {
                     Cmd.AddText($"name \"{setup_myname}\"\n");
+                }
+
                 if (Q.StrCmp(setup_hostname, Net.hostname->String) != 0)
+                {
                     Cvar.Set("hostname"u8, setup_hostname);
+                }
+
                 if (setup_top != setup_oldtop || setup_bottom != setup_oldbottom)
+                {
                     Cmd.AddText($"color {setup_top} {setup_bottom}\n");
+                }
+
                 m_entersound = true;
                 Menu_MultiPlayer_f();
                 break;
 
             case Keys.K_BACKSPACE:
                 if (setup_cursor == 0)
+                {
                     StringHelper.FieldBackspace(setup_hostname);
+                }
+
                 if (setup_cursor == 1)
+                {
                     StringHelper.FieldBackspace(setup_myname);
+                }
+
                 break;
 
             default:
                 if (k < 32 || k > 127)
+                {
                     break;
+                }
+
                 if (setup_cursor == 0)
+                {
                     StringHelper.FieldAppend(setup_hostname, 15, k);
+                }
+
                 if (setup_cursor == 1)
+                {
                     StringHelper.FieldAppend(setup_myname, 15, k);
+                }
+
                 break;
         }
 
-        if (setup_top > 13) setup_top = 0;
-        if (setup_top < 0) setup_top = 13;
-        if (setup_bottom > 13) setup_bottom = 0;
-        if (setup_bottom < 0) setup_bottom = 13;
+        if (setup_top > 13)
+        {
+            setup_top = 0;
+        }
+
+        if (setup_top < 0)
+        {
+            setup_top = 13;
+        }
+
+        if (setup_bottom > 13)
+        {
+            setup_bottom = 0;
+        }
+
+        if (setup_bottom < 0)
+        {
+            setup_bottom = 13;
+        }
     }
 
     private static void SetupForward()
     {
         SndDma.LocalSound("misc/menu3.wav"u8);
         if (setup_cursor == 2)
+        {
             setup_top++;
+        }
+
         if (setup_cursor == 3)
+        {
             setup_bottom++;
+        }
     }
 
     //=============================================================================
@@ -873,7 +1037,10 @@ public static unsafe class Menu
         m_net_items = 4;
 
         if (m_net_cursor >= m_net_items)
+        {
             m_net_cursor = 0;
+        }
+
         m_net_cursor--;
         Net_Key(Keys.K_DOWNARROW);
     }
@@ -886,11 +1053,17 @@ public static unsafe class Menu
 
         int f = 32;
         p = serialAvailable ? Draw.CachePic("gfx/netmen1.lmp"u8) : null;
-        if (p != null) DrawTransPic(72, f, p);
+        if (p != null)
+        {
+            DrawTransPic(72, f, p);
+        }
 
         f += 19;
         p = serialAvailable ? Draw.CachePic("gfx/netmen2.lmp"u8) : null;
-        if (p != null) DrawTransPic(72, f, p);
+        if (p != null)
+        {
+            DrawTransPic(72, f, p);
+        }
 
         f += 19;
         p = ipxAvailable ? Draw.CachePic("gfx/netmen3.lmp"u8) : Draw.CachePic("gfx/dim_ipx.lmp"u8);
@@ -900,16 +1073,16 @@ public static unsafe class Menu
         p = tcpipAvailable ? Draw.CachePic("gfx/netmen4.lmp"u8) : Draw.CachePic("gfx/dim_tcp.lmp"u8);
         DrawTransPic(72, f, p);
 
-        f = (320 - 26 * 8) / 2;
+        f = (320 - (26 * 8)) / 2;
         DrawTextBox(f, 134, 24, 4);
         f += 8;
-        Print(f, 142, net_helpMessage[m_net_cursor * 4 + 0]);
-        Print(f, 150, net_helpMessage[m_net_cursor * 4 + 1]);
-        Print(f, 158, net_helpMessage[m_net_cursor * 4 + 2]);
-        Print(f, 166, net_helpMessage[m_net_cursor * 4 + 3]);
+        Print(f, 142, net_helpMessage[(m_net_cursor * 4) + 0]);
+        Print(f, 150, net_helpMessage[(m_net_cursor * 4) + 1]);
+        Print(f, 158, net_helpMessage[(m_net_cursor * 4) + 2]);
+        Print(f, 166, net_helpMessage[(m_net_cursor * 4) + 3]);
 
         int dotf = (int)(Host.host_time * 10) % 6;
-        DrawTransPic(54, 32 + m_net_cursor * 20, Draw.CachePic($"gfx/menudot{dotf + 1}.lmp"));
+        DrawTransPic(54, 32 + (m_net_cursor * 20), Draw.CachePic($"gfx/menudot{dotf + 1}.lmp"));
     }
 
     private static void Net_Key(int k)
@@ -925,13 +1098,19 @@ public static unsafe class Menu
                 case Keys.K_DOWNARROW:
                     SndDma.LocalSound("misc/menu1.wav"u8);
                     if (++m_net_cursor >= m_net_items)
+                    {
                         m_net_cursor = 0;
+                    }
+
                     break;
 
                 case Keys.K_UPARROW:
                     SndDma.LocalSound("misc/menu1.wav"u8);
                     if (--m_net_cursor < 0)
+                    {
                         m_net_cursor = m_net_items - 1;
+                    }
+
                     break;
 
                 case Keys.K_ENTER:
@@ -977,34 +1156,74 @@ public static unsafe class Menu
         {
             case 3: // screen size
                 Screen.scr_viewsize->Value += dir * 10;
-                if (Screen.scr_viewsize->Value < 30) Screen.scr_viewsize->Value = 30;
-                if (Screen.scr_viewsize->Value > 120) Screen.scr_viewsize->Value = 120;
+                if (Screen.scr_viewsize->Value < 30)
+                {
+                    Screen.scr_viewsize->Value = 30;
+                }
+
+                if (Screen.scr_viewsize->Value > 120)
+                {
+                    Screen.scr_viewsize->Value = 120;
+                }
+
                 Cvar.SetValue("viewsize"u8, Screen.scr_viewsize->Value);
                 break;
             case 4: // gamma
                 View.v_gamma->Value -= dir * 0.05f;
-                if (View.v_gamma->Value < 0.5f) View.v_gamma->Value = 0.5f;
-                if (View.v_gamma->Value > 1) View.v_gamma->Value = 1;
+                if (View.v_gamma->Value < 0.5f)
+                {
+                    View.v_gamma->Value = 0.5f;
+                }
+
+                if (View.v_gamma->Value > 1)
+                {
+                    View.v_gamma->Value = 1;
+                }
+
                 Cvar.SetValue("gamma"u8, View.v_gamma->Value);
                 break;
             case 5: // mouse speed
                 ClInput.sensitivity->Value += dir * 0.5f;
-                if (ClInput.sensitivity->Value < 1) ClInput.sensitivity->Value = 1;
-                if (ClInput.sensitivity->Value > 11) ClInput.sensitivity->Value = 11;
+                if (ClInput.sensitivity->Value < 1)
+                {
+                    ClInput.sensitivity->Value = 1;
+                }
+
+                if (ClInput.sensitivity->Value > 11)
+                {
+                    ClInput.sensitivity->Value = 11;
+                }
+
                 Cvar.SetValue("sensitivity"u8, ClInput.sensitivity->Value);
                 break;
             case 6: // music volume
                 // Original steps by dir*1.0 under _WIN32 (dir*0.1 on other builds);
                 // WinQuake always built with _WIN32 defined.
                 SndDma.bgmvolume->Value += dir * 1.0f;
-                if (SndDma.bgmvolume->Value < 0) SndDma.bgmvolume->Value = 0;
-                if (SndDma.bgmvolume->Value > 1) SndDma.bgmvolume->Value = 1;
+                if (SndDma.bgmvolume->Value < 0)
+                {
+                    SndDma.bgmvolume->Value = 0;
+                }
+
+                if (SndDma.bgmvolume->Value > 1)
+                {
+                    SndDma.bgmvolume->Value = 1;
+                }
+
                 Cvar.SetValue("bgmvolume"u8, SndDma.bgmvolume->Value);
                 break;
             case 7: // sfx volume
                 SndDma.volume->Value += dir * 0.1f;
-                if (SndDma.volume->Value < 0) SndDma.volume->Value = 0;
-                if (SndDma.volume->Value > 1) SndDma.volume->Value = 1;
+                if (SndDma.volume->Value < 0)
+                {
+                    SndDma.volume->Value = 0;
+                }
+
+                if (SndDma.volume->Value > 1)
+                {
+                    SndDma.volume->Value = 1;
+                }
+
                 Cvar.SetValue("volume"u8, SndDma.volume->Value);
                 break;
             case 8: // always run
@@ -1033,14 +1252,25 @@ public static unsafe class Menu
 
     private static void DrawSlider(int x, int y, float range)
     {
-        if (range < 0) range = 0;
-        if (range > 1) range = 1;
+        if (range < 0)
+        {
+            range = 0;
+        }
+
+        if (range > 1)
+        {
+            range = 1;
+        }
+
         DrawCharacter(x - 8, y, 128);
         int i;
         for (i = 0; i < SLIDER_RANGE; i++)
-            DrawCharacter(x + i * 8, y, 129);
-        DrawCharacter(x + i * 8, y, 130);
-        DrawCharacter((int)(x + (SLIDER_RANGE - 1) * 8 * range), y, 131);
+        {
+            DrawCharacter(x + (i * 8), y, 129);
+        }
+
+        DrawCharacter(x + (i * 8), y, 130);
+        DrawCharacter((int)(x + ((SLIDER_RANGE - 1) * 8 * range)), y, 131);
     }
 
     private static void DrawCheckbox(int x, int y, bool on)
@@ -1084,9 +1314,11 @@ public static unsafe class Menu
         DrawCheckbox(220, 120, ClInput.lookstrafe->Value != 0);
 
         if (vid_menudrawfn != null)
+        {
             Print(16, 128, "         Video Options"u8);
+        }
 
-        DrawCharacter(200, 32 + options_cursor * 8, 12 + ((int)(Host.realtime * 4) & 1));
+        DrawCharacter(200, 32 + (options_cursor * 8), 12 + ((int)(Host.realtime * 4) & 1));
     }
 
     private static void Options_Key(int k)
@@ -1113,14 +1345,20 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 options_cursor--;
                 if (options_cursor < 0)
+                {
                     options_cursor = OPTIONS_ITEMS - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 options_cursor++;
                 if (options_cursor >= OPTIONS_ITEMS)
+                {
                     options_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_LEFTARROW:
@@ -1133,7 +1371,9 @@ public static unsafe class Menu
         }
 
         if (options_cursor == 12 && vid_menudrawfn == null)
+        {
             options_cursor = k == Keys.K_UPARROW ? 11 : 0;
+        }
     }
 
     //=============================================================================
@@ -1183,9 +1423,14 @@ public static unsafe class Menu
         {
             byte* b = Keys.keybindings[j];
             if (b == null)
+            {
                 continue;
+            }
+
             if (Q.StrNCmp(b, command, l) == 0)
+            {
                 twokeys[count++] = j;
+            }
         }
     }
 
@@ -1197,9 +1442,14 @@ public static unsafe class Menu
         {
             byte* b = Keys.keybindings[j];
             if (b == null)
+            {
                 continue;
+            }
+
             if (Q.StrNCmp(b, command, l) == 0)
+            {
                 Keys.SetBinding(j, Utf8String.Empty);
+            }
         }
     }
 
@@ -1209,14 +1459,18 @@ public static unsafe class Menu
         DrawPic((320 - p->Width) / 2, 4, p);
 
         if (bind_grab)
+        {
             Print(12, 32, "Press a key or button for this action"u8);
+        }
         else
+        {
             Print(18, 32, "Enter to change, backspace to clear"u8);
+        }
 
         int* keys = stackalloc int[2];
         for (int i = 0; i < bindnames.Length; i++)
         {
-            int y = 48 + 8 * i;
+            int y = 48 + (8 * i);
             Print(16, y, bindnames[i].Description);
 
             FindKeysForCommand(bindnames[i].Command, keys);
@@ -1239,9 +1493,13 @@ public static unsafe class Menu
         }
 
         if (bind_grab)
-            DrawCharacter(130, 48 + keys_cursor * 8, '=');
+        {
+            DrawCharacter(130, 48 + (keys_cursor * 8), '=');
+        }
         else
-            DrawCharacter(130, 48 + keys_cursor * 8, 12 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(130, 48 + (keys_cursor * 8), 12 + ((int)(Host.realtime * 4) & 1));
+        }
     }
 
     private static void Keys_Key(int k)
@@ -1274,7 +1532,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 keys_cursor--;
                 if (keys_cursor < 0)
+                {
                     keys_cursor = bindnames.Length - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
@@ -1282,14 +1543,20 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 keys_cursor++;
                 if (keys_cursor >= bindnames.Length)
+                {
                     keys_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_ENTER: // go into bind mode
                 FindKeysForCommand(bindnames[keys_cursor].Command, keys);
                 SndDma.LocalSound("misc/menu2.wav"u8);
                 if (keys[1] != -1)
+                {
                     UnbindCommand(bindnames[keys_cursor].Command);
+                }
+
                 bind_grab = true;
                 break;
 
@@ -1314,13 +1581,17 @@ public static unsafe class Menu
     private static void Video_Draw()
     {
         if (vid_menudrawfn != null)
+        {
             vid_menudrawfn();
+        }
     }
 
     private static void Video_Key(int key)
     {
         if (vid_menukeyfn != null)
+        {
             vid_menukeyfn(key);
+        }
     }
 
     //=============================================================================
@@ -1351,14 +1622,20 @@ public static unsafe class Menu
             case Keys.K_RIGHTARROW:
                 m_entersound = true;
                 if (++help_page >= NUM_HELP_PAGES)
+                {
                     help_page = 0;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
             case Keys.K_LEFTARROW:
                 m_entersound = true;
                 if (--help_page < 0)
+                {
                     help_page = NUM_HELP_PAGES - 1;
+                }
+
                 break;
         }
     }
@@ -1387,7 +1664,10 @@ public static unsafe class Menu
     public static void Menu_Quit_f()
     {
         if (m_state == MenuState.Quit)
+        {
             return;
+        }
+
         wasInMenus = Keys.key_dest == KeyDest.Menu;
         Keys.key_dest = KeyDest.Menu;
         m_quit_prevstate = m_state;
@@ -1492,8 +1772,13 @@ public static unsafe class Menu
 
         int n;
         for (n = 0; n < 4; n++)
+        {
             if (ISA_uarts[n] == port)
+            {
                 break;
+            }
+        }
+
         if (n == 4)
         {
             n = 0;
@@ -1502,10 +1787,18 @@ public static unsafe class Menu
         serialConfig_comport = n + 1;
 
         for (n = 0; n < 6; n++)
+        {
             if (serialConfig_baudrate[n] == baud)
+            {
                 break;
+            }
+        }
+
         if (n == 6)
+        {
             n = 5;
+        }
+
         serialConfig_baud = n;
 
         m_return_onerror = false;
@@ -1561,10 +1854,14 @@ public static unsafe class Menu
         DrawCharacter(basex - 8, serialConfig_cursor_table[serialConfig_cursor], 12 + ((int)(Host.realtime * 4) & 1));
 
         if (serialConfig_cursor == 4)
-            DrawCharacter(168 + 8 * Q.StrLen(serialConfig_phone), serialConfig_cursor_table[serialConfig_cursor], 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(168 + (8 * Q.StrLen(serialConfig_phone)), serialConfig_cursor_table[serialConfig_cursor], 10 + ((int)(Host.realtime * 4) & 1));
+        }
 
         if (m_return_reason[0] != 0)
+        {
             PrintWhite(basex, 148, m_return_reason);
+        }
     }
 
     private static void SerialConfig_Key(int key)
@@ -1579,44 +1876,68 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 serialConfig_cursor--;
                 if (serialConfig_cursor < 0)
+                {
                     serialConfig_cursor = NUM_SERIALCONFIG_CMDS - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 serialConfig_cursor++;
                 if (serialConfig_cursor >= NUM_SERIALCONFIG_CMDS)
+                {
                     serialConfig_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_LEFTARROW:
                 if (serialConfig_cursor > 2)
+                {
                     break;
+                }
+
                 SndDma.LocalSound("misc/menu3.wav"u8);
                 if (serialConfig_cursor == 0)
                 {
                     serialConfig_comport--;
                     if (serialConfig_comport == 0)
+                    {
                         serialConfig_comport = 4;
+                    }
+
                     serialConfig_irq = ISA_IRQs[serialConfig_comport - 1];
                 }
                 if (serialConfig_cursor == 1)
                 {
                     serialConfig_irq--;
-                    if (serialConfig_irq == 6) serialConfig_irq = 5;
-                    if (serialConfig_irq == 1) serialConfig_irq = 7;
+                    if (serialConfig_irq == 6)
+                    {
+                        serialConfig_irq = 5;
+                    }
+
+                    if (serialConfig_irq == 1)
+                    {
+                        serialConfig_irq = 7;
+                    }
                 }
                 if (serialConfig_cursor == 2)
                 {
                     serialConfig_baud--;
                     if (serialConfig_baud < 0)
+                    {
                         serialConfig_baud = 5;
+                    }
                 }
                 break;
 
             case Keys.K_RIGHTARROW:
                 if (serialConfig_cursor > 2)
+                {
                     break;
+                }
+
                 SerialConfigForward();
                 break;
 
@@ -1668,22 +1989,35 @@ public static unsafe class Menu
 
             case Keys.K_BACKSPACE:
                 if (serialConfig_cursor == 4)
+                {
                     StringHelper.FieldBackspace(serialConfig_phone);
+                }
+
                 break;
 
             default:
                 if (key < 32 || key > 127)
+                {
                     break;
+                }
+
                 if (serialConfig_cursor == 4)
+                {
                     StringHelper.FieldAppend(serialConfig_phone, 15, key);
+                }
+
                 break;
         }
 
         if (DirectConfig && (serialConfig_cursor == 3 || serialConfig_cursor == 4))
+        {
             serialConfig_cursor = key == Keys.K_UPARROW ? 2 : 5;
+        }
 
         if (SerialConfig && StartingGame && serialConfig_cursor == 4)
+        {
             serialConfig_cursor = key == Keys.K_UPARROW ? 3 : 5;
+        }
     }
 
     private static void SerialConfigForward()
@@ -1693,20 +2027,32 @@ public static unsafe class Menu
         {
             serialConfig_comport++;
             if (serialConfig_comport > 4)
+            {
                 serialConfig_comport = 1;
+            }
+
             serialConfig_irq = ISA_IRQs[serialConfig_comport - 1];
         }
         if (serialConfig_cursor == 1)
         {
             serialConfig_irq++;
-            if (serialConfig_irq == 6) serialConfig_irq = 7;
-            if (serialConfig_irq == 8) serialConfig_irq = 2;
+            if (serialConfig_irq == 6)
+            {
+                serialConfig_irq = 7;
+            }
+
+            if (serialConfig_irq == 8)
+            {
+                serialConfig_irq = 2;
+            }
         }
         if (serialConfig_cursor == 2)
         {
             serialConfig_baud++;
             if (serialConfig_baud > 5)
+            {
                 serialConfig_baud = 0;
+            }
         }
     }
 
@@ -1747,19 +2093,25 @@ public static unsafe class Menu
         DrawTextBox(basex, modemConfig_cursor_table[1] + 4, 16, 1);
         Print(basex + 8, modemConfig_cursor_table[1] + 12, modemConfig_clear);
         if (modemConfig_cursor == 1)
-            DrawCharacter(basex + 8 + 8 * Q.StrLen(modemConfig_clear), modemConfig_cursor_table[1] + 12, 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(basex + 8 + (8 * Q.StrLen(modemConfig_clear)), modemConfig_cursor_table[1] + 12, 10 + ((int)(Host.realtime * 4) & 1));
+        }
 
         Print(basex, modemConfig_cursor_table[2], "Init"u8);
         DrawTextBox(basex, modemConfig_cursor_table[2] + 4, 30, 1);
         Print(basex + 8, modemConfig_cursor_table[2] + 12, modemConfig_init);
         if (modemConfig_cursor == 2)
-            DrawCharacter(basex + 8 + 8 * Q.StrLen(modemConfig_init), modemConfig_cursor_table[2] + 12, 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(basex + 8 + (8 * Q.StrLen(modemConfig_init)), modemConfig_cursor_table[2] + 12, 10 + ((int)(Host.realtime * 4) & 1));
+        }
 
         Print(basex, modemConfig_cursor_table[3], "Hangup"u8);
         DrawTextBox(basex, modemConfig_cursor_table[3] + 4, 16, 1);
         Print(basex + 8, modemConfig_cursor_table[3] + 12, modemConfig_hangup);
         if (modemConfig_cursor == 3)
-            DrawCharacter(basex + 8 + 8 * Q.StrLen(modemConfig_hangup), modemConfig_cursor_table[3] + 12, 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(basex + 8 + (8 * Q.StrLen(modemConfig_hangup)), modemConfig_cursor_table[3] + 12, 10 + ((int)(Host.realtime * 4) & 1));
+        }
 
         DrawTextBox(basex, modemConfig_cursor_table[4] - 8, 2, 1);
         Print(basex + 8, modemConfig_cursor_table[4], "OK"u8);
@@ -1779,14 +2131,20 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 modemConfig_cursor--;
                 if (modemConfig_cursor < 0)
+                {
                     modemConfig_cursor = NUM_MODEMCONFIG_CMDS - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 modemConfig_cursor++;
                 if (modemConfig_cursor >= NUM_MODEMCONFIG_CMDS)
+                {
                     modemConfig_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_LEFTARROW:
@@ -1816,22 +2174,43 @@ public static unsafe class Menu
 
             case Keys.K_BACKSPACE:
                 if (modemConfig_cursor == 1)
+                {
                     StringHelper.FieldBackspace(modemConfig_clear);
+                }
+
                 if (modemConfig_cursor == 2)
+                {
                     StringHelper.FieldBackspace(modemConfig_init);
+                }
+
                 if (modemConfig_cursor == 3)
+                {
                     StringHelper.FieldBackspace(modemConfig_hangup);
+                }
+
                 break;
 
             default:
                 if (key < 32 || key > 127)
+                {
                     break;
+                }
+
                 if (modemConfig_cursor == 1)
+                {
                     StringHelper.FieldAppend(modemConfig_clear, 15, key);
+                }
+
                 if (modemConfig_cursor == 2)
+                {
                     StringHelper.FieldAppend(modemConfig_init, 29, key);
+                }
+
                 if (modemConfig_cursor == 3)
+                {
                     StringHelper.FieldAppend(modemConfig_hangup, 15, key);
+                }
+
                 break;
         }
     }
@@ -1853,9 +2232,15 @@ public static unsafe class Menu
         m_state = MenuState.LanConfig;
         m_entersound = true;
         if (lanConfig_cursor == -1)
+        {
             lanConfig_cursor = JoiningGame && TCPIPConfig ? 2 : 1;
+        }
+
         if (StartingGame && lanConfig_cursor == 2)
+        {
             lanConfig_cursor = 1;
+        }
+
         lanConfig_port = Net.DEFAULTnet_hostport;
         CStr.Write(lanConfig_portname, $"{lanConfig_port}");
 
@@ -1876,12 +2261,18 @@ public static unsafe class Menu
         basex += 8;
 
         Print(basex, 52, "Address:"u8);
-        if (IPXConfig) Print(basex + 9 * 8, 52, my_ipx_address);
-        else Print(basex + 9 * 8, 52, NetIp.my_tcpip_address);
+        if (IPXConfig)
+        {
+            Print(basex + (9 * 8), 52, my_ipx_address);
+        }
+        else
+        {
+            Print(basex + (9 * 8), 52, NetIp.my_tcpip_address);
+        }
 
         Print(basex, lanConfig_cursor_table[0], "Port"u8);
-        DrawTextBox(basex + 8 * 8, lanConfig_cursor_table[0] - 8, 6, 1);
-        Print(basex + 9 * 8, lanConfig_cursor_table[0], lanConfig_portname);
+        DrawTextBox(basex + (8 * 8), lanConfig_cursor_table[0] - 8, 6, 1);
+        Print(basex + (9 * 8), lanConfig_cursor_table[0], lanConfig_portname);
 
         if (JoiningGame)
         {
@@ -1899,10 +2290,14 @@ public static unsafe class Menu
         DrawCharacter(basex - 8, lanConfig_cursor_table[lanConfig_cursor], 12 + ((int)(Host.realtime * 4) & 1));
 
         if (lanConfig_cursor == 0)
-            DrawCharacter(basex + 9 * 8 + 8 * Q.StrLen(lanConfig_portname), lanConfig_cursor_table[0], 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(basex + (9 * 8) + (8 * Q.StrLen(lanConfig_portname)), lanConfig_cursor_table[0], 10 + ((int)(Host.realtime * 4) & 1));
+        }
 
         if (lanConfig_cursor == 2)
-            DrawCharacter(basex + 16 + 8 * Q.StrLen(lanConfig_joinname), lanConfig_cursor_table[2], 10 + ((int)(Host.realtime * 4) & 1));
+        {
+            DrawCharacter(basex + 16 + (8 * Q.StrLen(lanConfig_joinname)), lanConfig_cursor_table[2], 10 + ((int)(Host.realtime * 4) & 1));
+        }
     }
 
     private static void LanConfig_Key(int key)
@@ -1917,19 +2312,27 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 lanConfig_cursor--;
                 if (lanConfig_cursor < 0)
+                {
                     lanConfig_cursor = NUM_LANCONFIG_CMDS - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 lanConfig_cursor++;
                 if (lanConfig_cursor >= NUM_LANCONFIG_CMDS)
+                {
                     lanConfig_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_ENTER:
                 if (lanConfig_cursor == 0)
+                {
                     break;
+                }
 
                 m_entersound = true;
                 ConfigureNetSubsystem();
@@ -1958,25 +2361,42 @@ public static unsafe class Menu
 
             case Keys.K_BACKSPACE:
                 if (lanConfig_cursor == 0)
+                {
                     StringHelper.FieldBackspace(lanConfig_portname);
+                }
+
                 if (lanConfig_cursor == 2)
+                {
                     StringHelper.FieldBackspace(lanConfig_joinname);
+                }
+
                 break;
 
             default:
                 if (key >= 32 && key <= 127 && lanConfig_cursor == 2)
+                {
                     StringHelper.FieldAppend(lanConfig_joinname, 21, key);
+                }
+
                 if (key >= '0' && key <= '9' && lanConfig_cursor == 0)
+                {
                     StringHelper.FieldAppend(lanConfig_portname, 5, key);
+                }
+
                 break;
         }
 
         if (StartingGame && lanConfig_cursor == 2)
+        {
             lanConfig_cursor = key == Keys.K_UPARROW ? 1 : 0;
+        }
 
         int l = Q.Atoi(lanConfig_portname);
         if (l <= 65535)
+        {
             lanConfig_port = l;
+        }
+
         CStr.Write(lanConfig_portname, $"{lanConfig_port}");
     }
 
@@ -2100,9 +2520,14 @@ public static unsafe class Menu
         m_state = MenuState.GameOptions;
         m_entersound = true;
         if (maxplayers == 0)
+        {
             maxplayers = Svs.maxclients;
+        }
+
         if (maxplayers < 2)
+        {
             maxplayers = Svs.maxclientslimit;
+        }
     }
 
     private static readonly int[] gameoptions_cursor_table = { 40, 56, 64, 72, 80, 88, 96, 112, 120 };
@@ -2142,22 +2567,40 @@ public static unsafe class Menu
         Print(160, 80, ((int)Host.skill->Value) switch { 0 => "Easy difficulty"u8, 1 => "Normal difficulty"u8, 2 => "Hard difficulty"u8, _ => "Nightmare difficulty"u8 });
 
         Print(0, 88, "       Frag Limit"u8);
-        if (Host.fraglimit->Value == 0) Print(160, 88, "none"u8);
-        else Print(160, 88, $"{(int)Host.fraglimit->Value} frags");
+        if (Host.fraglimit->Value == 0)
+        {
+            Print(160, 88, "none"u8);
+        }
+        else
+        {
+            Print(160, 88, $"{(int)Host.fraglimit->Value} frags");
+        }
 
         Print(0, 96, "       Time Limit"u8);
-        if (Host.timelimit->Value == 0) Print(160, 96, "none"u8);
-        else Print(160, 96, $"{(int)Host.timelimit->Value} minutes");
+        if (Host.timelimit->Value == 0)
+        {
+            Print(160, 96, "none"u8);
+        }
+        else
+        {
+            Print(160, 96, $"{(int)Host.timelimit->Value} minutes");
+        }
 
         Print(0, 112, "         Episode"u8);
         // MED 01/06/97 added hipnotic episodes
         if (Com.hipnotic)
+        {
             Print(160, 112, hipnoticepisodes[startepisode].Description);
+        }
         // PGM 01/07/97 added rogue episodes
         else if (Com.rogue)
+        {
             Print(160, 112, rogueepisodes[startepisode].Description);
+        }
         else
+        {
             Print(160, 112, episodes[startepisode].Description);
+        }
 
         Print(0, 120, "           Level"u8);
         // MED 01/06/97 added hipnotic episodes
@@ -2184,7 +2627,7 @@ public static unsafe class Menu
         {
             if ((Host.realtime - m_serverInfoMessageTime) < 5.0)
             {
-                int x = (320 - 26 * 8) / 2;
+                int x = (320 - (26 * 8)) / 2;
                 DrawTextBox(x, 138, 24, 4);
                 x += 8;
                 Print(x, 146, "  More than 4 players   "u8);
@@ -2212,7 +2655,10 @@ public static unsafe class Menu
                     m_serverInfoMessageTime = Host.realtime;
                 }
                 if (maxplayers < 2)
+                {
                     maxplayers = 2;
+                }
+
                 break;
 
             case 2:
@@ -2224,28 +2670,57 @@ public static unsafe class Menu
                     int count = Com.rogue ? 6 : 2;
                     Cvar.SetValue("teamplay"u8, Host.teamplay->Value + dir);
                     if (Host.teamplay->Value > count)
+                    {
                         Cvar.SetValue("teamplay"u8, 0);
+                    }
                     else if (Host.teamplay->Value < 0)
+                    {
                         Cvar.SetValue("teamplay"u8, count);
+                    }
+
                     break;
                 }
 
             case 4:
                 Cvar.SetValue("skill"u8, Host.skill->Value + dir);
-                if (Host.skill->Value > 3) Cvar.SetValue("skill"u8, 0);
-                if (Host.skill->Value < 0) Cvar.SetValue("skill"u8, 3);
+                if (Host.skill->Value > 3)
+                {
+                    Cvar.SetValue("skill"u8, 0);
+                }
+
+                if (Host.skill->Value < 0)
+                {
+                    Cvar.SetValue("skill"u8, 3);
+                }
+
                 break;
 
             case 5:
-                Cvar.SetValue("fraglimit"u8, Host.fraglimit->Value + dir * 10);
-                if (Host.fraglimit->Value > 100) Cvar.SetValue("fraglimit"u8, 0);
-                if (Host.fraglimit->Value < 0) Cvar.SetValue("fraglimit"u8, 100);
+                Cvar.SetValue("fraglimit"u8, Host.fraglimit->Value + (dir * 10));
+                if (Host.fraglimit->Value > 100)
+                {
+                    Cvar.SetValue("fraglimit"u8, 0);
+                }
+
+                if (Host.fraglimit->Value < 0)
+                {
+                    Cvar.SetValue("fraglimit"u8, 100);
+                }
+
                 break;
 
             case 6:
-                Cvar.SetValue("timelimit"u8, Host.timelimit->Value + dir * 5);
-                if (Host.timelimit->Value > 60) Cvar.SetValue("timelimit"u8, 0);
-                if (Host.timelimit->Value < 0) Cvar.SetValue("timelimit"u8, 60);
+                Cvar.SetValue("timelimit"u8, Host.timelimit->Value + (dir * 5));
+                if (Host.timelimit->Value > 60)
+                {
+                    Cvar.SetValue("timelimit"u8, 0);
+                }
+
+                if (Host.timelimit->Value < 0)
+                {
+                    Cvar.SetValue("timelimit"u8, 60);
+                }
+
                 break;
 
             case 7:
@@ -2255,8 +2730,16 @@ public static unsafe class Menu
                     // PGM 01/07/97 added rogue count
                     // PGM 03/02/97 added 1 for dmatch episode
                     int count = Com.hipnotic ? 6 : Com.rogue ? 4 : Com.registered_cvar->Value != 0 ? 7 : 2;
-                    if (startepisode < 0) startepisode = count - 1;
-                    if (startepisode >= count) startepisode = 0;
+                    if (startepisode < 0)
+                    {
+                        startepisode = count - 1;
+                    }
+
+                    if (startepisode >= count)
+                    {
+                        startepisode = 0;
+                    }
+
                     startlevel = 0;
                     break;
                 }
@@ -2269,8 +2752,16 @@ public static unsafe class Menu
                     int count = Com.hipnotic ? hipnoticepisodes[startepisode].Levels
                         : Com.rogue ? rogueepisodes[startepisode].Levels
                         : episodes[startepisode].Levels;
-                    if (startlevel < 0) startlevel = count - 1;
-                    if (startlevel >= count) startlevel = 0;
+                    if (startlevel < 0)
+                    {
+                        startlevel = count - 1;
+                    }
+
+                    if (startlevel >= count)
+                    {
+                        startlevel = 0;
+                    }
+
                     break;
                 }
         }
@@ -2288,26 +2779,38 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 gameoptions_cursor--;
                 if (gameoptions_cursor < 0)
+                {
                     gameoptions_cursor = NUM_GAMEOPTIONS - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 gameoptions_cursor++;
                 if (gameoptions_cursor >= NUM_GAMEOPTIONS)
+                {
                     gameoptions_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_LEFTARROW:
                 if (gameoptions_cursor == 0)
+                {
                     break;
+                }
+
                 SndDma.LocalSound("misc/menu3.wav"u8);
                 NetStart_Change(-1);
                 break;
 
             case Keys.K_RIGHTARROW:
                 if (gameoptions_cursor == 0)
+                {
                     break;
+                }
+
                 SndDma.LocalSound("misc/menu3.wav"u8);
                 NetStart_Change(1);
                 break;
@@ -2317,17 +2820,27 @@ public static unsafe class Menu
                 if (gameoptions_cursor == 0)
                 {
                     if (Sv.active)
+                    {
                         Cmd.AddText("disconnect\n"u8);
+                    }
+
                     Cmd.AddText("listen 0\n"u8);
                     Cmd.AddText($"maxplayers {maxplayers}\n");
                     Screen.BeginLoadingPlaque();
 
                     if (Com.hipnotic)
+                    {
                         Cmd.AddText($"map {hipnoticlevels[hipnoticepisodes[startepisode].FirstLevel + startlevel].Name}\n");
+                    }
                     else if (Com.rogue)
+                    {
                         Cmd.AddText($"map {roguelevels[rogueepisodes[startepisode].FirstLevel + startlevel].Name}\n");
+                    }
                     else
+                    {
                         Cmd.AddText($"map {levels[episodes[startepisode].FirstLevel + startlevel].Name}\n");
+                    }
+
                     return;
                 }
 
@@ -2381,7 +2894,9 @@ public static unsafe class Menu
 
         PrintWhite((320 / 2) - ((22 * 8) / 2), 64, "No Quake servers found"u8);
         if ((Host.realtime - searchCompleteTime) < 3.0)
+        {
             return;
+        }
 
         Menu_LanConfig_f();
     }
@@ -2415,13 +2930,17 @@ public static unsafe class Menu
             {
                 HostCache_t* hc = Net.hostcache;
                 for (int i = 0; i < Net.hostCacheCount; i++)
+                {
                     for (int j = i + 1; j < Net.hostCacheCount; j++)
+                    {
                         if (Q.StrCmp(hc[j].Name, hc[i].Name) < 0)
                         {
                             HostCache_t temp = hc[j];
                             hc[j] = hc[i];
                             hc[i] = temp;
                         }
+                    }
+                }
             }
             slist_sorted = true;
         }
@@ -2429,11 +2948,16 @@ public static unsafe class Menu
         QPic_t* p = Draw.CachePic("gfx/p_multi.lmp"u8);
         DrawPic((320 - p->Width) / 2, 4, p);
         for (int n = 0; n < Net.hostCacheCount; n++)
-            Print(16, 32 + 8 * n, Net.FormatSlistEntry(n));
-        DrawCharacter(0, 32 + slist_cursor * 8, 12 + ((int)(Host.realtime * 4) & 1));
+        {
+            Print(16, 32 + (8 * n), Net.FormatSlistEntry(n));
+        }
+
+        DrawCharacter(0, 32 + (slist_cursor * 8), 12 + ((int)(Host.realtime * 4) & 1));
 
         if (*m_return_reason != 0)
+        {
             PrintWhite(16, 148, m_return_reason);
+        }
     }
 
     internal static void ServerList_Key(int k)
@@ -2453,7 +2977,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 slist_cursor--;
                 if (slist_cursor < 0)
+                {
                     slist_cursor = Net.hostCacheCount - 1;
+                }
+
                 break;
 
             case Keys.K_DOWNARROW:
@@ -2461,7 +2988,10 @@ public static unsafe class Menu
                 SndDma.LocalSound("misc/menu1.wav"u8);
                 slist_cursor++;
                 if (slist_cursor >= Net.hostCacheCount)
+                {
                     slist_cursor = 0;
+                }
+
                 break;
 
             case Keys.K_ENTER:
@@ -2512,7 +3042,9 @@ public static unsafe class Menu
     public static void Draw_()
     {
         if (m_state == MenuState.None || Keys.key_dest != KeyDest.Menu)
+        {
             return;
+        }
 
         if (!m_recursiveDraw)
         {
@@ -2524,7 +3056,9 @@ public static unsafe class Menu
                 Draw.ConsoleBackground((int)Vid.vid.ConHeight);
             }
             else
+            {
                 Draw.FadeScreen();
+            }
 
             Screen.scr_fullupdate = 0;
         }
@@ -2599,9 +3133,13 @@ public static unsafe class Menu
     {
         Cmd.AddText("stopdemo\n"u8);
         if (SerialConfig || DirectConfig)
+        {
             Cmd.AddText("com1 enable\n"u8);
+        }
 
         if (IPXConfig || TCPIPConfig)
+        {
             Net.net_hostport = lanConfig_port;
+        }
     }
 }

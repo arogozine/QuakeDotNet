@@ -5,7 +5,7 @@ namespace Quake.UnitTests;
 
 // Keeps EngineStateGuard's table inventory honest as the engine grows.
 [TestClass]
-public sealed unsafe class EngineStateGuardTests
+public sealed class EngineStateGuardTests
 {
     [TestMethod]
     public void AllReadonlyNativeTablesAreClassified()
@@ -22,7 +22,9 @@ public sealed unsafe class EngineStateGuardTests
         List<EngineStateGuard.Table> tables = [.. EngineStateGuard.RestoredTables().OrderBy(t => t.Ptr)];
 
         for (int i = 1; i < tables.Count; i++)
+        {
             Assert.IsLessThanOrEqualTo(tables[i].Ptr, tables[i - 1].Ptr + tables[i - 1].Bytes,
                 $"{tables[i - 1].Name} overlaps {tables[i].Name} -- wrong size?");
+        }
     }
 }

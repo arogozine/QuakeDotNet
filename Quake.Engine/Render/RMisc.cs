@@ -47,7 +47,7 @@ public static unsafe class RMisc
             Vec3_t n = RMain.screenedge[i].Normal;
             Vec3_t v = new(n.Z, -n.X, n.Y);
 
-            v2 = v.Y * RShared.vright + v.Z * RShared.vup + v.X * RShared.vpn;
+            v2 = (v.Y * RShared.vright) + (v.Z * RShared.vup) + (v.X * RShared.vpn);
 
             RMain.view_clipplanes[i].Normal = v2;
 
@@ -126,7 +126,9 @@ public static unsafe class RMisc
         {
             int used = (int)(RShared.surface_p - RShared.surfaces);
             if (used > RMain.r_maxsurfsseen)
+            {
                 RMain.r_maxsurfsseen = used;
+            }
 
             Con.Printf($"Used {used} of {(int)(RShared.surf_max - RShared.surfaces)} surfs; {RMain.r_maxsurfsseen} max\n");
         }
@@ -135,7 +137,9 @@ public static unsafe class RMisc
         {
             int edgecount = (int)(RShared.edge_p - RShared.r_edges);
             if (edgecount > RMain.r_maxedgesseen)
+            {
                 RMain.r_maxedgesseen = edgecount;
+            }
 
             Con.Printf($"Used {edgecount} of {RShared.r_numallocatededges} edges; {RMain.r_maxedgesseen} max\n");
         }
@@ -143,10 +147,14 @@ public static unsafe class RMisc
         RShared.r_refdef->AmbientLight = (int)RMain.r_ambient->Value;
 
         if (RShared.r_refdef->AmbientLight < 0)
+        {
             RShared.r_refdef->AmbientLight = 0;
+        }
 
         if (!Sv.active)
+        {
             RMain.r_draworder->Value = 0; // don't let cheaters look behind walls
+        }
 
         CheckVariables();
 
@@ -300,12 +308,14 @@ public static unsafe class RMisc
         x += RShared.r_refdef->Vrect.X;
         y += RShared.r_refdef->Vrect.Y;
 
-        byte* dest = Vid.vid.Buffer + Vid.vid.RowBytes * y + x;
+        byte* dest = Vid.vid.Buffer + (Vid.vid.RowBytes * y) + x;
 
         int s = (int)RMain.r_graphheight->Value;
 
         if (h > s)
+        {
             h = s;
+        }
 
         int i;
         for (i = 0; i < h; i++, dest -= Vid.vid.RowBytes * 2)
@@ -336,17 +346,22 @@ public static unsafe class RMisc
 
         int x = RShared.r_refdef->Vrect.Width <= MAX_TIMINGS
             ? RShared.r_refdef->Vrect.Width - 1
-            : RShared.r_refdef->Vrect.Width - (RShared.r_refdef->Vrect.Width - MAX_TIMINGS) / 2;
+            : RShared.r_refdef->Vrect.Width - ((RShared.r_refdef->Vrect.Width - MAX_TIMINGS) / 2);
 
         do
         {
             LineGraph(x, RShared.r_refdef->Vrect.Height - 2, r_timings[a]);
             if (x == 0)
+            {
                 break; // screen too small to hold entire thing
+            }
+
             x--;
             a--;
             if (a == -1)
+            {
                 a = MAX_TIMINGS - 1;
+            }
         } while (a != timex);
 
         timex = (timex + 1) % MAX_TIMINGS;
@@ -402,8 +417,8 @@ public static unsafe class RMisc
         {
             for (int j = 0; j < 3; j++)
             {
-                newpalette[i * 3 + j] = host_basepal != null
-                    ? (byte)((host_basepal[i * 3 + j] + basecolor[j]) / 2)
+                newpalette[(i * 3) + j] = host_basepal != null
+                    ? (byte)((host_basepal[(i * 3) + j] + basecolor[j]) / 2)
                     : (byte)0;
             }
         }

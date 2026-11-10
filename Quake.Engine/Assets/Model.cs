@@ -66,8 +66,13 @@ public static unsafe class ModelFlags
     public static bool IsNoLerp(byte* name)
     {
         foreach (byte* n in NoLerpList)
+        {
             if (Q.StrCaseCmp(n, name) == 0)
+            {
                 return true;
+            }
+        }
+
         return false;
     }
 
@@ -130,9 +135,15 @@ public static unsafe class Model
             Model_t* mod = mod_known + i;
             Con.Printf($"{(nint)mod->Cache.Data:x8} : {mod->Name}");
             if ((mod->NeedLoad & (int)NeedLoad.Unreferenced) != 0)
+            {
                 Con.Printf(" (!R)"u8);
+            }
+
             if ((mod->NeedLoad & (int)NeedLoad.NeedsLoaded) != 0)
+            {
                 Con.Printf(" (!P)"u8);
+            }
+
             Con.Printf("\n"u8);
         }
     }
@@ -142,12 +153,17 @@ public static unsafe class Model
     {
         void* r = Cache.Check(&mod->Cache);
         if (r != null)
+        {
             return r;
+        }
 
         LoadModel(mod, true);
 
         if (mod->Cache.Data == null)
+        {
             Sys.Error("Mod_Extradata: caching failed"u8);
+        }
+
         return mod->Cache.Data;
     }
 
@@ -155,13 +171,18 @@ public static unsafe class Model
     public static MLeaf_t* PointInLeaf(in Vec3_t p, Model_t* model)
     {
         if (model == null || model->Nodes == null)
+        {
             Sys.Error("Mod_PointInLeaf: bad model"u8);
+        }
 
         MNode_t* node = model->Nodes;
         while (true)
         {
             if (node->Contents < 0)
+            {
                 return (MLeaf_t*)node;
+            }
+
             MPlane_t* plane = node->Plane;
 
             Vec3_t normal = plane->Normal;
@@ -182,7 +203,10 @@ public static unsafe class Model
         {
             // no vis info, so make all visible
             for (int i = 0; i < row; i++)
+            {
                 *@out++ = 0xff;
+            }
+
             return decompressed;
         }
 
@@ -210,7 +234,10 @@ public static unsafe class Model
     public static byte* LeafPVS(MLeaf_t* leaf, Model_t* model)
     {
         if (leaf == model->Leafs)
+        {
             return mod_novis;
+        }
+
         return DecompressVis(leaf->CompressedVis, model);
     }
 
@@ -223,7 +250,9 @@ public static unsafe class Model
             mod->NeedLoad = (int)NeedLoad.Unreferenced;
             // FIX FOR CACHE_ALLOC ERRORS:
             if (mod->Type == ModType_t.Sprite)
+            {
                 mod->Cache.Data = null;
+            }
         }
     }
 
@@ -231,7 +260,9 @@ public static unsafe class Model
     public static Model_t* FindName(byte* name)
     {
         if (*name == 0)
+        {
             Sys.Error("Mod_ForName: NULL name"u8);
+        }
 
         Model_t* avail = null;
         int i;
@@ -239,10 +270,17 @@ public static unsafe class Model
         for (i = 0; i < mod_numknown; i++, mod++)
         {
             if (Q.StrCmp(mod->Name, name) == 0)
+            {
                 break;
+            }
+
             if (mod->NeedLoad == (int)NeedLoad.Unreferenced)
+            {
                 if (avail == null || mod->Type != ModType_t.Alias)
+                {
                     avail = mod;
+                }
+            }
         }
 
         if (i == mod_numknown)
@@ -253,8 +291,12 @@ public static unsafe class Model
                 {
                     mod = avail;
                     if (mod->Type == ModType_t.Alias)
+                    {
                         if (Cache.Check(&mod->Cache) != null)
+                        {
                             Cache.Free(&mod->Cache);
+                        }
+                    }
                 }
                 else
                 {
@@ -278,8 +320,12 @@ public static unsafe class Model
         Model_t* mod = FindName(name);
 
         if (mod->NeedLoad == (int)NeedLoad.Present)
+        {
             if (mod->Type == ModType_t.Alias)
+            {
                 Cache.Check(&mod->Cache);
+            }
+        }
     }
 
     // Mod_LoadModel
@@ -297,7 +343,9 @@ public static unsafe class Model
         else
         {
             if (mod->NeedLoad == (int)NeedLoad.Present)
+            {
                 return mod;
+            }
         }
 
         // because the world is so huge, load it one piece at a time
@@ -308,7 +356,10 @@ public static unsafe class Model
         if (buf == null)
         {
             if (crash)
+            {
                 Sys.Error($"Mod_NumForName: {mod->Name} not found");
+            }
+
             return null;
         }
 
@@ -381,16 +432,22 @@ public static unsafe class Model
         {
             m->DataOfs[i] = Com.LittleLong(m->DataOfs[i]);
             if (m->DataOfs[i] == -1)
+            {
                 continue;
+            }
 
             MipTex_t* mt = (MipTex_t*)((byte*)m + m->DataOfs[i]);
             mt->Width = (uint)Com.LittleLong((int)mt->Width);
             mt->Height = (uint)Com.LittleLong((int)mt->Height);
             for (int j = 0; j < BspFile.MIPLEVELS; j++)
+            {
                 mt->Offsets[j] = (uint)Com.LittleLong((int)mt->Offsets[j]);
+            }
 
             if ((mt->Width & 15) != 0 || (mt->Height & 15) != 0)
+            {
                 Sys.Error($"Texture {mt->Name} is not 16 aligned");
+            }
 
             int pixels = (int)(mt->Width * mt->Height / 64 * 85);
             Texture_t* tx = (Texture_t*)Hunk.AllocName(sizeof(Texture_t) + pixels, loadname);
@@ -400,13 +457,17 @@ public static unsafe class Model
             tx->Width = mt->Width;
             tx->Height = mt->Height;
             for (int j = 0; j < BspFile.MIPLEVELS; j++)
+            {
                 tx->Offsets[j] = mt->Offsets[j] + (uint)(sizeof(Texture_t) - sizeof(MipTex_t));
+            }
 
             // the pixels immediately follow the structures
             Q.MemCpy(tx + 1, mt + 1, pixels);
 
             if (Q.StrNCmp(mt->Name, skyName, 3) == 0)
+            {
                 RSky.InitSky(tx);
+            }
         }
 
         // sequence the animations
@@ -415,9 +476,14 @@ public static unsafe class Model
         {
             Texture_t* tx = loadmodel->Textures[i];
             if (tx == null || tx->Name[0] != (byte)'+')
+            {
                 continue;
+            }
+
             if (tx->AnimNext != null)
+            {
                 continue; // already sequenced
+            }
 
             // find the number of frames in the animation
             for (int k = 0; k < 10; k++)
@@ -429,7 +495,10 @@ public static unsafe class Model
             int max = tx->Name[1];
             int altmax = 0;
             if (max is >= (byte)'a' and <= (byte)'z')
+            {
                 max -= 'a' - 'A';
+            }
+
             if (max is >= (byte)'0' and <= (byte)'9')
             {
                 max -= '0';
@@ -453,26 +522,38 @@ public static unsafe class Model
             {
                 Texture_t* tx2 = loadmodel->Textures[j];
                 if (tx2 == null || tx2->Name[0] != (byte)'+')
+                {
                     continue;
+                }
+
                 if (Q.StrCmp(tx2->Name + 2, tx->Name + 2) != 0)
+                {
                     continue;
+                }
 
                 int num = tx2->Name[1];
                 if (num is >= (byte)'a' and <= (byte)'z')
+                {
                     num -= 'a' - 'A';
+                }
+
                 if (num is >= (byte)'0' and <= (byte)'9')
                 {
                     num -= '0';
                     anims[num] = tx2;
                     if (num + 1 > max)
+                    {
                         max = num + 1;
+                    }
                 }
                 else if (num is >= (byte)'A' and <= (byte)'J')
                 {
                     num -= 'A';
                     altanims[num] = tx2;
                     if (num + 1 > altmax)
+                    {
                         altmax = num + 1;
+                    }
                 }
                 else
                 {
@@ -485,25 +566,35 @@ public static unsafe class Model
             {
                 Texture_t* tx2 = anims[j];
                 if (tx2 == null)
+                {
                     Sys.Error($"Missing frame {j} of {tx->Name}");
+                }
+
                 tx2->AnimTotal = max * ANIM_CYCLE;
                 tx2->AnimMin = j * ANIM_CYCLE;
                 tx2->AnimMax = (j + 1) * ANIM_CYCLE;
                 tx2->AnimNext = anims[(j + 1) % max];
                 if (altmax != 0)
+                {
                     tx2->AlternateAnims = altanims[0];
+                }
             }
             for (int j = 0; j < altmax; j++)
             {
                 Texture_t* tx2 = altanims[j];
                 if (tx2 == null)
+                {
                     Sys.Error($"Missing frame {j} of {tx->Name}");
+                }
+
                 tx2->AnimTotal = altmax * ANIM_CYCLE;
                 tx2->AnimMin = j * ANIM_CYCLE;
                 tx2->AnimMax = (j + 1) * ANIM_CYCLE;
                 tx2->AnimNext = altanims[(j + 1) % altmax];
                 if (max != 0)
+                {
                     tx2->AlternateAnims = anims[0];
+                }
             }
         }
     }
@@ -560,7 +651,10 @@ public static unsafe class Model
     public static void LoadVertexes(Lump_t* l)
     {
         if (l->FileLen % sizeof(DVertex_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DVertex_t);
         DVertex_t* @in = (DVertex_t*)(mod_base + l->FileOfs);
         MVertex_t* @out = (MVertex_t*)Hunk.AllocName(count * sizeof(MVertex_t), loadname);
@@ -589,7 +683,10 @@ public static unsafe class Model
     public static void LoadSubmodels(Lump_t* l)
     {
         if (l->FileLen % sizeof(DModel_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DModel_t);
         DModel_t* @in = (DModel_t*)(mod_base + l->FileOfs);
         DModel_t* @out = (DModel_t*)Hunk.AllocName(count * sizeof(DModel_t), loadname);
@@ -607,7 +704,10 @@ public static unsafe class Model
                 @out->Origin[j] = Com.LittleFloat(@in->Origin[j]);
             }
             for (int j = 0; j < BspFile.MAX_MAP_HULLS; j++)
+            {
                 @out->HeadNode[j] = Com.LittleLong(@in->HeadNode[j]);
+            }
+
             @out->VisLeafs = Com.LittleLong(@in->VisLeafs);
             @out->FirstFace = Com.LittleLong(@in->FirstFace);
             @out->NumFaces = Com.LittleLong(@in->NumFaces);
@@ -618,7 +718,10 @@ public static unsafe class Model
     public static void LoadEdges(Lump_t* l)
     {
         if (l->FileLen % sizeof(DEdge_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DEdge_t);
         DEdge_t* @in = (DEdge_t*)(mod_base + l->FileOfs);
         MEdge_t* @out = (MEdge_t*)Hunk.AllocName((count + 1) * sizeof(MEdge_t), loadname);
@@ -637,7 +740,10 @@ public static unsafe class Model
     public static void LoadTexinfo(Lump_t* l)
     {
         if (l->FileLen % sizeof(TexInfo_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(TexInfo_t);
         TexInfo_t* @in = (TexInfo_t*)(mod_base + l->FileOfs);
         MTexInfo_t* @out = (MTexInfo_t*)Hunk.AllocName(count * sizeof(MTexInfo_t), loadname);
@@ -648,7 +754,9 @@ public static unsafe class Model
         for (int i = 0; i < count; i++, @in++, @out++)
         {
             for (int j = 0; j < 8; j++)
+            {
                 @out->Vecs[j] = Com.LittleFloat(@in->Vecs[j]);
+            }
 
             Vec3_t vec0 = *(Vec3_t*)@out->Vecs;
             Vec3_t vec1 = *(Vec3_t*)(@out->Vecs + 4);
@@ -656,13 +764,21 @@ public static unsafe class Model
             float len2 = vec1.Length();
             len1 = (len1 + len2) / 2;
             if (len1 < 0.32)
+            {
                 @out->MipAdjust = 4;
+            }
             else if (len1 < 0.49)
+            {
                 @out->MipAdjust = 3;
+            }
             else if (len1 < 0.99)
+            {
                 @out->MipAdjust = 2;
+            }
             else
+            {
                 @out->MipAdjust = 1;
+            }
 
             int miptex = Com.LittleLong(@in->MipTex);
             @out->Flags = Com.LittleLong(@in->Flags);
@@ -675,7 +791,10 @@ public static unsafe class Model
             else
             {
                 if (miptex >= loadmodel->NumTextures)
+                {
                     Sys.Error("miptex >= loadmodel->numtextures"u8);
+                }
+
                 @out->Texture = loadmodel->Textures[miptex];
                 if (@out->Texture == null)
                 {
@@ -704,13 +823,18 @@ public static unsafe class Model
 
             for (int j = 0; j < 2; j++)
             {
-                float val = Vector3.Dot(*v, *(Vector3*)(tex->Vecs + j * 4))
-                     + tex->Vecs[j * 4 + 3];
+                float val = Vector3.Dot(*v, *(Vector3*)(tex->Vecs + (j * 4)))
+                     + tex->Vecs[(j * 4) + 3];
 
                 if (val < mins[j])
+                {
                     mins[j] = val;
+                }
+
                 if (val > maxs[j])
+                {
                     maxs[j] = val;
+                }
             }
         }
 
@@ -722,7 +846,9 @@ public static unsafe class Model
             s->TextureMins[i] = (short)(bmins * 16);
             s->Extents[i] = (short)((bmaxs - bmins) * 16);
             if ((tex->Flags & BspFile.TEX_SPECIAL) == 0 && s->Extents[i] > 256)
+            {
                 Sys.Error("Bad surface extents"u8);
+            }
         }
     }
 
@@ -730,7 +856,10 @@ public static unsafe class Model
     public static void LoadFaces(Lump_t* l)
     {
         if (l->FileLen % sizeof(DFace_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DFace_t);
         DFace_t* @in = (DFace_t*)(mod_base + l->FileOfs);
         MSurface_t* @out = (MSurface_t*)Hunk.AllocName(count * sizeof(MSurface_t), loadname);
@@ -747,7 +876,9 @@ public static unsafe class Model
             int planenum = Com.LittleShort(@in->PlaneNum);
             int side = Com.LittleShort(@in->Side);
             if (side != 0)
+            {
                 @out->Flags |= Surf.PLANEBACK;
+            }
 
             @out->Plane = loadmodel->Planes + planenum;
 
@@ -757,7 +888,10 @@ public static unsafe class Model
 
             // lighting info
             for (int i = 0; i < BspFile.MAXLIGHTMAPS; i++)
+            {
                 @out->Styles[i] = @in->Styles[i];
+            }
+
             int lightofs = Com.LittleLong(@in->LightOfs);
             @out->Samples = lightofs == -1 ? null : loadmodel->LightData + lightofs;
 
@@ -786,7 +920,10 @@ public static unsafe class Model
     {
         node->Parent = parent;
         if (node->Contents < 0)
+        {
             return;
+        }
+
         SetParent(node->Children[0], node);
         SetParent(node->Children[1], node);
     }
@@ -795,7 +932,10 @@ public static unsafe class Model
     public static void LoadNodes(Lump_t* l)
     {
         if (l->FileLen % sizeof(DNode_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DNode_t);
         DNode_t* @in = (DNode_t*)(mod_base + l->FileOfs);
         MNode_t* @out = (MNode_t*)Hunk.AllocName(count * sizeof(MNode_t), loadname);
@@ -831,7 +971,10 @@ public static unsafe class Model
     public static void LoadLeafs(Lump_t* l)
     {
         if (l->FileLen % sizeof(DLeaf_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DLeaf_t);
         DLeaf_t* @in = (DLeaf_t*)(mod_base + l->FileOfs);
         MLeaf_t* @out = (MLeaf_t*)Hunk.AllocName(count * sizeof(MLeaf_t), loadname);
@@ -857,7 +1000,9 @@ public static unsafe class Model
             @out->EFrags = null;
 
             for (int j = 0; j < 4; j++)
+            {
                 @out->AmbientSoundLevel[j] = @in->AmbientLevel[j];
+            }
         }
     }
 
@@ -865,7 +1010,10 @@ public static unsafe class Model
     public static void LoadClipnodes(Lump_t* l)
     {
         if (l->FileLen % sizeof(DClipNode_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DClipNode_t);
         DClipNode_t* @in = (DClipNode_t*)(mod_base + l->FileOfs);
         DClipNode_t* @out = (DClipNode_t*)Hunk.AllocName(count * sizeof(DClipNode_t), loadname);
@@ -935,7 +1083,10 @@ public static unsafe class Model
     public static void LoadMarksurfaces(Lump_t* l)
     {
         if (l->FileLen % sizeof(short) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(short);
         short* @in = (short*)(mod_base + l->FileOfs);
         MSurface_t** @out = (MSurface_t**)Hunk.AllocName(count * sizeof(MSurface_t*), loadname);
@@ -947,7 +1098,10 @@ public static unsafe class Model
         {
             int j = Com.LittleShort(@in[i]);
             if (j >= loadmodel->NumSurfaces)
+            {
                 Sys.Error("Mod_ParseMarksurfaces: bad surface number"u8);
+            }
+
             @out[i] = loadmodel->Surfaces + j;
         }
     }
@@ -956,7 +1110,10 @@ public static unsafe class Model
     public static void LoadSurfedges(Lump_t* l)
     {
         if (l->FileLen % sizeof(int) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(int);
         int* @in = (int*)(mod_base + l->FileOfs);
         int* @out = (int*)Hunk.AllocName(count * sizeof(int), loadname);
@@ -965,14 +1122,19 @@ public static unsafe class Model
         loadmodel->NumSurfedges = count;
 
         for (int i = 0; i < count; i++)
+        {
             @out[i] = Com.LittleLong(@in[i]);
+        }
     }
 
     // Mod_LoadPlanes
     public static void LoadPlanes(Lump_t* l)
     {
         if (l->FileLen % sizeof(DPlane_t) != 0)
+        {
             Sys.Error($"MOD_LoadBmodel: funny lump size in {loadmodel->Name}");
+        }
+
         int count = l->FileLen / sizeof(DPlane_t);
         DPlane_t* @in = (DPlane_t*)(mod_base + l->FileOfs);
         MPlane_t* @out = (MPlane_t*)Hunk.AllocName(count * 2 * sizeof(MPlane_t), loadname);
@@ -987,7 +1149,9 @@ public static unsafe class Model
             {
                 @out->Normal[j] = Com.LittleFloat(@in->Normal[j]);
                 if (@out->Normal[j] < 0)
+                {
                     bits |= 1 << j;
+                }
             }
 
             @out->Dist = Com.LittleFloat(@in->Dist);
@@ -1002,7 +1166,9 @@ public static unsafe class Model
     {
         Vec3_t corner = default;
         for (int i = 0; i < 3; i++)
+        {
             corner[i] = MathF.Abs(mins[i]) > MathF.Abs(maxs[i]) ? MathF.Abs(mins[i]) : MathF.Abs(maxs[i]);
+        }
 
         return corner.Length();
     }
@@ -1016,14 +1182,18 @@ public static unsafe class Model
 
         int version = Com.LittleLong(header->Version);
         if (version != BspFile.BSPVERSION)
+        {
             Sys.Error($"Mod_LoadBrushModel: {mod->Name} has wrong version number ({version} should be {BspFile.BSPVERSION})");
+        }
 
         // swap all the lumps
         mod_base = (byte*)header;
 
         int* headerInts = (int*)header;
         for (int i = 0; i < sizeof(DHeader_t) / 4; i++)
+        {
             headerInts[i] = Com.LittleLong(headerInts[i]);
+        }
 
         // load into heap
         LoadVertexes(&header->Lumps[(int)BspLump.Vertexes]);

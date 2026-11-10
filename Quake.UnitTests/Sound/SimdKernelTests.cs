@@ -28,7 +28,15 @@ public sealed unsafe class SimdKernelTests
                 for (int i = 0; i < n; i++)
                 {
                     int val = (src[i] * vol) >> 8;
-                    if (val > 0x7fff) val = 0x7fff; else if (val < -0x8000) val = -0x8000;
+                    if (val > 0x7fff)
+                    {
+                        val = 0x7fff;
+                    }
+                    else if (val < -0x8000)
+                    {
+                        val = -0x8000;
+                    }
+
                     a[i] = (short)val;
                     c[i] = (byte)((val >> 8) + 128);
                 }
@@ -49,13 +57,13 @@ public sealed unsafe class SimdKernelTests
             short[] s16 = Enumerable.Range(0, n + 1).Select(_ => (short)r.Next(-32768, 32768)).ToArray();
             sbyte[] s8 = Enumerable.Range(0, n + 1).Select(_ => (sbyte)r.Next(-128, 128)).ToArray();
             int lv = r.Next(0, 400), rv = r.Next(0, 400);
-            int[] init = RandomInts(r, 2 * n + 2);
+            int[] init = RandomInts(r, (2 * n) + 2);
             int[] e16 = (int[])init.Clone(), g16 = (int[])init.Clone(), e8 = (int[])init.Clone(), g8 = (int[])init.Clone();
             int l8 = (Math.Min(lv, 255) >> 3), r8 = (Math.Min(rv, 255) >> 3);
             for (int i = 0; i < n; i++)
             {
-                e16[2 * i] += (s16[i] * lv) >> 8; e16[2 * i + 1] += (s16[i] * rv) >> 8;
-                e8[2 * i] += s8[i] * l8 * 8; e8[2 * i + 1] += s8[i] * r8 * 8;   // snd_scaletable[row][j] = (sbyte)j * row * 8
+                e16[2 * i] += (s16[i] * lv) >> 8; e16[(2 * i) + 1] += (s16[i] * rv) >> 8;
+                e8[2 * i] += s8[i] * l8 * 8; e8[(2 * i) + 1] += s8[i] * r8 * 8;   // snd_scaletable[row][j] = (sbyte)j * row * 8
             }
             fixed (short* p16 = s16) fixed (sbyte* p8 = s8) fixed (int* q16 = g16) fixed (int* q8 = g8)
             {
@@ -83,20 +91,35 @@ public sealed unsafe class SimdKernelTests
             SndDma.paintedtime = 20;   // out_idx = 40, count 40 -> wraps
             int endtime = 40;
             int* pb = (int*)SndMix.paintbuffer;
-            for (int i = 0; i < 2 * (endtime - 20); i++) pb[i] = r.Next(-60000, 60000);
+            for (int i = 0; i < 2 * (endtime - 20); i++)
+            {
+                pb[i] = r.Next(-60000, 60000);
+            }
+
             int vol = (int)(0.8f * 256);
             int outIdx = (20 * 2) & (samples - 1);
             for (int i = 0; i < 2 * (endtime - 20); i++)
             {
                 int val = (pb[i] * vol) >> 8;
-                if (val > 0x7fff) val = 0x7fff; else if (val < -0x8000) val = -0x8000;
+                if (val > 0x7fff)
+                {
+                    val = 0x7fff;
+                }
+                else if (val < -0x8000)
+                {
+                    val = -0x8000;
+                }
+
                 expected[outIdx] = (byte)((val >> 8) + 128);
                 outIdx = (outIdx + 1) & (samples - 1);
             }
 
             SndMix.TransferPaintBuffer(endtime);
 
-            for (int i = 0; i < samples; i++) Assert.AreEqual(expected[i], buf[i], $"byte {i}");
+            for (int i = 0; i < samples; i++)
+            {
+                Assert.AreEqual(expected[i], buf[i], $"byte {i}");
+            }
         }
         finally { NativeMemory.Free(buf); }
     }
@@ -111,8 +134,12 @@ public sealed unsafe class SimdKernelTests
             byte[] lm = new byte[size + 1]; r.NextBytes(lm);
             uint scale = (uint)r.Next(0, 600);
             uint[] e = (uint[])init.Clone(), g = (uint[])init.Clone();
-            for (int i = 0; i < size; i++) e[i] += lm[i] * scale;
-            for (int i = 0; i < size; i++) { int t = (int)(255 * 256 - e[i]) >> 2; if (t < 64) t = 64; e[i] = (uint)t; }
+            for (int i = 0; i < size; i++)
+            {
+                e[i] += lm[i] * scale;
+            }
+
+            for (int i = 0; i < size; i++) { int t = (int)((255 * 256) - e[i]) >> 2; if (t < 64) { t = 64; } e[i] = (uint)t; }
             fixed (uint* pg = g) fixed (byte* pl = lm)
             {
                 RSurfSimd.AddScaled(pg, pl, size, scale);
@@ -129,21 +156,40 @@ public sealed unsafe class SimdKernelTests
         for (int trial = 0; trial < 200; trial++)
         {
             int smax = r.Next(1, 19), tmax = r.Next(1, 19);
-            float l0 = (float)(r.NextDouble() * 300 - 40), l1 = (float)(r.NextDouble() * 300 - 40);
-            float rad = (float)(r.NextDouble() * 400 + 50), minl = rad - (float)(r.NextDouble() * rad);
+            float l0 = (float)((r.NextDouble() * 300) - 40), l1 = (float)((r.NextDouble() * 300) - 40);
+            float rad = (float)((r.NextDouble() * 400) + 50), minl = rad - (float)(r.NextDouble() * rad);
             uint[] e = new uint[324], g = new uint[324];
-            for (int i = 0; i < 324; i++) e[i] = g[i] = (uint)r.Next(0, 5000);
+            for (int i = 0; i < 324; i++)
+            {
+                e[i] = g[i] = (uint)r.Next(0, 5000);
+            }
+
             for (int t = 0; t < tmax; t++)
             {
-                int td = float.ConvertToIntegerNative<int>(l1 - t * 16); if (td < 0) td = -td;
+                int td = float.ConvertToIntegerNative<int>(l1 - (t * 16)); if (td < 0)
+                {
+                    td = -td;
+                }
+
                 for (int s = 0; s < smax; s++)
                 {
-                    int sd = float.ConvertToIntegerNative<int>(l0 - s * 16); if (sd < 0) sd = -sd;
+                    int sd = float.ConvertToIntegerNative<int>(l0 - (s * 16)); if (sd < 0)
+                    {
+                        sd = -sd;
+                    }
+
                     float dist = sd > td ? sd + (td >> 1) : td + (sd >> 1);
-                    if (dist < minl) e[t * smax + s] += float.ConvertToIntegerNative<uint>((rad - dist) * 256);
+                    if (dist < minl)
+                    {
+                        e[(t * smax) + s] += float.ConvertToIntegerNative<uint>((rad - dist) * 256);
+                    }
                 }
             }
-            fixed (uint* pg = g) RSurfSimd.AddDlightLuxels(pg, smax, tmax, l0, l1, rad, minl);
+            fixed (uint* pg = g)
+            {
+                RSurfSimd.AddDlightLuxels(pg, smax, tmax, l0, l1, rad, minl);
+            }
+
             CollectionAssert.AreEqual(e, g, $"trial {trial} {smax}x{tmax}");
         }
     }
@@ -164,27 +210,63 @@ public sealed unsafe class PvsSimdTests
             byte* vis = NativeMemory.AllocArrayZeroed<byte>(rowBytes);
             try
             {
-                for (int i = 0; i <= n; i++) leaves[i].Parent = &nodes[1 + i / 3];
-                for (int k = 1; k <= n; k++) nodes[k].Parent = k > 1 ? &nodes[k / 2] : null;
-                for (int i = 0; i < rowBytes; i++) vis[i] = (byte)r.Next(256);   // includes bits >= n
+                for (int i = 0; i <= n; i++)
+                {
+                    leaves[i].Parent = &nodes[1 + (i / 3)];
+                }
+
+                for (int k = 1; k <= n; k++)
+                {
+                    nodes[k].Parent = k > 1 ? &nodes[k / 2] : null;
+                }
+
+                for (int i = 0; i < rowBytes; i++)
+                {
+                    vis[i] = (byte)r.Next(256);   // includes bits >= n
+                }
 
                 int[] expLeaf = new int[n + 1], expNode = new int[n + 2];
                 for (int i = 0; i < n; i++)
+                {
                     if ((vis[i >> 3] & (1 << (i & 7))) != 0)
                     {
                         // original: stamp leaf and parents until already stamped
                         MNode_t* node = (MNode_t*)&leaves[i + 1];
-                        do { if (node->VisFrame == 5) break; node->VisFrame = 5; node = node->Parent; } while (node != null);
+                        do { if (node->VisFrame == 5) { break; } node->VisFrame = 5; node = node->Parent; } while (node != null);
                     }
-                for (int i = 0; i <= n; i++) expLeaf[i] = leaves[i].VisFrame;
-                for (int k = 0; k <= n; k++) expNode[k] = nodes[k].VisFrame;
-                for (int i = 0; i <= n; i++) leaves[i].VisFrame = 0;
-                for (int k = 0; k <= n; k++) nodes[k].VisFrame = 0;
+                }
+
+                for (int i = 0; i <= n; i++)
+                {
+                    expLeaf[i] = leaves[i].VisFrame;
+                }
+
+                for (int k = 0; k <= n; k++)
+                {
+                    expNode[k] = nodes[k].VisFrame;
+                }
+
+                for (int i = 0; i <= n; i++)
+                {
+                    leaves[i].VisFrame = 0;
+                }
+
+                for (int k = 0; k <= n; k++)
+                {
+                    nodes[k].VisFrame = 0;
+                }
 
                 RMain.MarkVisibleLeaves(vis, n, leaves, 5);
 
-                for (int i = 0; i <= n; i++) Assert.AreEqual(expLeaf[i], leaves[i].VisFrame, $"n={n} leaf {i}");
-                for (int k = 0; k <= n; k++) Assert.AreEqual(expNode[k], nodes[k].VisFrame, $"n={n} node {k}");
+                for (int i = 0; i <= n; i++)
+                {
+                    Assert.AreEqual(expLeaf[i], leaves[i].VisFrame, $"n={n} leaf {i}");
+                }
+
+                for (int k = 0; k <= n; k++)
+                {
+                    Assert.AreEqual(expNode[k], nodes[k].VisFrame, $"n={n} node {k}");
+                }
             }
             finally { NativeMemory.Free(leaves); NativeMemory.Free(nodes); NativeMemory.Free(vis); }
         }
@@ -197,8 +279,16 @@ public sealed unsafe class PvsSimdTests
         for (int n = 0; n < 100; n++)
         {
             byte[] a = new byte[n + 1], b = new byte[n + 1]; r.NextBytes(a); r.NextBytes(b);
-            byte[] e = (byte[])a.Clone(); for (int i = 0; i < n; i++) e[i] |= b[i];
-            fixed (byte* pa = a) fixed (byte* pb = b) DrawSimd.OrBytes(pa, pb, n);
+            byte[] e = (byte[])a.Clone(); for (int i = 0; i < n; i++)
+            {
+                e[i] |= b[i];
+            }
+
+            fixed (byte* pa = a) fixed (byte* pb = b)
+            {
+                DrawSimd.OrBytes(pa, pb, n);
+            }
+
             CollectionAssert.AreEqual(e, a, $"n={n}");
         }
     }
@@ -221,7 +311,10 @@ public sealed unsafe class PvsSimdTests
         fixed (byte* pc = comp)
         {
             byte* res = Model.DecompressVis(pc, &model);
-            for (int i = 0; i < 25; i++) Assert.AreEqual(expected[i], res[i], $"byte {i}");
+            for (int i = 0; i < 25; i++)
+            {
+                Assert.AreEqual(expected[i], res[i], $"byte {i}");
+            }
         }
     }
 }

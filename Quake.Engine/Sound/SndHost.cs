@@ -99,7 +99,9 @@ public static unsafe class SndHost
     public static int SNDDMA_GetDMAPos()
     {
         if (!initialized)
+        {
             return 0;
+        }
 
         int s = snd_sent * WAV_BUFFER_SIZE;
         s >>= sample16;
@@ -111,7 +113,9 @@ public static unsafe class SndHost
     public static void SNDDMA_Submit()
     {
         if (!initialized)
+        {
             return;
+        }
 
         // find which sound blocks have completed
         AL.GetSource(source, ALGetSourcei.BuffersProcessed, out int processed);
@@ -125,7 +129,7 @@ public static unsafe class SndHost
         while (((snd_sent - snd_completed) >> sample16) < 4)
         {
             int bufname = alBuffers[snd_sent & WAV_MASK];
-            byte* chunk = SndDma.shm->Buffer + (snd_sent & WAV_MASK) * WAV_BUFFER_SIZE;
+            byte* chunk = SndDma.shm->Buffer + ((snd_sent & WAV_MASK) * WAV_BUFFER_SIZE);
 
             AL.BufferData(bufname, ALFormat.Stereo16, chunk, WAV_BUFFER_SIZE, SndDma.shm->Speed);
             AL.SourceQueueBuffer(source, bufname);
@@ -135,7 +139,9 @@ public static unsafe class SndHost
 
         AL.GetSource(source, ALGetSourcei.SourceState, out int state);
         if ((ALSourceState)state != ALSourceState.Playing)
+        {
             AL.SourcePlay(source);
+        }
     }
 
     // waveOutReset (hWaveOut), as called from S_BlockSound -- stops playback
@@ -143,12 +149,16 @@ public static unsafe class SndHost
     public static void Reset()
     {
         if (!initialized)
+        {
             return;
+        }
 
         AL.SourceStop(source);
         AL.GetSource(source, ALGetSourcei.BuffersQueued, out int queued);
         while (queued-- > 0)
+        {
             AL.SourceUnqueueBuffer(source);
+        }
 
         snd_completed = snd_sent;
     }
@@ -157,7 +167,9 @@ public static unsafe class SndHost
     public static void SNDDMA_Shutdown()
     {
         if (!initialized)
+        {
             return;
+        }
 
         AL.SourceStop(source);
         AL.DeleteSource(source);
@@ -168,7 +180,9 @@ public static unsafe class SndHost
         ALC.CloseDevice(device);
 
         if (SndDma.shm != null && SndDma.shm->Buffer != null)
+        {
             NativeMemory.Free(SndDma.shm->Buffer);
+        }
 
         initialized = false;
         snd_sent = 0;

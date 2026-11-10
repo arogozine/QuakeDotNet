@@ -66,7 +66,9 @@ public static unsafe class Wav
             data_p -= 8;
             last_chunk = data_p + 8 + ((iff_chunk_len + 1) & ~1);
             if (Q.StrNCmp(data_p, name, 4) == 0)
+            {
                 return;
+            }
         }
     }
 
@@ -83,7 +85,9 @@ public static unsafe class Wav
         WavInfo_t info = default;
 
         if (wav == null)
+        {
             return info;
+        }
 
         iff_data = wav;
         iff_end = wav + wavlength;
@@ -139,7 +143,9 @@ public static unsafe class Wav
             }
         }
         else
+        {
             info.LoopStart = -1;
+        }
 
         // find data chunk
         FindChunk("data"u8);
@@ -155,10 +161,14 @@ public static unsafe class Wav
         if (info.Samples != 0)
         {
             if (samples < info.Samples)
+            {
                 Sys.Error($"Sound {name} has a bad loop length");
+            }
         }
         else
+        {
             info.Samples = samples;
+        }
 
         info.DataOfs = (int)(data_p - wav);
 
@@ -170,14 +180,18 @@ public static unsafe class Wav
     {
         SfxCache_t* sc = (SfxCache_t*)Cache.Check(&sfx->Cache);
         if (sc == null)
+        {
             return;
+        }
 
         float stepscale = (float)inrate / SndDma.shm->Speed; // this is usually 0.5, 1, or 2
 
         int outcount = (int)(sc->Length / stepscale);
         sc->Length = outcount;
         if (sc->LoopStart != -1)
+        {
             sc->LoopStart = (int)(sc->LoopStart / stepscale);
+        }
 
         sc->Speed = SndDma.shm->Speed;
         sc->Width = SndDma.loadas8bit->Value != 0 ? 1 : inwidth;
@@ -190,7 +204,9 @@ public static unsafe class Wav
         {
             // fast special case
             for (int i = 0; i < outcount; i++)
+            {
                 ((sbyte*)scData)[i] = (sbyte)((int)data[i] - 128);
+            }
         }
         else
         {
@@ -205,9 +221,13 @@ public static unsafe class Wav
                     ? ((short*)data)[srcsample]
                     : ((int)data[srcsample] - 128) << 8;
                 if (sc->Width == 2)
+                {
                     ((short*)scData)[i] = (short)sample;
+                }
                 else
+                {
                     ((sbyte*)scData)[i] = (sbyte)(sample >> 8);
+                }
             }
         }
     }
@@ -219,7 +239,9 @@ public static unsafe class Wav
         // see if still in memory
         SfxCache_t* sc = (SfxCache_t*)Cache.Check(&s->Cache);
         if (sc != null)
+        {
             return sc;
+        }
 
         // load it in
         byte* namebuffer = stackalloc byte[256];
@@ -248,7 +270,9 @@ public static unsafe class Wav
 
         sc = (SfxCache_t*)Cache.Alloc(&s->Cache, len + sizeof(SfxCache_t), s->Name);
         if (sc == null)
+        {
             return null;
+        }
 
         sc->Length = info.Samples;
         sc->LoopStart = info.LoopStart;

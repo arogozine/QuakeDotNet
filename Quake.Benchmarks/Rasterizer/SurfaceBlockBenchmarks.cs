@@ -29,14 +29,25 @@ public unsafe class SurfaceBlockBenchmarks
     {
         Random rng = new(5);
         _colormap = NativeMemory.AllocArrayZeroed<byte>(16384 + 16);
-        for (int i = 0; i < 16384; i++) _colormap[i] = (byte)rng.Next(256);
+        for (int i = 0; i < 16384; i++)
+        {
+            _colormap[i] = (byte)rng.Next(256);
+        }
+
         _source = NativeMemory.AllocArrayZeroed<byte>(128 * 128);
-        for (int i = 0; i < 128 * 128; i++) _source[i] = (byte)rng.Next(256);
+        for (int i = 0; i < 128 * 128; i++)
+        {
+            _source[i] = (byte)rng.Next(256);
+        }
+
         _dest = NativeMemory.AllocArrayZeroed<byte>(RowBytes * 16 * Blocks);
         _dest2 = NativeMemory.AllocArrayZeroed<byte>(RowBytes * 16 * Blocks);
         _dest3 = NativeMemory.AllocArrayZeroed<byte>(RowBytes * 16 * Blocks);
         _lights = NativeMemory.AllocArrayZeroed<uint>(LightWidth * (Blocks + 1));
-        for (int i = 0; i < LightWidth * (Blocks + 1); i++) _lights[i] = (uint)rng.Next(64, 16320);
+        for (int i = 0; i < LightWidth * (Blocks + 1); i++)
+        {
+            _lights[i] = (uint)rng.Next(64, 16320);
+        }
 
         Quake.Engine.Vid.vid.Colormap = _colormap;
         RSurf.surfrowbytes = RowBytes;
@@ -44,7 +55,7 @@ public unsafe class SurfaceBlockBenchmarks
         RSurf.r_numvblocks = Blocks;
         RSurf.r_lightwidth = LightWidth;
         RSurf.r_source = _source;
-        RSurf.r_sourcemax = _source + 128 * 128;
+        RSurf.r_sourcemax = _source + (128 * 128);
         RSurf.r_stepback = 128 * 128;
 
         Run(_dest, 0);
@@ -52,7 +63,9 @@ public unsafe class SurfaceBlockBenchmarks
         Run(_dest3, 2);
         if (new ReadOnlySpan<byte>(_dest, RowBytes * 16 * Blocks).SequenceEqual(new ReadOnlySpan<byte>(_dest2, RowBytes * 16 * Blocks)) == false
             || new ReadOnlySpan<byte>(_dest, RowBytes * 16 * Blocks).SequenceEqual(new ReadOnlySpan<byte>(_dest3, RowBytes * 16 * Blocks)) == false)
+        {
             throw new Exception("variant mismatch");
+        }
     }
 
     [GlobalCleanup]
@@ -69,11 +82,20 @@ public unsafe class SurfaceBlockBenchmarks
         for (int u = 0; u < HBlocks; u++)
         {
             RSurf.r_lightptr = _lights + u;
-            RSurf.prowdestbase = dest + u * 16;
-            RSurf.pbasesource = _source + u * 16;
-            if (variant == 0) Original();
-            else if (variant == 1) RSurf.DrawSurfaceBlock8_mip0();
-            else Gather();
+            RSurf.prowdestbase = dest + (u * 16);
+            RSurf.pbasesource = _source + (u * 16);
+            if (variant == 0)
+            {
+                Original();
+            }
+            else if (variant == 1)
+            {
+                RSurf.DrawSurfaceBlock8_mip0();
+            }
+            else
+            {
+                Gather();
+            }
         }
     }
 
@@ -113,7 +135,10 @@ public unsafe class SurfaceBlockBenchmarks
                 RSurf.lightleft += RSurf.lightleftstep;
                 prowdest += RSurf.surfrowbytes;
             }
-            if (psource >= RSurf.r_sourcemax) psource -= RSurf.r_stepback;
+            if (psource >= RSurf.r_sourcemax)
+            {
+                psource -= RSurf.r_stepback;
+            }
         }
     }
 
@@ -140,8 +165,8 @@ public unsafe class SurfaceBlockBenchmarks
                 int lightstep = (lightleft - lightright) >> 4;
                 Vector256<int> vs = Vector256.Create(lightstep);
                 Vector256<int> vb = Vector256.Create(lightright);
-                Vector256<int> l0 = vb + vs * iota0;
-                Vector256<int> l1 = vb + vs * iota1;
+                Vector256<int> l0 = vb + (vs * iota0);
+                Vector256<int> l1 = vb + (vs * iota1);
                 Vector256<int> p0 = Avx2.ConvertToVector256Int32(psource);
                 Vector256<int> p1 = Avx2.ConvertToVector256Int32(psource + 8);
                 Vector256<int> i0 = (l0 & ff00) + p0;
@@ -155,7 +180,10 @@ public unsafe class SurfaceBlockBenchmarks
                 lightright += lrs; lightleft += lls;
                 prowdest += rowbytes;
             }
-            if (psource >= RSurf.r_sourcemax) psource -= RSurf.r_stepback;
+            if (psource >= RSurf.r_sourcemax)
+            {
+                psource -= RSurf.r_stepback;
+            }
         }
         RSurf.r_lightptr = lp;
     }

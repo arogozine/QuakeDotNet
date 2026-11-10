@@ -45,7 +45,10 @@ public unsafe class AliasTransformBenchmarks
 
         const float Scale = 1.0f / ((float)0x8000 * 0x10000);
         for (int i = 0; i < 12; i++)
-            RAlias.aliastransform[i] = (float)(rng.NextDouble() * 2 - 1) * Scale;
+        {
+            RAlias.aliastransform[i] = (float)((rng.NextDouble() * 2) - 1) * Scale;
+        }
+
         RAlias.aliastransform[11] = 500 * Scale;
         RAlias.r_plightvec = Vector3.Normalize(new Vector3(-1, 0.5f, -0.25f));
         RAlias.r_ambientlight = 64;
@@ -80,12 +83,12 @@ public unsafe class AliasTransformBenchmarks
         for (int i = 0; i < RAlias.r_anumverts; i++, fv++, pverts++, pstverts++)
         {
             float v0 = pverts->V[0], v1 = pverts->V[1], v2 = pverts->V[2];
-            float zi = 1.0f / (v0 * aliastransform[8] + v1 * aliastransform[9] + v2 * aliastransform[10] + aliastransform[11]);
+            float zi = 1.0f / ((v0 * aliastransform[8]) + (v1 * aliastransform[9]) + (v2 * aliastransform[10]) + aliastransform[11]);
 
             fv->V[5] = (int)zi;
 
-            fv->V[0] = (int)(((v0 * aliastransform[0] + v1 * aliastransform[1] + v2 * aliastransform[2] + aliastransform[3]) * zi) + RMain.aliasxcenter);
-            fv->V[1] = (int)(((v0 * aliastransform[4] + v1 * aliastransform[5] + v2 * aliastransform[6] + aliastransform[7]) * zi) + RMain.aliasycenter);
+            fv->V[0] = (int)((((v0 * aliastransform[0]) + (v1 * aliastransform[1]) + (v2 * aliastransform[2]) + aliastransform[3]) * zi) + RMain.aliasxcenter);
+            fv->V[1] = (int)((((v0 * aliastransform[4]) + (v1 * aliastransform[5]) + (v2 * aliastransform[6]) + aliastransform[7]) * zi) + RMain.aliasycenter);
 
             fv->V[2] = pstverts->S;
             fv->V[3] = pstverts->T;
@@ -99,7 +102,9 @@ public unsafe class AliasTransformBenchmarks
                 temp += (int)(RAlias.r_shadelight * lightcos);
 
                 if (temp < 0)
+                {
                     temp = 0;
+                }
             }
 
             fv->V[4] = temp;

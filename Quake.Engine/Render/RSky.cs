@@ -46,22 +46,26 @@ public static unsafe class RSky
         byte* src = (byte*)mt + mt->Offsets[0];
 
         for (int i = 0; i < 128; i++)
+        {
             for (int j = 0; j < 128; j++)
-                newsky[i * 256 + j + 128] = src[i * 256 + j + 128];
+            {
+                newsky[(i * 256) + j + 128] = src[(i * 256) + j + 128];
+            }
+        }
 
         for (int i = 0; i < 128; i++)
         {
             for (int j = 0; j < 131; j++)
             {
-                if (src[i * 256 + (j & 0x7F)] != 0)
+                if (src[(i * 256) + (j & 0x7F)] != 0)
                 {
-                    bottomsky[i * 131 + j] = src[i * 256 + (j & 0x7F)];
-                    bottommask[i * 131 + j] = 0;
+                    bottomsky[(i * 131) + j] = src[(i * 256) + (j & 0x7F)];
+                    bottommask[(i * 131) + j] = 0;
                 }
                 else
                 {
-                    bottomsky[i * 131 + j] = 0;
-                    bottommask[i * 131 + j] = 0xff;
+                    bottomsky[(i * 131) + j] = 0;
+                    bottommask[(i * 131) + j] = 0xff;
                 }
             }
         }
@@ -79,7 +83,9 @@ public static unsafe class RSky
         int yshift = float.ConvertToIntegerNative<int>(skytime * skyspeed);
 
         if (xshift == xlast && yshift == ylast)
+        {
             return;
+        }
 
         xlast = xshift;
         ylast = yshift;
@@ -141,7 +147,7 @@ public static unsafe class RSky
         int s2 = iskyspeed2 / g;
         float temp = SKYSIZE * s1 * s2;
 
-        skytime = (float)(Cl.time - (int)(Cl.time / temp) * temp);
+        skytime = (float)(Cl.time - ((int)(Cl.time / temp) * temp));
 
         DEdge.r_skymade = false;
     }

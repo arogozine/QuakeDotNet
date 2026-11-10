@@ -42,8 +42,13 @@ public sealed unsafe class RealAssetSmokeTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
+
         Com.com_searchpaths = null;
 
         NativeMemory.Free(_buf);
@@ -66,9 +71,15 @@ public sealed unsafe class RealAssetSmokeTests
             _ => TestConfiguration.HipnoticDirectory,
         };
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive($"The {key} directory is not configured in configuration.json; skipping real asset smoke test.");
+        }
+
         if (!File.Exists(Path.Combine(dir, "pak0.pak")) && !File.Exists(Path.Combine(dir, "PAK0.PAK")))
+        {
             Assert.Inconclusive($"pak0.pak was not found in the configured {key} directory ({dir}); skipping real asset smoke test.");
+        }
+
         return dir.Replace('\\', '/');
     }
 
@@ -79,12 +90,17 @@ public sealed unsafe class RealAssetSmokeTests
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
         {
             if (s->Pack == null)
+            {
                 continue;
+            }
+
             for (int i = 0; i < s->Pack->NumFiles; i++)
             {
                 string name = Marshal.PtrToStringAnsi((nint)s->Pack->Files[i].Name)!;
                 if (name.EndsWith(extension, StringComparison.OrdinalIgnoreCase) && !names.Contains(name))
+                {
                     names.Add(name);
+                }
             }
         }
         return names;
@@ -105,7 +121,9 @@ public sealed unsafe class RealAssetSmokeTests
                 Model_t* mod = Model.ForName(Ansi(name), true);
                 string? error = mod == null ? "ForName returned null" : check(name, mod);
                 if (error != null)
+                {
                     failures.Add($"{name}: {error}");
+                }
             }
             catch (Exception e)
             {
@@ -131,14 +149,46 @@ public sealed unsafe class RealAssetSmokeTests
 
         List<string> failures = LoadEach(maps, (name, mod) =>
         {
-            if (mod->Type != ModType_t.Brush) return $"type {mod->Type}, expected Brush";
-            if (mod->NumVertexes <= 0) return "no vertexes";
-            if (mod->NumEdges <= 0) return "no edges";
-            if (mod->NumSurfaces <= 0) return "no surfaces";
-            if (mod->NumNodes <= 0) return "no nodes";
-            if (mod->NumLeafs <= 0) return "no leafs";
-            if (mod->NumSubmodels < 1) return "no submodels";
-            if ((nint)mod->Entities == 0) return "no entity lump";
+            if (mod->Type != ModType_t.Brush)
+            {
+                return $"type {mod->Type}, expected Brush";
+            }
+
+            if (mod->NumVertexes <= 0)
+            {
+                return "no vertexes";
+            }
+
+            if (mod->NumEdges <= 0)
+            {
+                return "no edges";
+            }
+
+            if (mod->NumSurfaces <= 0)
+            {
+                return "no surfaces";
+            }
+
+            if (mod->NumNodes <= 0)
+            {
+                return "no nodes";
+            }
+
+            if (mod->NumLeafs <= 0)
+            {
+                return "no leafs";
+            }
+
+            if (mod->NumSubmodels < 1)
+            {
+                return "no submodels";
+            }
+
+            if ((nint)mod->Entities == 0)
+            {
+                return "no entity lump";
+            }
+
             return null;
         });
 
@@ -157,14 +207,38 @@ public sealed unsafe class RealAssetSmokeTests
 
         List<string> failures = LoadEach(models, (name, mod) =>
         {
-            if (mod->Type != ModType_t.Alias) return $"type {mod->Type}, expected Alias";
-            if (mod->NumFrames <= 0) return "no frames";
+            if (mod->Type != ModType_t.Alias)
+            {
+                return $"type {mod->Type}, expected Alias";
+            }
+
+            if (mod->NumFrames <= 0)
+            {
+                return "no frames";
+            }
+
             AliasHdr_t* hdr = (AliasHdr_t*)mod->Cache.Data;
-            if (hdr == null) return "not resident in the cache";
+            if (hdr == null)
+            {
+                return "not resident in the cache";
+            }
+
             Mdl_t* mdl = (Mdl_t*)AliasModel.Offset(hdr, hdr->Model);
-            if (mdl->NumSkins <= 0) return "no skins";
-            if (mdl->NumVerts <= 0) return "no verts";
-            if (mdl->NumTris <= 0) return "no tris";
+            if (mdl->NumSkins <= 0)
+            {
+                return "no skins";
+            }
+
+            if (mdl->NumVerts <= 0)
+            {
+                return "no verts";
+            }
+
+            if (mdl->NumTris <= 0)
+            {
+                return "no tris";
+            }
+
             return null;
         });
 

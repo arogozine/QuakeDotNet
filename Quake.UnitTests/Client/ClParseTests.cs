@@ -82,7 +82,10 @@ public sealed unsafe class ClParseTests
     private static void SetMessage(params byte[] bytes)
     {
         for (int i = 0; i < bytes.Length; i++)
+        {
             Msg.net_message->Data[i] = bytes[i];
+        }
+
         Msg.net_message->CurSize = bytes.Length;
     }
 

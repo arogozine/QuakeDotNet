@@ -34,8 +34,15 @@ internal static unsafe class SndMixSimd
         for (; i < count; i++)
         {
             int val = (p[i] * vol) >> 8;
-            if (val > 0x7fff) val = 0x7fff;
-            else if (val < -0x8000) val = -0x8000;
+            if (val > 0x7fff)
+            {
+                val = 0x7fff;
+            }
+            else if (val < -0x8000)
+            {
+                val = -0x8000;
+            }
+
             dst[i] = (short)val;
         }
     }
@@ -58,8 +65,15 @@ internal static unsafe class SndMixSimd
         for (; i < count; i++)
         {
             int val = (p[i] * vol) >> 8;
-            if (val > 0x7fff) val = 0x7fff;
-            else if (val < -0x8000) val = -0x8000;
+            if (val > 0x7fff)
+            {
+                val = 0x7fff;
+            }
+            else if (val < -0x8000)
+            {
+                val = -0x8000;
+            }
+
             dst[i] = (byte)((val >> 8) + 128);
         }
 
@@ -86,8 +100,8 @@ internal static unsafe class SndMixSimd
                 Vector128<short> a = Vector128.Shuffle(s, dupLo), b = Vector128.Shuffle(s, dupHi);
                 Vector256<int> d0 = Vector256.Create(Vector128.WidenLower(a), Vector128.WidenUpper(a));
                 Vector256<int> d1 = Vector256.Create(Vector128.WidenLower(b), Vector128.WidenUpper(b));
-                (Vector256.Load(pb + 2 * i) + Vector256.ShiftRightArithmetic(d0 * m, 8)).Store(pb + 2 * i);
-                (Vector256.Load(pb + 2 * i + 8) + Vector256.ShiftRightArithmetic(d1 * m, 8)).Store(pb + 2 * i + 8);
+                (Vector256.Load(pb + (2 * i)) + Vector256.ShiftRightArithmetic(d0 * m, 8)).Store(pb + (2 * i));
+                (Vector256.Load(pb + (2 * i) + 8) + Vector256.ShiftRightArithmetic(d1 * m, 8)).Store(pb + (2 * i) + 8);
             }
         }
 
@@ -95,7 +109,7 @@ internal static unsafe class SndMixSimd
         {
             int data = sfx[i];
             pb[2 * i] += (data * lv) >> 8;
-            pb[2 * i + 1] += (data * rv) >> 8;
+            pb[(2 * i) + 1] += (data * rv) >> 8;
         }
     }
 
@@ -115,8 +129,8 @@ internal static unsafe class SndMixSimd
                 Vector128<short> lo = Vector128.WidenLower(dd), hi = Vector128.WidenUpper(dd);
                 Vector256<int> d0 = Vector256.Create(Vector128.WidenLower(lo), Vector128.WidenUpper(lo));
                 Vector256<int> d1 = Vector256.Create(Vector128.WidenLower(hi), Vector128.WidenUpper(hi));
-                (Vector256.Load(pb + 2 * i) + d0 * m).Store(pb + 2 * i);
-                (Vector256.Load(pb + 2 * i + 8) + d1 * m).Store(pb + 2 * i + 8);
+                (Vector256.Load(pb + (2 * i)) + (d0 * m)).Store(pb + (2 * i));
+                (Vector256.Load(pb + (2 * i) + 8) + (d1 * m)).Store(pb + (2 * i) + 8);
             }
         }
 
@@ -124,7 +138,7 @@ internal static unsafe class SndMixSimd
         {
             int data = sfx[i];
             pb[2 * i] += data * lscale;
-            pb[2 * i + 1] += data * rscale;
+            pb[(2 * i) + 1] += data * rscale;
         }
     }
 }

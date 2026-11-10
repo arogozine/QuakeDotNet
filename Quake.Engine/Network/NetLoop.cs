@@ -34,14 +34,21 @@ public static unsafe class NetLoop
     public static void SearchForHosts(bool xmit)
     {
         if (!Sv.active)
+        {
             return;
+        }
 
         HostCache_t* hc = Net.hostcache;
         Net.hostCacheCount = 1;
         if (Q.StrCmp(Net.hostname->String, "UNNAMED"u8) == 0)
+        {
             Q.StrCpy(hc[0].Name, "local"u8);
+        }
         else
+        {
             Q.StrCpy(hc[0].Name, Net.hostname->String);
+        }
+
         Q.StrCpy(hc[0].Map, Sv.Name);
         hc[0].Users = Net.net_activeconnections;
         hc[0].MaxUsers = Svs.maxclients;
@@ -53,7 +60,9 @@ public static unsafe class NetLoop
     public static QSocket_t* Connect(byte* host)
     {
         if (host != null && Q.StrCmp(host, "local"u8) != 0)
+        {
             return null;
+        }
 
         localconnectpending = true;
 
@@ -95,7 +104,9 @@ public static unsafe class NetLoop
     public static QSocket_t* CheckNewConnections()
     {
         if (!localconnectpending)
+        {
             return null;
+        }
 
         localconnectpending = false;
         loop_server->SendMessageLength = 0;
@@ -113,7 +124,9 @@ public static unsafe class NetLoop
     public static int GetMessage(QSocket_t* sock)
     {
         if (sock->ReceiveMessageLength == 0)
+        {
             return 0;
+        }
 
         int ret = sock->ReceiveMessage[0];
         int length = sock->ReceiveMessage[1] + (sock->ReceiveMessage[2] << 8);
@@ -126,10 +139,14 @@ public static unsafe class NetLoop
         sock->ReceiveMessageLength -= length;
 
         if (sock->ReceiveMessageLength != 0)
+        {
             Q.MemCpy(sock->ReceiveMessage, &sock->ReceiveMessage[length], sock->ReceiveMessageLength);
+        }
 
         if (sock->DriverData != null && ret == 1)
+        {
             ((QSocket_t*)sock->DriverData)->CanSend = true;
+        }
 
         return ret;
     }
@@ -138,13 +155,17 @@ public static unsafe class NetLoop
     public static int SendMessage(QSocket_t* sock, SizeBuf_t* data)
     {
         if (sock->DriverData == null)
+        {
             return -1;
+        }
 
         QSocket_t* peer = (QSocket_t*)sock->DriverData;
         int bufferLength = peer->ReceiveMessageLength;
 
         if (bufferLength + data->CurSize + 4 > Net.NET_MAXMESSAGE)
+        {
             Sys.Error("Loop_SendMessage: overflow\n"u8);
+        }
 
         byte* buffer = peer->ReceiveMessage + bufferLength;
 
@@ -170,13 +191,17 @@ public static unsafe class NetLoop
     public static int SendUnreliableMessage(QSocket_t* sock, SizeBuf_t* data)
     {
         if (sock->DriverData == null)
+        {
             return -1;
+        }
 
         QSocket_t* peer = (QSocket_t*)sock->DriverData;
         int bufferLength = peer->ReceiveMessageLength;
 
         if (bufferLength + data->CurSize + sizeof(byte) + sizeof(short) > Net.NET_MAXMESSAGE)
+        {
             return 0;
+        }
 
         byte* buffer = peer->ReceiveMessage + bufferLength;
 
@@ -200,7 +225,10 @@ public static unsafe class NetLoop
     public static bool CanSendMessage(QSocket_t* sock)
     {
         if (sock->DriverData == null)
+        {
             return false;
+        }
+
         return sock->CanSend;
     }
 
@@ -208,14 +236,21 @@ public static unsafe class NetLoop
     public static void Close(QSocket_t* sock)
     {
         if (sock->DriverData != null)
+        {
             ((QSocket_t*)sock->DriverData)->DriverData = null;
+        }
+
         sock->ReceiveMessageLength = 0;
         sock->SendMessageLength = 0;
         sock->CanSend = true;
         if (sock == loop_client)
+        {
             loop_client = null;
+        }
         else
+        {
             loop_server = null;
+        }
     }
 
     // Populates a NetDriver_t (net.h's net_driver_t) with this driver's

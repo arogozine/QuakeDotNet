@@ -53,14 +53,16 @@ public static unsafe class Vid
             Vector128<byte> idx = Vector128.Create((byte)0, 1, 2, 0x80, 3, 4, 5, 0x80, 6, 7, 8, 0x80, 9, 10, 11, 0x80);
             Vector128<uint> alpha = Vector128.Create(0xFF000000u);
             for (; i < 252; i += 4)
-                (Vector128.Shuffle(Vector128.Load(palette + i * 3), idx).AsUInt32() | alpha).Store(d_8to24table + i);
+            {
+                (Vector128.Shuffle(Vector128.Load(palette + (i * 3)), idx).AsUInt32() | alpha).Store(d_8to24table + i);
+            }
         }
 
         for (; i < 256; i++)
         {
             byte r = palette[i * 3];
-            byte g = palette[i * 3 + 1];
-            byte b = palette[i * 3 + 2];
+            byte g = palette[(i * 3) + 1];
+            byte b = palette[(i * 3) + 2];
             d_8to24table[i] = (uint)(r | (g << 8) | (b << 16) | (0xFFu << 24));
         }
     }
@@ -94,7 +96,9 @@ public static unsafe class Vid
     public static void D_BeginDirectRect(int x, int y, byte* pbitmap, int width, int height)
     {
         if (vid.Direct == null)
+        {
             return;
+        }
 
         int reps, repshift;
         if (vid.Aspect > 1.5f)
@@ -112,7 +116,7 @@ public static unsafe class Vid
         {
             for (int j = 0; j < reps; j++)
             {
-                byte* dest = vid.Direct + x + ((y << repshift) + i + j) * vid.RowBytes;
+                byte* dest = vid.Direct + x + (((y << repshift) + i + j) * vid.RowBytes);
                 Buffer.MemoryCopy(dest, &backingbuf[(i + j) * 24], width, width);
                 Buffer.MemoryCopy(&pbitmap[(i >> repshift) * width], dest, width, width);
             }
@@ -131,7 +135,9 @@ public static unsafe class Vid
     public static void D_EndDirectRect(int x, int y, int width, int height)
     {
         if (vid.Direct == null)
+        {
             return;
+        }
 
         int reps, repshift;
         if (vid.Aspect > 1.5f)
@@ -150,7 +156,7 @@ public static unsafe class Vid
             for (int j = 0; j < reps; j++)
             {
                 Buffer.MemoryCopy(&backingbuf[(i + j) * 24],
-                    vid.Direct + x + ((y << repshift) + i + j) * vid.RowBytes,
+                    vid.Direct + x + (((y << repshift) + i + j) * vid.RowBytes),
                     width, width);
             }
         }

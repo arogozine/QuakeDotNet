@@ -55,21 +55,27 @@ public static unsafe class Chase
 
         // calc exact destination
         for (int i = 0; i < 3; i++)
+        {
             chase_dest[i] = RShared.r_refdef->Vieworg[i]
-                - forward[i] * chase_back->Value
-                - right[i] * chase_right->Value;
+                - (forward[i] * chase_back->Value)
+                - (right[i] * chase_right->Value);
+        }
+
         chase_dest[2] = RShared.r_refdef->Vieworg[2] + chase_up->Value;
 
         // find the spot the player is looking at
         Vec3_t stop = default;
-        Vec3_t dest = RShared.r_refdef->Vieworg + 4096 * forward;
+        Vec3_t dest = RShared.r_refdef->Vieworg + (4096 * forward);
         TraceLine(RShared.r_refdef->Vieworg, dest, ref stop);
 
         // calculate pitch to look at the same spot from camera
         stop = stop - RShared.r_refdef->Vieworg;
         float dist = Vector3.Dot(stop, forward);
         if (dist < 1)
+        {
             dist = 1;
+        }
+
         RShared.r_refdef->ViewAngles[QuakeDef.PITCH] = -MathF.Atan(stop[2] / dist) / MathLib.M_PI * 180;
 
         // move towards destination

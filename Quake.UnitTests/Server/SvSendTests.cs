@@ -84,7 +84,10 @@ public sealed unsafe class SvSendTests
     public void Teardown()
     {
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
+
         NativeMemory.Free(_buf);
     }
 
@@ -160,7 +163,11 @@ public sealed unsafe class SvSendTests
         // then the game-type byte.
         byte* data = client->MsgBuf;
         int i = 1; // past (int)Svc.Print
-        while (data[i] != 0) i++; // version string
+        while (data[i] != 0)
+        {
+            i++; // version string
+        }
+
         i++; // NUL
         i++; // (int)Svc.ServerInfo
         i += 4; // protocol version long

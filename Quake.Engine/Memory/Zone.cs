@@ -45,13 +45,20 @@ public static unsafe class Zone
         MemBlock* block, other;
 
         if (ptr == null)
+        {
             Sys.Error("Z_Free: NULL pointer"u8);
+        }
 
         block = (MemBlock*)((byte*)ptr - sizeof(MemBlock));
         if (block->Id != ZONEID)
+        {
             Sys.Error("Z_Free: freed a pointer without ZONEID"u8);
+        }
+
         if (block->Tag == 0)
+        {
             Sys.Error("Z_Free: freed a freed pointer"u8);
+        }
 
         block->Tag = 0;     // mark as free
 
@@ -62,7 +69,10 @@ public static unsafe class Zone
             other->Next = block->Next;
             other->Next->Prev = other;
             if (block == mainzone->Rover)
+            {
                 mainzone->Rover = other;
+            }
+
             block = other;
         }
 
@@ -73,7 +83,9 @@ public static unsafe class Zone
             block->Next = other->Next;
             block->Next->Prev = block;
             if (other == mainzone->Rover)
+            {
                 mainzone->Rover = block;
+            }
         }
     }
 
@@ -85,7 +97,10 @@ public static unsafe class Zone
         CheckHeap(); // DEBUG
         buf = TagMalloc(size, 1);
         if (buf == null)
+        {
             Sys.Error($"Z_Malloc: failed on allocation of {size} bytes");
+        }
+
         NativeMemory.Clear((byte*)buf, size);
 
         return buf;
@@ -98,7 +113,9 @@ public static unsafe class Zone
         MemBlock* start, rover, @new, @base;
 
         if (tag == 0)
+        {
             Sys.Error("Z_TagMalloc: tried to use a 0 tag"u8);
+        }
 
         //
         // scan through the block list looking for the first free block
@@ -114,11 +131,18 @@ public static unsafe class Zone
         do
         {
             if (rover == start)    // scaned all the way around the list
+            {
                 return null;
+            }
+
             if (rover->Tag != 0)
+            {
                 @base = rover = rover->Next;
+            }
             else
+            {
                 rover = rover->Next;
+            }
         } while (@base->Tag != 0 || @base->Size < size);
 
         //
@@ -162,13 +186,24 @@ public static unsafe class Zone
             Con.Printf($"block:{(nint)block:X}    size:{block->Size,7}    tag:{block->Tag,3}\n");
 
             if (block->Next == &zone->BlockList)
+            {
                 break;          // all blocks have been hit
+            }
+
             if ((byte*)block + block->Size != (byte*)block->Next)
+            {
                 Con.Printf("ERROR: block size does not touch the next block\n"u8);
+            }
+
             if (block->Next->Prev != block)
+            {
                 Con.Printf("ERROR: next block doesn't have proper back link\n"u8);
+            }
+
             if (block->Tag == 0 && block->Next->Tag == 0)
+            {
                 Con.Printf("ERROR: two consecutive free blocks\n"u8);
+            }
         }
     }
 
@@ -180,13 +215,24 @@ public static unsafe class Zone
         for (block = mainzone->BlockList.Next; ; block = block->Next)
         {
             if (block->Next == &mainzone->BlockList)
+            {
                 break;          // all blocks have been hit
+            }
+
             if ((byte*)block + block->Size != (byte*)block->Next)
+            {
                 Sys.Error("Z_CheckHeap: block size does not touch the next block\n"u8);
+            }
+
             if (block->Next->Prev != block)
+            {
                 Sys.Error("Z_CheckHeap: next block doesn't have proper back link\n"u8);
+            }
+
             if (block->Tag == 0 && block->Next->Tag == 0)
+            {
                 Sys.Error("Z_CheckHeap: two consecutive free blocks\n"u8);
+            }
         }
     }
 
@@ -199,7 +245,9 @@ public static unsafe class Zone
         for (MemBlock* block = mainzone->BlockList.Next; block != &mainzone->BlockList; block = block->Next)
         {
             if (block->Tag == 0)
+            {
                 free += block->Size;
+            }
         }
         return free;
     }

@@ -33,8 +33,12 @@ public sealed unsafe class ProgsTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -106,7 +110,9 @@ public sealed unsafe class ProgsTests
         bw.Write(strings);
 
         foreach (float g in globals)
+        {
             bw.Write(g);
+        }
 
         return ms.ToArray();
     }
@@ -139,7 +145,7 @@ public sealed unsafe class ProgsTests
             // pr_edict_size = entityfields*4 + sizeof(edict_t) - sizeof(entvars_t)
             unsafe
             {
-                Assert.AreEqual(3 * 4 + sizeof(EDict_t) - sizeof(EntVars_t), Progs.pr_edict_size);
+                Assert.AreEqual((3 * 4) + sizeof(EDict_t) - sizeof(EntVars_t), Progs.pr_edict_size);
             }
 
             Assert.AreEqual((ushort)5, Progs.pr_statements[0].Op);

@@ -32,15 +32,22 @@ public static unsafe class Wad
         {
             int c = @in[i];
             if (c == 0)
+            {
                 break;
+            }
 
             if (c is >= (byte)'A' and <= (byte)'Z')
+            {
                 c += 'a' - 'A';
+            }
+
             @out[i] = (byte)c;
         }
 
         for (; i < 16; i++)
+        {
             @out[i] = 0;
+        }
     }
 
     // W_LoadWadFile
@@ -48,13 +55,17 @@ public static unsafe class Wad
     {
         wad_base = Com.LoadHunkFile(filename);
         if (wad_base == null)
+        {
             Sys.Error($"W_LoadWadFile: couldn't load {filename}");
+        }
 
         WadInfo_t* header = (WadInfo_t*)wad_base;
 
         if (header->Identification[0] != (byte)'W' || header->Identification[1] != (byte)'A' ||
             header->Identification[2] != (byte)'D' || header->Identification[3] != (byte)'2')
+        {
             Sys.Error($"Wad file {filename} doesn't have WAD2 id\n");
+        }
 
         wad_numlumps = Com.LittleLong(header->NumLumps);
         int infotableofs = Com.LittleLong(header->InfoTableOfs);
@@ -67,7 +78,9 @@ public static unsafe class Wad
             lump_p->Size = Com.LittleLong(lump_p->Size);
             CleanupName(lump_p->Name, lump_p->Name);
             if (lump_p->Type == (int)WadLumpType.QPic)
+            {
                 SwapPic((QPic_t*)(wad_base + lump_p->FilePos));
+            }
         }
     }
 
@@ -80,8 +93,12 @@ public static unsafe class Wad
 
         LumpInfo_t* lump_p = wad_lumps;
         for (int i = 0; i < wad_numlumps; i++, lump_p++)
+        {
             if (Q.StrCmp(clean, lump_p->Name) == 0)
+            {
                 return lump_p;
+            }
+        }
 
         Sys.Error($"W_GetLumpinfo: {name} not found");
         return null;
@@ -98,7 +115,9 @@ public static unsafe class Wad
     public static void* GetLumpNum(int num)
     {
         if (num < 0 || num > wad_numlumps)
+        {
             Sys.Error($"W_GetLumpNum: bad number: {num}");
+        }
 
         LumpInfo_t* lump = wad_lumps + num;
         return wad_base + lump->FilePos;

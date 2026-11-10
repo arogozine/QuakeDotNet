@@ -14,17 +14,27 @@ public sealed unsafe class DScanWarpTests
     {
         int w = RShared.r_refdef->Vrect.Width, h = RShared.r_refdef->Vrect.Height;
         float wratio = w / (float)Screen.scr_vrect->Width, hratio = h / (float)Screen.scr_vrect->Height;
-        byte*[] rowptr = new byte*[Screen.scr_vrect->Height + RLocal.AMP2 * 2];
-        int[] column = new int[Screen.scr_vrect->Width + RLocal.AMP2 * 2];
+        byte*[] rowptr = new byte*[Screen.scr_vrect->Height + (RLocal.AMP2 * 2)];
+        int[] column = new int[Screen.scr_vrect->Width + (RLocal.AMP2 * 2)];
         for (int v = 0; v < rowptr.Length; v++)
-            rowptr[v] = view + RShared.r_refdef->Vrect.Y * RShared.screenwidth + RShared.screenwidth * (int)(v * hratio * h / (h + RLocal.AMP2 * 2));
+        {
+            rowptr[v] = view + (RShared.r_refdef->Vrect.Y * RShared.screenwidth) + (RShared.screenwidth * (int)(v * hratio * h / (h + (RLocal.AMP2 * 2))));
+        }
+
         for (int u = 0; u < column.Length; u++)
-            column[u] = RShared.r_refdef->Vrect.X + (int)(u * wratio * w / (w + RLocal.AMP2 * 2));
+        {
+            column[u] = RShared.r_refdef->Vrect.X + (int)(u * wratio * w / (w + (RLocal.AMP2 * 2)));
+        }
+
         int* turb = RShared.intsintable + ((int)(RShared.cl_time * 20) & (DIface.CYCLE - 1));
-        byte* dest = outBuf + outY * outRowBytes + outX;
+        byte* dest = outBuf + (outY * outRowBytes) + outX;
         for (int v = 0; v < Screen.scr_vrect->Height; v++, dest += outRowBytes)
+        {
             for (int u = 0; u < Screen.scr_vrect->Width; u++)
+            {
                 dest[u] = rowptr[v + turb[u]][column[turb[v] + u]];
+            }
+        }
     }
 
     [TestMethod]
@@ -37,8 +47,15 @@ public sealed unsafe class DScanWarpTests
         try
         {
             Random rng = new(8);
-            for (int i = 0; i < sw * 100; i++) view[i] = (byte)rng.Next(256);
-            for (int i = 0; i < RShared.SIN_BUFFER_SIZE; i++) RShared.intsintable[i] = (int)(RLocal.AMP2 + MathF.Sin(i * 3.14159f * 2 / DIface.CYCLE) * RLocal.AMP2);
+            for (int i = 0; i < sw * 100; i++)
+            {
+                view[i] = (byte)rng.Next(256);
+            }
+
+            for (int i = 0; i < RShared.SIN_BUFFER_SIZE; i++)
+            {
+                RShared.intsintable[i] = (int)(RLocal.AMP2 + (MathF.Sin(i * 3.14159f * 2 / DIface.CYCLE) * RLocal.AMP2));
+            }
 
             DLocal.d_viewbuffer = view;
             RShared.screenwidth = sw;

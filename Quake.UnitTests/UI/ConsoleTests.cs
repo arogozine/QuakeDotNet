@@ -145,7 +145,9 @@ public sealed unsafe class ConsoleTests
         for (int i = 0; i + 2 < total; i++)
         {
             if (Con.con_text[i] == (byte)'a' && Con.con_text[i + 1] == 0xC1 && Con.con_text[i + 2] == (byte)'b')
+            {
                 found = true;
+            }
         }
         Assert.IsTrue(found);
     }
@@ -206,12 +208,17 @@ public sealed unsafe class ConsoleTests
 
         StringBuilder longLine = new();
         for (int i = 0; i < 20; i++)
+        {
             longLine.Append("word ");
+        }
+
         longLine.Append('\n');
 
         byte* text = Ansi(longLine.ToString());
         for (int i = 0; i < 50; i++)
+        {
             Con.Print(text);
+        }
 
         Con.Linefeed();
     }
@@ -231,15 +238,23 @@ public sealed unsafe class ConsoleTests
         Vid.vid.ConHeight = 64;
         Draw.draw_chars = NativeMemory.AllocArrayZeroed<byte>(128 * 16);
         for (int i = 0; i < 128 * 16; i++)
+        {
             Draw.draw_chars[i] = 0xAB; // every glyph fully opaque, easy to detect
+        }
     }
 
     private void FreeDrawFixture()
     {
         if (_conBuf != null)
+        {
             NativeMemory.Free(_conBuf);
+        }
+
         if (Draw.draw_chars != null)
+        {
             NativeMemory.Free(Draw.draw_chars);
+        }
+
         _conBuf = null;
         Draw.draw_chars = null;
     }
@@ -256,7 +271,9 @@ public sealed unsafe class ConsoleTests
             Con.DrawInput();
 
             for (int i = 0; i < 64 * 64; i++)
+            {
                 Assert.AreEqual((byte)0, _conBuf[i]);
+            }
         }
         finally
         {
@@ -282,8 +299,13 @@ public sealed unsafe class ConsoleTests
 
             bool anyPixelDrawn = false;
             for (int i = 0; i < 64 * 64; i++)
+            {
                 if (_conBuf[i] != 0)
+                {
                     anyPixelDrawn = true;
+                }
+            }
+
             Assert.IsTrue(anyPixelDrawn);
         }
         finally
@@ -336,7 +358,9 @@ public sealed unsafe class ConsoleTests
             Con.DrawNotify();
 
             for (int i = 0; i < 64 * 64; i++)
+            {
                 Assert.AreEqual((byte)0, _conBuf[i]);
+            }
         }
         finally
         {
@@ -353,7 +377,9 @@ public sealed unsafe class ConsoleTests
             Con.DrawConsole(0, true);
 
             for (int i = 0; i < 64 * 64; i++)
+            {
                 Assert.AreEqual((byte)0, _conBuf[i]);
+            }
         }
         finally
         {

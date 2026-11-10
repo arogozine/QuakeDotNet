@@ -58,7 +58,9 @@ public static unsafe class SndMix
 
                 snd_linear_count = (SndDma.shm->Samples >> 1) - lpos;
                 if (lpaintedtime + snd_linear_count > endtime)
+                {
                     snd_linear_count = endtime - lpaintedtime;
+                }
 
                 snd_linear_count <<= 1;
 
@@ -84,7 +86,7 @@ public static unsafe class SndMix
             int* p = (int*)paintbuffer;
             int count = (endtime - SndDma.paintedtime) * SndDma.shm->Channels;
             int out_mask = SndDma.shm->Samples - 1;
-            int out_idx = SndDma.paintedtime * SndDma.shm->Channels & out_mask;
+            int out_idx = (SndDma.paintedtime * SndDma.shm->Channels) & out_mask;
             int step = 3 - SndDma.shm->Channels;
             int vol = (int)(SndDma.volume->Value * 256);
 
@@ -110,9 +112,14 @@ public static unsafe class SndMix
                     int val = (*p * vol) >> 8;
                     p += step;
                     if (val > 0x7fff)
+                    {
                         val = 0x7fff;
+                    }
                     else if (val < -0x8000)
+                    {
                         val = -0x8000;
+                    }
+
                     @out[out_idx] = (short)val;
                     out_idx = (out_idx + 1) & out_mask;
                 }
@@ -136,9 +143,14 @@ public static unsafe class SndMix
                     int val = (*p * vol) >> 8;
                     p += step;
                     if (val > 0x7fff)
+                    {
                         val = 0x7fff;
+                    }
                     else if (val < -0x8000)
+                    {
                         val = -0x8000;
+                    }
+
                     @out[out_idx] = (byte)((val >> 8) + 128);
                     out_idx = (out_idx + 1) & out_mask;
                 }
@@ -154,7 +166,9 @@ public static unsafe class SndMix
             // if paintbuffer is smaller than DMA buffer
             int end = endtime;
             if (endtime - SndDma.paintedtime > PAINTBUFFER_SIZE)
+            {
                 end = SndDma.paintedtime + PAINTBUFFER_SIZE;
+            }
 
             // clear the paint buffer
             NativeMemory.Clear(paintbuffer, end - SndDma.paintedtime);
@@ -164,12 +178,20 @@ public static unsafe class SndMix
             {
                 Channel_t* ch = &SndDma.channels[i];
                 if (ch->Sfx == null)
+                {
                     continue;
+                }
+
                 if (ch->LeftVol == 0 && ch->RightVol == 0)
+                {
                     continue;
+                }
+
                 SfxCache_t* sc = Wav.LoadSound(ch->Sfx);
                 if (sc == null)
+                {
                     continue;
+                }
 
                 int ltime = SndDma.paintedtime;
 
@@ -181,9 +203,13 @@ public static unsafe class SndMix
                     if (count > 0)
                     {
                         if (sc->Width == 1)
+                        {
                             PaintChannelFrom8(ch, sc, count);
+                        }
                         else
+                        {
                             PaintChannelFrom16(ch, sc, count);
+                        }
 
                         ltime += count;
                     }
@@ -216,17 +242,26 @@ public static unsafe class SndMix
     public static void InitScaletable()
     {
         for (int i = 0; i < 32; i++)
+        {
             for (int j = 0; j < 256; j++)
-                snd_scaletable[i * SND_SCALETABLE_COLS + j] = (sbyte)j * i * 8;
+            {
+                snd_scaletable[(i * SND_SCALETABLE_COLS) + j] = (sbyte)j * i * 8;
+            }
+        }
     }
 
     // SND_PaintChannelFrom8
     public static void PaintChannelFrom8(Channel_t* ch, SfxCache_t* sc, int count)
     {
         if (ch->LeftVol > 255)
+        {
             ch->LeftVol = 255;
+        }
+
         if (ch->RightVol > 255)
+        {
             ch->RightVol = 255;
+        }
 
         {
             // snd_scaletable[row][j] == (sbyte)j * row * 8, so the table lookup

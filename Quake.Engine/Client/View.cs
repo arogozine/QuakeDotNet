@@ -102,9 +102,13 @@ public static unsafe class View
         float value = cl_rollangle->Value;
 
         if (side < cl_rollspeed->Value)
+        {
             side = side * value / cl_rollspeed->Value;
+        }
         else
+        {
             side = value;
+        }
 
         return side * sign;
     }
@@ -116,21 +120,30 @@ public static unsafe class View
     */
     public static float CalcBob()
     {
-        float cycle = (float)(Cl.time - (int)(Cl.time / cl_bobcycle->Value) * cl_bobcycle->Value);
+        float cycle = (float)(Cl.time - ((int)(Cl.time / cl_bobcycle->Value) * cl_bobcycle->Value));
         cycle /= cl_bobcycle->Value;
         if (cycle < cl_bobup->Value)
+        {
             cycle = MathLib.M_PI * cycle / cl_bobup->Value;
+        }
         else
-            cycle = MathLib.M_PI + MathLib.M_PI * (cycle - cl_bobup->Value) / (1.0f - cl_bobup->Value);
+        {
+            cycle = MathLib.M_PI + (MathLib.M_PI * (cycle - cl_bobup->Value) / (1.0f - cl_bobup->Value));
+        }
 
         // bob is proportional to velocity in the xy plane
         // (don't count Z, or jumping messes it up)
         float bob = new Vector2(Cl.velocity.X, Cl.velocity.Y).Length() * cl_bob->Value;
-        bob = bob * 0.3f + bob * 0.7f * MathF.Sin(cycle);
+        bob = (bob * 0.3f) + (bob * 0.7f * MathF.Sin(cycle));
         if (bob > 4)
+        {
             bob = 4;
+        }
         else if (bob < -7)
+        {
             bob = -7;
+        }
+
         return bob;
     }
 
@@ -143,7 +156,9 @@ public static unsafe class View
     public static void StartPitchDrift()
     {
         if (Cl.laststop == Cl.time)
+        {
             return; // something else is keeping it from drifting
+        }
 
         if (Cl.nodrift || Cl.pitchvel == 0)
         {
@@ -180,12 +195,19 @@ public static unsafe class View
         if (Cl.nodrift)
         {
             if (MathF.Abs(Cl.cmd.ForwardMove) < cl_forwardspeed->Value)
+            {
                 Cl.driftmove = 0;
+            }
             else
+            {
                 Cl.driftmove += Host.host_frametime;
+            }
 
             if (Cl.driftmove > v_centermove->Value)
+            {
                 StartPitchDrift();
+            }
+
             return;
         }
 
@@ -250,17 +272,26 @@ public static unsafe class View
         if (g == 1.0f)
         {
             for (int i = 0; i < 256; i++)
+            {
                 gammatable[i] = (byte)i;
+            }
+
             return;
         }
 
         for (int i = 0; i < 256; i++)
         {
-            int inf = (int)(255 * MathF.Pow((i + 0.5f) / 255.5f, g) + 0.5f);
+            int inf = (int)((255 * MathF.Pow((i + 0.5f) / 255.5f, g)) + 0.5f);
             if (inf < 0)
+            {
                 inf = 0;
+            }
+
             if (inf > 255)
+            {
                 inf = 255;
+            }
+
             gammatable[i] = (byte)inf;
         }
     }
@@ -275,7 +306,10 @@ public static unsafe class View
     public static bool CheckGamma()
     {
         if (v_gamma->Value == oldgammavalue)
+        {
             return false;
+        }
+
         oldgammavalue = v_gamma->Value;
 
         BuildGammaTable(v_gamma->Value);
@@ -295,19 +329,28 @@ public static unsafe class View
         int blood = Msg.ReadByte();
         Vec3_t from = default;
         for (int i = 0; i < 3; i++)
+        {
             from[i] = Msg.ReadCoord();
+        }
 
-        float count = blood * 0.5f + armor * 0.5f;
+        float count = (blood * 0.5f) + (armor * 0.5f);
         if (count < 10)
+        {
             count = 10;
+        }
 
         Cl.faceanimtime = Cl.time + 0.2; // but sbar face into pain frame
 
         Cl.cshifts[(int)CShiftType.Damage].Percent += (int)(3 * count);
         if (Cl.cshifts[(int)CShiftType.Damage].Percent < 0)
+        {
             Cl.cshifts[(int)CShiftType.Damage].Percent = 0;
+        }
+
         if (Cl.cshifts[(int)CShiftType.Damage].Percent > 150)
+        {
             Cl.cshifts[(int)CShiftType.Damage].Percent = 150;
+        }
 
         if (armor > blood)
         {
@@ -438,7 +481,9 @@ public static unsafe class View
             Cl.cshifts[(int)CShiftType.Powerup].Percent = 30;
         }
         else
+        {
             Cl.cshifts[(int)CShiftType.Powerup].Percent = 0;
+        }
     }
 
     /*
@@ -476,16 +521,22 @@ public static unsafe class View
         // drop the damage value
         Cl.cshifts[(int)CShiftType.Damage].Percent -= (int)(Host.host_frametime * 150);
         if (Cl.cshifts[(int)CShiftType.Damage].Percent <= 0)
+        {
             Cl.cshifts[(int)CShiftType.Damage].Percent = 0;
+        }
 
         // drop the bonus value
         Cl.cshifts[(int)CShiftType.Bonus].Percent -= (int)(Host.host_frametime * 100);
         if (Cl.cshifts[(int)CShiftType.Bonus].Percent <= 0)
+        {
             Cl.cshifts[(int)CShiftType.Bonus].Percent = 0;
+        }
 
         bool force = CheckGamma();
         if (!isNew && !force)
+        {
             return;
+        }
 
         byte* basepal = RMisc.host_basepal;
         byte* pal = stackalloc byte[768];
@@ -524,7 +575,10 @@ public static unsafe class View
     {
         a = MathLib.anglemod(a);
         if (a > 180)
+        {
             a -= 360;
+        }
+
         return a;
     }
 
@@ -543,35 +597,55 @@ public static unsafe class View
 
         yaw = AngleDelta(yaw - RShared.r_refdef->ViewAngles[QuakeDef.YAW]) * 0.4f;
         if (yaw > 10)
+        {
             yaw = 10;
+        }
+
         if (yaw < -10)
+        {
             yaw = -10;
+        }
+
         pitch = AngleDelta(-pitch - RShared.r_refdef->ViewAngles[QuakeDef.PITCH]) * 0.4f;
         if (pitch > 10)
+        {
             pitch = 10;
+        }
+
         if (pitch < -10)
+        {
             pitch = -10;
+        }
+
         float move = Host.host_frametime * 20;
         if (yaw > oldyaw)
         {
             if (oldyaw + move < yaw)
+            {
                 yaw = oldyaw + move;
+            }
         }
         else
         {
             if (oldyaw - move > yaw)
+            {
                 yaw = oldyaw - move;
+            }
         }
 
         if (pitch > oldpitch)
         {
             if (oldpitch + move < pitch)
+            {
                 pitch = oldpitch + move;
+            }
         }
         else
         {
             if (oldpitch - move > pitch)
+            {
                 pitch = oldpitch - move;
+            }
         }
 
         oldyaw = yaw;
@@ -704,9 +778,11 @@ public static unsafe class View
         MathLib.AngleVectors(angles, out forward, out right, out up);
 
         for (int i = 0; i < 3; i++)
-            RShared.r_refdef->Vieworg[i] += scr_ofsx->Value * forward[i]
-                + scr_ofsy->Value * right[i]
-                + scr_ofsz->Value * up[i];
+        {
+            RShared.r_refdef->Vieworg[i] += (scr_ofsx->Value * forward[i])
+                + (scr_ofsy->Value * right[i])
+                + (scr_ofsz->Value * up[i]);
+        }
 
         BoundOffsets();
 
@@ -719,19 +795,30 @@ public static unsafe class View
         view->Origin[2] += Cl.viewheight;
 
         for (int i = 0; i < 3; i++)
+        {
             view->Origin[i] += forward[i] * bob * 0.4f;
+        }
+
         view->Origin[2] += bob;
 
         // fudge position around to keep amount of weapon visible
         // roughly equal with different FOV
         if (Screen.scr_viewsize->Value == 110)
+        {
             view->Origin[2] += 1;
+        }
         else if (Screen.scr_viewsize->Value == 100)
+        {
             view->Origin[2] += 2;
+        }
         else if (Screen.scr_viewsize->Value == 90)
+        {
             view->Origin[2] += 1;
+        }
         else if (Screen.scr_viewsize->Value == 80)
+        {
             view->Origin[2] += 0.5f;
+        }
 
         view->Model = Cl.model_precache[Cl.stats[(int)Stat.Weapon]];
         view->Frame = Cl.stats[(int)Stat.WeaponFrame];
@@ -745,13 +832,21 @@ public static unsafe class View
         {
             float steptime = (float)(Cl.time - Cl.oldtime);
             if (steptime < 0)
+            {
                 steptime = 0;
+            }
 
             oldz += steptime * 80;
             if (oldz > ent->Origin[2])
+            {
                 oldz = ent->Origin[2];
+            }
+
             if (ent->Origin[2] - oldz > 12)
+            {
                 oldz = ent->Origin[2] - 12;
+            }
+
             RShared.r_refdef->Vieworg[2] += oldz - ent->Origin[2];
             view->Origin[2] += oldz - ent->Origin[2];
         }
@@ -761,7 +856,9 @@ public static unsafe class View
         }
 
         if (Chase.chase_active->Value != 0)
+        {
             Chase.Update();
+        }
     }
 
     // (int)Stat.Weapon, (int)Stat.WeaponFrame (quakedef.h)
@@ -777,7 +874,9 @@ public static unsafe class View
     public static void RenderView()
     {
         if (Con.con_forcedup)
+        {
             return;
+        }
 
         // don't allow cheats in multiplayer
         if (Cl.maxclients > 1)
@@ -794,7 +893,9 @@ public static unsafe class View
         else
         {
             if (!Cl.paused)
+            {
                 CalcRefdef();
+            }
         }
 
         RLight.PushDlights();
@@ -806,7 +907,10 @@ public static unsafe class View
 
             RShared.r_refdef->ViewAngles[QuakeDef.YAW] -= lcd_yaw->Value;
             for (int i = 0; i < 3; i++)
+            {
                 RShared.r_refdef->Vieworg[i] -= right[i] * lcd_x->Value;
+            }
+
             RMain.RenderView();
 
             Vid.vid.Buffer += Vid.vid.RowBytes >> 1;
@@ -815,7 +919,10 @@ public static unsafe class View
 
             RShared.r_refdef->ViewAngles[QuakeDef.YAW] += lcd_yaw->Value * 2;
             for (int i = 0; i < 3; i++)
+            {
                 RShared.r_refdef->Vieworg[i] += 2 * right[i] * lcd_x->Value;
+            }
+
             RMain.RenderView();
 
             Vid.vid.Buffer -= Vid.vid.RowBytes >> 1;
@@ -838,12 +945,12 @@ public static unsafe class View
             // sub-scale origin offset so it lands on the exact pixel.
             Canvas.Set(CanvasType.Crosshair);
             int s = Canvas.Scale;
-            int px = (int)(Screen.scr_vrect->X + Screen.scr_vrect->Width / 2 + cl_crossx->Value) + 4 - 4 * s;
-            int py = (int)(Screen.scr_vrect->Y + Screen.scr_vrect->Height / 2 + cl_crossy->Value) + 4 - 4 * s;
+            int px = (int)(Screen.scr_vrect->X + (Screen.scr_vrect->Width / 2) + cl_crossx->Value) + 4 - (4 * s);
+            int py = (int)(Screen.scr_vrect->Y + (Screen.scr_vrect->Height / 2) + cl_crossy->Value) + 4 - (4 * s);
             int vx = (int)MathF.Floor((float)px / s);
             int vy = (int)MathF.Floor((float)py / s);
-            Canvas.OriginX = px - vx * s;
-            Canvas.OriginY = py - vy * s;
+            Canvas.OriginX = px - (vx * s);
+            Canvas.OriginY = py - (vy * s);
             Draw.Character(vx, vy, '+');
             Canvas.Set(CanvasType.Default);
         }

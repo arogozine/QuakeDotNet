@@ -88,8 +88,12 @@ public sealed unsafe class HostCmdTests
         // com_searchpaths is Hunk-allocated out of _buf -- walk it before
         // freeing _buf below (matches AliasModelTests's Teardown ordering).
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(Svs.clients[0].Message.Data);
         NativeMemory.Free(Sv.reliable_datagram->Data);
@@ -137,7 +141,9 @@ public sealed unsafe class HostCmdTests
 
         bw.Write((int)AliasSkinType_t.Single);
         for (int i = 0; i < skinSize; i++)
+        {
             bw.Write((byte)(i & 0xFF));
+        }
 
         for (int i = 0; i < numVerts; i++)
         {
@@ -180,7 +186,9 @@ public sealed unsafe class HostCmdTests
         byte* name = Progs.pr_strings + 32; // scratch region past index 0's empty string
         byte[] nameBytes = Encoding.ASCII.GetBytes("viewthing\0");
         for (int i = 0; i < nameBytes.Length; i++)
+        {
             name[i] = nameBytes[i];
+        }
 
         Sv.num_edicts = 2;
         EDict_t* e = Progs.EdictNum(1);
@@ -788,7 +796,7 @@ public sealed unsafe class HostCmdTests
             Svs.clients[0].Active = true;
             Q.StrCpy(Svs.clients[0].Name, Ansi("Ranger"));
             Svs.clients[0].Edict = _player;
-            Svs.clients[0].NetConnection->ConnectTime = Net.net_time - (11 * 3600 + 65);
+            Svs.clients[0].NetConnection->ConnectTime = Net.net_time - ((11 * 3600) + 65);
             Q.StrCpy(Svs.clients[0].NetConnection->Address, Ansi("127.0.0.1"));
 
             string output = CaptureOutput(HostCmd.Status_f);
@@ -817,7 +825,10 @@ public sealed unsafe class HostCmdTests
             Svs.clients[0].Active = true;
             Q.StrCpy(Svs.clients[0].Name, Ansi("Ranger"));
             for (int i = 0; i < Client_t.NUM_PING_TIMES; i++)
+            {
                 Svs.clients[0].PingTimes[i] = 0.05f; // 50ms average
+            }
+
             Svs.host_client = &Svs.clients[1]; // the requester
 
             HostCmd.Ping_f();

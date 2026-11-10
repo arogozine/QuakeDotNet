@@ -38,7 +38,10 @@ public static unsafe class REfrag
             {
                 EFrag_t* walk = *prev;
                 if (walk == null)
+                {
                     break;
+                }
+
                 if (walk == ef)
                 {
                     // remove this fragment
@@ -66,13 +69,17 @@ public static unsafe class REfrag
     public static void SplitEntityOnNode(MNode_t* node)
     {
         if (node->Contents == (int)Contents.Solid)
+        {
             return;
+        }
 
         // add an efrag if the node is a leaf
         if (node->Contents < 0)
         {
             if (RMain.r_pefragtopnode == null)
+            {
                 RMain.r_pefragtopnode = node;
+            }
 
             MLeaf_t* leaf = (MLeaf_t*)node;
 
@@ -109,28 +116,38 @@ public static unsafe class REfrag
             // split on this plane
             // if this is the first splitter of this bmodel, remember it
             if (RMain.r_pefragtopnode == null)
+            {
                 RMain.r_pefragtopnode = node;
+            }
         }
 
         // recurse down the contacted sides
         if ((sides & 1) != 0)
+        {
             SplitEntityOnNode(node->Children[0]);
+        }
 
         if ((sides & 2) != 0)
+        {
             SplitEntityOnNode(node->Children[1]);
+        }
     }
 
     // R_SplitEntityOnNode2
     public static void SplitEntityOnNode2(MNode_t* node)
     {
         if (node->VisFrame != RMain.r_visframecount)
+        {
             return;
+        }
 
         if (node->Contents < 0)
         {
             if (node->Contents != (int)Contents.Solid)
+            {
                 RMain.r_pefragtopnode = node; // we've reached a non-solid leaf, so it's
-                                              //  visible and not BSP clipped
+            }
+            //  visible and not BSP clipped
             return;
         }
 
@@ -146,19 +163,27 @@ public static unsafe class REfrag
 
         // not split yet; recurse down the contacted side
         if ((sides & 1) != 0)
+        {
             SplitEntityOnNode2(node->Children[0]);
+        }
         else
+        {
             SplitEntityOnNode2(node->Children[1]);
+        }
     }
 
     // R_AddEfrags
     public static void AddEfrags(Entity_t* ent)
     {
         if (ent->Model == null)
+        {
             return;
+        }
 
         if (ent == ClEntities.cl_entities)
+        {
             return; // never add the world
+        }
 
         r_addent = ent;
 

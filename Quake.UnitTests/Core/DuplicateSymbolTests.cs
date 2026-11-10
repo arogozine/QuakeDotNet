@@ -12,7 +12,7 @@ using System.Reflection;
 /// static classes are listed in <see cref="Allowed"/> with the reason they are legitimate.
 /// </summary>
 [TestClass]
-public sealed unsafe class DuplicateSymbolTests
+public sealed class DuplicateSymbolTests
 {
     private const BindingFlags Flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
@@ -102,7 +102,11 @@ public sealed unsafe class DuplicateSymbolTests
                 .Distinct();
             foreach (string n in names)
             {
-                if (!byName.TryGetValue(n, out var l)) byName[n] = l = [];
+                if (!byName.TryGetValue(n, out var l))
+                {
+                    byName[n] = l = [];
+                }
+
                 l.Add(t.Name);
             }
         }

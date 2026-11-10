@@ -57,7 +57,9 @@ public sealed unsafe class SbarTests
         Com.hipnotic = false;
         NativeMemory.Free(_buf);
         if (_gamedir != null)
+        {
             Directory.Delete(_gamedir, true);
+        }
     }
 
     // Every lump name Sbar.Init() looks up -- id1 base game plus the rogue/
@@ -79,12 +81,22 @@ public sealed unsafe class SbarTests
 
         string[] weapons = ["shotgun", "sshotgun", "nailgun", "snailgun", "rlaunch", "srlaunch", "lightng"];
         foreach (string w in weapons)
+        {
             names.Add($"inv_{w}");
+        }
+
         foreach (string w in weapons)
+        {
             names.Add($"inv2_{w}");
+        }
+
         for (int i = 1; i <= 5; i++)
+        {
             foreach (string w in weapons)
+            {
                 names.Add($"inva{i}_{w}");
+            }
+        }
 
         names.AddRange(["sb_shells", "sb_nails", "sb_rocket", "sb_cells"]);
         names.AddRange(["sb_armor1", "sb_armor2", "sb_armor3"]);
@@ -103,12 +115,23 @@ public sealed unsafe class SbarTests
         // hipnotic
         string[] hipWeapons = ["laser", "mjolnir", "gren_prox", "prox_gren", "prox"];
         foreach (string w in hipWeapons)
+        {
             names.Add($"inv_{w}");
+        }
+
         foreach (string w in hipWeapons)
+        {
             names.Add($"inv2_{w}");
+        }
+
         for (int i = 1; i <= 5; i++)
+        {
             foreach (string w in hipWeapons)
+            {
                 names.Add($"inva{i}_{w}");
+            }
+        }
+
         names.AddRange(["sb_wsuit", "sb_eshld"]);
 
         // rogue
@@ -146,7 +169,9 @@ public sealed unsafe class SbarTests
         bw.Write(infotableofs);
 
         for (int i = 0; i < names.Count; i++)
+        {
             bw.Write(payload);
+        }
 
         for (int i = 0; i < names.Count; i++)
         {

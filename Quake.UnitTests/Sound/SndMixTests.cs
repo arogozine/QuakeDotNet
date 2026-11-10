@@ -27,11 +27,11 @@ public sealed unsafe class SndMixTests
         SndMix.InitScaletable();
 
         // row 2, byte 200 (== sbyte -56): -56 * 2 * 8
-        Assert.AreEqual(-56 * 2 * 8, SndMix.snd_scaletable[2 * SndMix.SND_SCALETABLE_COLS + 200]);
+        Assert.AreEqual(-56 * 2 * 8, SndMix.snd_scaletable[(2 * SndMix.SND_SCALETABLE_COLS) + 200]);
         // row 4, byte 127 (== sbyte 127): 127 * 4 * 8
-        Assert.AreEqual(127 * 4 * 8, SndMix.snd_scaletable[4 * SndMix.SND_SCALETABLE_COLS + 127]);
+        Assert.AreEqual(127 * 4 * 8, SndMix.snd_scaletable[(4 * SndMix.SND_SCALETABLE_COLS) + 127]);
         // row 0 is always silent regardless of sample value
-        Assert.AreEqual(0, SndMix.snd_scaletable[0 * SndMix.SND_SCALETABLE_COLS + 250]);
+        Assert.AreEqual(0, SndMix.snd_scaletable[(0 * SndMix.SND_SCALETABLE_COLS) + 250]);
     }
 
     [TestMethod]
@@ -87,7 +87,7 @@ public sealed unsafe class SndMixTests
     public void PaintChannelFrom16_ScalesSignedSamplesByVolumeAndShifts()
     {
         int count = 2;
-        int size = sizeof(SfxCache_t) + count * sizeof(short);
+        int size = sizeof(SfxCache_t) + (count * sizeof(short));
         byte* raw = stackalloc byte[size];
         SfxCache_t* sc = (SfxCache_t*)raw;
         *sc = default;

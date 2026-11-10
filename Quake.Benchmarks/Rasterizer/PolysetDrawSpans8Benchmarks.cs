@@ -32,15 +32,22 @@ public unsafe class PolysetDrawSpans8Benchmarks
         _z2 = NativeMemory.AllocArrayZeroed<short>(SpanCount * MaxCount);
         _tex = NativeMemory.AllocArrayZeroed<byte>(Skin * Skin * 2);
         _colormap = NativeMemory.AllocArrayZeroed<byte>(16384);
-        for (int i = 0; i < Skin * Skin * 2; i++) _tex[i] = (byte)rng.Next(256);
-        for (int i = 0; i < 16384; i++) _colormap[i] = (byte)rng.Next(256);
+        for (int i = 0; i < Skin * Skin * 2; i++)
+        {
+            _tex[i] = (byte)rng.Next(256);
+        }
+
+        for (int i = 0; i < 16384; i++)
+        {
+            _colormap[i] = (byte)rng.Next(256);
+        }
 
         for (int i = 0; i < SpanCount; i++)
         {
             _spans[i] = new SpanPackage_t
             {
-                PDest = _dest + i * MaxCount,
-                Pz = _z + i * MaxCount,
+                PDest = _dest + (i * MaxCount),
+                Pz = _z + (i * MaxCount),
                 Count = rng.Next(2, MaxCount - 4),
                 PTex = _tex + rng.Next(0, 200),
                 Sfrac = rng.Next(0, 0x10000),
@@ -65,7 +72,9 @@ public unsafe class PolysetDrawSpans8Benchmarks
         RunNew(_dest2, _z2);
         // the benchmark spans write into _dest/_z; compare the two output sets
         if (!new ReadOnlySpan<byte>(_dest, SpanCount * MaxCount).SequenceEqual(new ReadOnlySpan<byte>(_dest2, SpanCount * MaxCount)))
+        {
             throw new Exception("mismatch");
+        }
     }
 
     [GlobalCleanup]
@@ -75,7 +84,7 @@ public unsafe class PolysetDrawSpans8Benchmarks
 
     private void Prep(byte* dest, short* z)
     {
-        for (int i = 0; i < SpanCount; i++) { _spans[i].PDest = dest + i * MaxCount; _spans[i].Pz = z + i * MaxCount; }
+        for (int i = 0; i < SpanCount; i++) { _spans[i].PDest = dest + (i * MaxCount); _spans[i].Pz = z + (i * MaxCount); }
         new Span<short>(z, SpanCount * MaxCount).Clear();
         _aspancount.SetValue(null, MaxCount);
         _countextra.SetValue(null, 0);
@@ -98,7 +107,11 @@ public unsafe class PolysetDrawSpans8Benchmarks
             int lcount = aspancount - pspanpackage->Count;
             DEdge.errorterm += DEdge.erroradjustup;
             if (DEdge.errorterm >= 0) { aspancount += countextrastep; DEdge.errorterm -= DEdge.erroradjustdown; }
-            else aspancount += DEdge.ubasestep;
+            else
+            {
+                aspancount += DEdge.ubasestep;
+            }
+
             if (lcount != 0)
             {
                 byte* lpdest = (byte*)pspanpackage->PDest; byte* lptex = pspanpackage->PTex; short* lpz = pspanpackage->Pz;

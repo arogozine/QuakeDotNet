@@ -41,16 +41,24 @@ public static unsafe class MemoryManager
         long memsize = availPhys;
 
         if (memsize < MINIMUM_WIN_MEMORY)
+        {
             memsize = MINIMUM_WIN_MEMORY;
+        }
 
         if (memsize < (totalPhys >> 1))
+        {
             memsize = totalPhys >> 1;
+        }
 
         if (memsize > MAXIMUM_WIN_MEMORY)
+        {
             memsize = MAXIMUM_WIN_MEMORY;
+        }
 
         if (heapSizeKbOverride is int kb)
+        {
             memsize = kb * 1024L;
+        }
 
         // checked deliberately (rule 2 deviation, justified per rule 8): the original silently
         // truncates memsize to a 32-bit int here; throwing on overflow
@@ -59,7 +67,9 @@ public static unsafe class MemoryManager
         MemBase = NativeMemory.AllocArray<byte>(MemSize);
 
         if (MemBase == null)
+        {
             Sys.Error("Not enough memory free; check disk space\n"u8);
+        }
 
 
         // Memory_Init is NOT called here: the original only calls it once,
@@ -89,9 +99,13 @@ public static unsafe class MemoryManager
         if (p != 0)
         {
             if (p < Com.com_argc - 1)
+            {
                 zonesize = Q.Atoi(Com.com_argv[p + 1]) * 1024;
+            }
             else
+            {
                 Sys.Error("Memory_Init: you must specify a size in KB after -zone"u8);
+            }
         }
 
         Zone.mainzone = (MemZone*)Hunk.AllocName(zonesize, "zone"u8);

@@ -60,7 +60,10 @@ public sealed unsafe class EdictLoadFromFileTests
     public void Teardown()
     {
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
+
         NativeMemory.Free(_buf);
     }
 
@@ -100,7 +103,10 @@ public sealed unsafe class EdictLoadFromFileTests
         // Hunk.Alloc'd strings resolve through PR_SetString.
         byte* strings = (byte*)Hunk.AllocName(stringTable.Length, "strings"u8);
         for (int i = 0; i < stringTable.Length; i++)
+        {
             strings[i] = stringTable[i];
+        }
+
         _strings = strings;
         Progs.pr_strings = strings;
 
@@ -139,7 +145,10 @@ public sealed unsafe class EdictLoadFromFileTests
         byte[] bytes = Encoding.ASCII.GetBytes(s + "\0");
         byte* p = NativeMemory.AllocArray<byte>(bytes.Length);
         for (int i = 0; i < bytes.Length; i++)
+        {
             p[i] = bytes[i];
+        }
+
         return p;
     }
 

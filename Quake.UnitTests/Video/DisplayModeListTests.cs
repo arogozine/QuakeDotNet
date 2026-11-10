@@ -121,7 +121,7 @@ public sealed unsafe class DisplayModeListTests
         Assert.Contains(new DisplayMode(1024, 768), result);
     }
 
-    private static unsafe string Str(in Utf8StringHandler h) => CStr.ToString(h.GetWrittenBufferPtr());
+    private static string Str(in Utf8StringHandler h) => CStr.ToString(h.GetWrittenBufferPtr());
 
     [TestMethod]
     public void Format_Windowed_MatchesVidGetModeDescription2()

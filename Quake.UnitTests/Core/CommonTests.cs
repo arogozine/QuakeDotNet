@@ -45,8 +45,12 @@ public sealed unsafe class CommonTests
         // "don't really close a pack handle" behavior) -- close them here so
         // temp files/directories can be deleted.
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -83,10 +87,14 @@ public sealed unsafe class CommonTests
         bw.Write(dirlen);
 
         foreach ((string _, byte[] payload) in entries)
+        {
             bw.Write(payload);
+        }
 
         for (int i = 0; i < entries.Length; i++)
+        {
             WritePackDirEntry(bw, entries[i].Name, fileposes[i], entries[i].Payload.Length);
+        }
     }
 
     [TestMethod]
@@ -145,8 +153,13 @@ public sealed unsafe class CommonTests
         finally
         {
             for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+            {
                 if (s->Pack != null)
+                {
                     Sys.FileClose(s->Pack->Handle);
+                }
+            }
+
             Com.com_searchpaths = null;
             Directory.Delete(gamedir, true);
         }

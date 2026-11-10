@@ -25,7 +25,7 @@ public sealed unsafe class DrawSpans8Tests
     {
         _viewbuf = NativeMemory.AllocArrayZeroed<byte>(ScreenWidth * ScreenHeight);
         // +4: the gather path may read up to 3 bytes past the last texel.
-        _tex = NativeMemory.AllocArrayZeroed<byte>(CacheWidth * CacheHeight + 4);
+        _tex = NativeMemory.AllocArrayZeroed<byte>((CacheWidth * CacheHeight) + 4);
 
         DLocal.d_viewbuffer = _viewbuf;
         RShared.screenwidth = ScreenWidth;
@@ -90,7 +90,9 @@ public sealed unsafe class DrawSpans8Tests
         DScan.DrawSpans8(&span);
 
         for (int i = 0; i < 10; i++)
+        {
             Assert.AreEqual((byte)42, _viewbuf[i], $"pixel {i}");
+        }
     }
 
     [TestMethod]
@@ -103,7 +105,9 @@ public sealed unsafe class DrawSpans8Tests
     {
         Random rng = new(seed);
         for (int i = 0; i < CacheWidth * CacheHeight; i++)
+        {
             _tex[i] = (byte)rng.Next(256);
+        }
 
         DLocal.d_sdivzorigin = 5.0f + seed;
         DLocal.d_sdivzstepu = 0.01f;
@@ -168,7 +172,7 @@ public sealed unsafe class DrawSpans8Tests
 
         do
         {
-            byte* pdest = viewbuffer + RShared.screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (RShared.screenwidth * pspan->V) + pspan->U;
             int count = pspan->Count;
 
             float du = pspan->U;
@@ -200,12 +204,24 @@ public sealed unsafe class DrawSpans8Tests
                     z = 0x10000 / zi;
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + DLocal.sadjust;
-                    if (snext > DLocal.bbextents) snext = DLocal.bbextents;
-                    else if (snext < 8) snext = 8;
+                    if (snext > DLocal.bbextents)
+                    {
+                        snext = DLocal.bbextents;
+                    }
+                    else if (snext < 8)
+                    {
+                        snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + DLocal.tadjust;
-                    if (tnext > DLocal.bbextentt) tnext = DLocal.bbextentt;
-                    else if (tnext < 8) tnext = 8;
+                    if (tnext > DLocal.bbextentt)
+                    {
+                        tnext = DLocal.bbextentt;
+                    }
+                    else if (tnext < 8)
+                    {
+                        tnext = 8;
+                    }
 
                     sstep = (snext - s) >> 3;
                     tstep = (tnext - t) >> 3;
@@ -219,12 +235,24 @@ public sealed unsafe class DrawSpans8Tests
                     z = 0x10000 / zi;
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + DLocal.sadjust;
-                    if (snext > DLocal.bbextents) snext = DLocal.bbextents;
-                    else if (snext < 8) snext = 8;
+                    if (snext > DLocal.bbextents)
+                    {
+                        snext = DLocal.bbextents;
+                    }
+                    else if (snext < 8)
+                    {
+                        snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + DLocal.tadjust;
-                    if (tnext > DLocal.bbextentt) tnext = DLocal.bbextentt;
-                    else if (tnext < 8) tnext = 8;
+                    if (tnext > DLocal.bbextentt)
+                    {
+                        tnext = DLocal.bbextentt;
+                    }
+                    else if (tnext < 8)
+                    {
+                        tnext = 8;
+                    }
 
                     if (spancount > 1)
                     {
@@ -235,7 +263,7 @@ public sealed unsafe class DrawSpans8Tests
 
                 do
                 {
-                    *pdest++ = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
+                    *pdest++ = *(pbase + (s >> 16) + ((t >> 16) * cachewidth));
                     s += sstep;
                     t += tstep;
                 } while (--spancount > 0);

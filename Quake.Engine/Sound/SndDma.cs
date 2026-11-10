@@ -116,7 +116,9 @@ public static unsafe class SndDma
     public static void Startup()
     {
         if (!snd_initialized)
+        {
             return;
+        }
 
         if (!fakedma)
         {
@@ -137,10 +139,14 @@ public static unsafe class SndDma
         Con.Printf("\nSound Initialization\n"u8);
 
         if (Com.CheckParm("-nosound"u8) != 0)
+        {
             return;
+        }
 
         if (Com.CheckParm("-simsound"u8) != 0)
+        {
             fakedma = true;
+        }
 
         Cmd.AddCommand("play"u8, &Play);
         Cmd.AddCommand("playvol"u8, &PlayVol);
@@ -203,34 +209,50 @@ public static unsafe class SndDma
     public static void Shutdown()
     {
         if (!sound_started)
+        {
             return;
+        }
 
         if (shm != null)
+        {
             shm->GameAlive = false;
+        }
 
         shm = null;
         sound_started = false;
 
         if (!fakedma)
+        {
             SndHost.SNDDMA_Shutdown();
+        }
     }
 
     // S_FindName
     public static Sfx_t* FindName(byte* name)
     {
         if (name == null)
+        {
             Sys.Error("S_FindName: NULL\n"u8);
+        }
 
         if (Q.StrLen(name) >= QuakeDef.MAX_QPATH)
+        {
             Sys.Error($"Sound name too long: {name}");
+        }
 
         // see if already loaded
         for (int i = 0; i < num_sfx; i++)
+        {
             if (Q.StrCmp(known_sfx[i].Name, name) == 0)
+            {
                 return &known_sfx[i];
+            }
+        }
 
         if (num_sfx == MAX_SFX)
+        {
             Sys.Error("S_FindName: out of sfx_t"u8);
+        }
 
         Sfx_t* sfx = &known_sfx[num_sfx];
         Q.StrCpy(sfx->Name, name);
@@ -244,7 +266,9 @@ public static unsafe class SndDma
     public static void TouchSound(byte* name)
     {
         if (!sound_started)
+        {
             return;
+        }
 
         Sfx_t* sfx = FindName(name);
         Cache.Check(&sfx->Cache);
@@ -254,12 +278,16 @@ public static unsafe class SndDma
     public static Sfx_t* PrecacheSound(Utf8String name)
     {
         if (!sound_started || nosound->Value != 0)
+        {
             return null;
+        }
 
         Sfx_t* sfx = FindName(name);
 
         if (precache->Value != 0)
+        {
             Wav.LoadSound(sfx);
+        }
 
         return sfx;
     }
@@ -283,7 +311,9 @@ public static unsafe class SndDma
 
             // don't let monster sounds override player sounds
             if (channels[ch_idx].EntNum == Cl.viewentity && entnum != Cl.viewentity && channels[ch_idx].Sfx != null)
+            {
                 continue;
+            }
 
             if (channels[ch_idx].End - paintedtime < life_left)
             {
@@ -293,10 +323,14 @@ public static unsafe class SndDma
         }
 
         if (first_to_die == -1)
+        {
             return null;
+        }
 
         if (channels[first_to_die].Sfx != null)
+        {
             channels[first_to_die].Sfx = null;
+        }
 
         return &channels[first_to_die];
     }
@@ -335,32 +369,44 @@ public static unsafe class SndDma
         float scale = (1.0f - dist) * rscale;
         ch->RightVol = (int)(ch->MasterVol * scale);
         if (ch->RightVol < 0)
+        {
             ch->RightVol = 0;
+        }
 
         scale = (1.0f - dist) * lscale;
         ch->LeftVol = (int)(ch->MasterVol * scale);
         if (ch->LeftVol < 0)
+        {
             ch->LeftVol = 0;
+        }
     }
 
     // S_StartSound
     public static void StartSound(int entnum, int entchannel, Sfx_t* sfx, in Vec3_t origin, float fvol, float attenuation)
     {
         if (!sound_started)
+        {
             return;
+        }
 
         if (sfx == null)
+        {
             return;
+        }
 
         if (nosound->Value != 0)
+        {
             return;
+        }
 
         int vol = (int)(fvol * 255);
 
         // pick a channel to play on
         Channel_t* target_chan = PickChannel(entnum, entchannel);
         if (target_chan == null)
+        {
             return;
+        }
 
         // spatialize
         *target_chan = default;
@@ -372,7 +418,9 @@ public static unsafe class SndDma
         Spatialize(target_chan);
 
         if (target_chan->LeftVol == 0 && target_chan->RightVol == 0)
+        {
             return; // not audible at all
+        }
 
         // new channel
         SfxCache_t* sc = Wav.LoadSound(sfx);
@@ -392,12 +440,18 @@ public static unsafe class SndDma
         for (int ch_idx = BspFile.NUM_AMBIENTS; ch_idx < BspFile.NUM_AMBIENTS + MAX_DYNAMIC_CHANNELS; ch_idx++, check++)
         {
             if (check == target_chan)
+            {
                 continue;
+            }
+
             if (check->Sfx == sfx && check->Pos == 0)
             {
                 int skip = Q.Rand() % (int)(0.1 * shm->Speed);
                 if (skip >= target_chan->End)
+                {
                     skip = target_chan->End - 1;
+                }
+
                 target_chan->Pos += skip;
                 target_chan->End -= skip;
                 break;
@@ -423,14 +477,18 @@ public static unsafe class SndDma
     public static void StopAllSounds(bool clear)
     {
         if (!sound_started)
+        {
             return;
+        }
 
         total_channels = MAX_DYNAMIC_CHANNELS + BspFile.NUM_AMBIENTS; // no statics
 
         NativeMemory.Clear(channels, MAX_CHANNELS);
 
         if (clear)
+        {
             ClearBuffer();
+        }
     }
 
     // S_StopAllSoundsC
@@ -444,7 +502,9 @@ public static unsafe class SndDma
         snd_blocked++;
 
         if (snd_blocked == 1)
+        {
             SndHost.Reset(); // waveOutReset (hWaveOut)
+        }
     }
 
     // S_UnblockSound (snd_win.c)
@@ -457,7 +517,9 @@ public static unsafe class SndDma
     public static void ClearBuffer()
     {
         if (!sound_started || shm == null || shm->Buffer == null)
+        {
             return;
+        }
 
         int clear = shm->SampleBits == 8 ? 0x80 : 0;
 
@@ -468,7 +530,9 @@ public static unsafe class SndDma
     public static void StaticSound(Sfx_t* sfx, in Vec3_t origin, float vol, float attenuation)
     {
         if (sfx == null)
+        {
             return;
+        }
 
         if (total_channels == MAX_CHANNELS)
         {
@@ -481,7 +545,9 @@ public static unsafe class SndDma
 
         SfxCache_t* sc = Wav.LoadSound(sfx);
         if (sc == null)
+        {
             return;
+        }
 
         if (sc->LoopStart == -1)
         {
@@ -502,17 +568,24 @@ public static unsafe class SndDma
     public static void UpdateAmbientSounds()
     {
         if (!snd_ambient)
+        {
             return;
+        }
 
         if (Cl.worldmodel == null)
+        {
             return;
+        }
 
         MLeaf_t* l = Model.PointInLeaf(listener_origin, Cl.worldmodel);
 
         if (l == null || ambient_level->Value == 0)
         {
             for (int ac = 0; ac < BspFile.NUM_AMBIENTS; ac++)
+            {
                 channels[ac].Sfx = null;
+            }
+
             return;
         }
 
@@ -523,20 +596,26 @@ public static unsafe class SndDma
 
             float vol = ambient_level->Value * l->AmbientSoundLevel[ambient_channel];
             if (vol < 8)
+            {
                 vol = 0;
+            }
 
             // don't adjust volume too fast
             if (chan->MasterVol < vol)
             {
                 chan->MasterVol += (int)(Host.host_frametime * ambient_fade->Value);
                 if (chan->MasterVol > vol)
+                {
                     chan->MasterVol = (int)vol;
+                }
             }
             else if (chan->MasterVol > vol)
             {
                 chan->MasterVol -= (int)(Host.host_frametime * ambient_fade->Value);
                 if (chan->MasterVol < vol)
+                {
                     chan->MasterVol = (int)vol;
+                }
             }
 
             chan->LeftVol = chan->RightVol = chan->MasterVol;
@@ -547,7 +626,9 @@ public static unsafe class SndDma
     public static void Update(in Vec3_t origin, in Vec3_t forward, in Vec3_t right, in Vec3_t up)
     {
         if (!sound_started || snd_blocked > 0)
+        {
             return;
+        }
 
         listener_origin = origin;
         listener_forward = forward;
@@ -564,10 +645,15 @@ public static unsafe class SndDma
         {
             Channel_t* ch = &channels[i];
             if (ch->Sfx == null)
+            {
                 continue;
+            }
+
             Spatialize(ch); // respatialize channel
             if (ch->LeftVol == 0 && ch->RightVol == 0)
+            {
                 continue;
+            }
 
             // try to combine static sounds with a previous channel of the same
             // sound effect so we don't mix five torches every frame
@@ -586,8 +672,12 @@ public static unsafe class SndDma
                 int j;
                 combine = &channels[MAX_DYNAMIC_CHANNELS + BspFile.NUM_AMBIENTS];
                 for (j = MAX_DYNAMIC_CHANNELS + BspFile.NUM_AMBIENTS; j < i; j++, combine++)
+                {
                     if (combine->Sfx == ch->Sfx)
+                    {
                         break;
+                    }
+                }
 
                 if (j == total_channels)
                 {
@@ -611,8 +701,12 @@ public static unsafe class SndDma
         {
             int total = 0;
             for (int i = 0; i < total_channels; i++)
+            {
                 if (channels[i].Sfx != null && (channels[i].LeftVol != 0 || channels[i].RightVol != 0))
+                {
                     total++;
+                }
+            }
 
             Con.Printf($"----({total})----\n");
         }
@@ -645,27 +739,33 @@ public static unsafe class SndDma
         }
         oldsamplepos = samplepos;
 
-        soundtime = buffers * fullsamples + samplepos / shm->Channels;
+        soundtime = (buffers * fullsamples) + (samplepos / shm->Channels);
     }
 
     // S_Update_
     public static void Update_()
     {
         if (!sound_started || snd_blocked > 0)
+        {
             return;
+        }
 
         // Updates DMA time
         GetSoundtime();
 
         // check to make sure that we haven't overshot
         if (paintedtime < soundtime)
+        {
             paintedtime = soundtime;
+        }
 
         // mix ahead of current position
         int endtime = soundtime + (int)(_snd_mixahead->Value * shm->Speed);
         int samps = shm->Samples >> (shm->Channels - 1);
         if (endtime - soundtime > samps)
+        {
             endtime = soundtime + samps;
+        }
 
         SndMix.PaintChannels(endtime);
 
@@ -691,7 +791,9 @@ public static unsafe class SndDma
                 Q.StrCat(name, ".wav"u8);
             }
             else
+            {
                 Q.StrCpy(name, arg);
+            }
 
             Sfx_t* sfx = PrecacheSound(name);
             StartSound(play_hash++, 0, sfx, listener_origin, 1.0f, 1.0f);
@@ -716,7 +818,9 @@ public static unsafe class SndDma
                 Q.StrCat(name, ".wav"u8);
             }
             else
+            {
                 Q.StrCpy(name, arg);
+            }
 
             Sfx_t* sfx = PrecacheSound(name);
             float vol = Q.Atof(Cmd.Argv(i + 1));
@@ -734,7 +838,10 @@ public static unsafe class SndDma
             Sfx_t* sfx = &known_sfx[i];
             SfxCache_t* sc = (SfxCache_t*)Cache.Check(&sfx->Cache);
             if (sc == null)
+            {
                 continue;
+            }
+
             int size = sc->Length * sc->Width * (sc->Stereo + 1);
             total += size;
             Con.Printf(sc->LoopStart >= 0 ? "L"u8 : " "u8);
@@ -747,9 +854,14 @@ public static unsafe class SndDma
     public static void LocalSound(Utf8String sound)
     {
         if (nosound->Value != 0)
+        {
             return;
+        }
+
         if (!sound_started)
+        {
             return;
+        }
 
         Sfx_t* sfx = PrecacheSound(sound);
         if (sfx == null)

@@ -41,8 +41,8 @@ public static unsafe class DSprite
 
         do
         {
-            byte* pdest = (byte*)DLocal.d_viewbuffer + RShared.screenwidth * pspan->V + pspan->U;
-            short* pz = DLocal.d_pzbuffer + DLocal.d_zwidth * pspan->V + pspan->U;
+            byte* pdest = (byte*)DLocal.d_viewbuffer + (RShared.screenwidth * pspan->V) + pspan->U;
+            short* pz = DLocal.d_pzbuffer + (DLocal.d_zwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -51,23 +51,31 @@ public static unsafe class DSprite
                 float du = pspan->U;
                 float dv = pspan->V;
 
-                float sdivz = DLocal.d_sdivzorigin + dv * DLocal.d_sdivzstepv + du * DLocal.d_sdivzstepu;
-                float tdivz = DLocal.d_tdivzorigin + dv * DLocal.d_tdivzstepv + du * DLocal.d_tdivzstepu;
-                float zi = DLocal.d_ziorigin + dv * DLocal.d_zistepv + du * DLocal.d_zistepu;
+                float sdivz = DLocal.d_sdivzorigin + (dv * DLocal.d_sdivzstepv) + (du * DLocal.d_sdivzstepu);
+                float tdivz = DLocal.d_tdivzorigin + (dv * DLocal.d_tdivzstepv) + (du * DLocal.d_tdivzstepu);
+                float zi = DLocal.d_ziorigin + (dv * DLocal.d_zistepv) + (du * DLocal.d_zistepu);
                 float z = 0x10000 / zi;
                 int izi = (int)(zi * 0x8000 * 0x10000);
 
                 int s = (int)(sdivz * z) + DLocal.sadjust;
                 if (s > DLocal.bbextents)
+                {
                     s = DLocal.bbextents;
+                }
                 else if (s < 0)
+                {
                     s = 0;
+                }
 
                 int t = (int)(tdivz * z) + DLocal.tadjust;
                 if (t > DLocal.bbextentt)
+                {
                     t = DLocal.bbextentt;
+                }
                 else if (t < 0)
+                {
                     t = 0;
+                }
 
                 do
                 {
@@ -85,15 +93,23 @@ public static unsafe class DSprite
 
                         snext = (int)(sdivz * z) + DLocal.sadjust;
                         if (snext > DLocal.bbextents)
+                        {
                             snext = DLocal.bbextents;
+                        }
                         else if (snext < 8)
+                        {
                             snext = 8;
+                        }
 
                         tnext = (int)(tdivz * z) + DLocal.tadjust;
                         if (tnext > DLocal.bbextentt)
+                        {
                             tnext = DLocal.bbextentt;
+                        }
                         else if (tnext < 8)
+                        {
                             tnext = 8;
+                        }
 
                         sstep = (snext - s) >> 3;
                         tstep = (tnext - t) >> 3;
@@ -107,15 +123,23 @@ public static unsafe class DSprite
                         z = 0x10000 / zi;
                         snext = (int)(sdivz * z) + DLocal.sadjust;
                         if (snext > DLocal.bbextents)
+                        {
                             snext = DLocal.bbextents;
+                        }
                         else if (snext < 8)
+                        {
                             snext = 8;
+                        }
 
                         tnext = (int)(tdivz * z) + DLocal.tadjust;
                         if (tnext > DLocal.bbextentt)
+                        {
                             tnext = DLocal.bbextentt;
+                        }
                         else if (tnext < 8)
+                        {
                             tnext = 8;
+                        }
 
                         if (spancount > 1)
                         {
@@ -126,7 +150,7 @@ public static unsafe class DSprite
 
                     do
                     {
-                        byte btemp = *(pbase + (s >> 16) + (t >> 16) * RShared.cachewidth);
+                        byte btemp = *(pbase + (s >> 16) + ((t >> 16) * RShared.cachewidth));
                         if (btemp != 255)
                         {
                             if (*pz <= izi >> 16)
@@ -160,11 +184,15 @@ public static unsafe class DSprite
         SSpan_t* pspan = sprite_spans;
         int i = minindex;
         if (i == 0)
+        {
             i = DIface.r_spritedesc.Nump;
+        }
 
         int lmaxindex = maxindex;
         if (lmaxindex == 0)
+        {
             lmaxindex = DIface.r_spritedesc.Nump;
+        }
 
         float vtop = MathF.Ceiling(DIface.r_spritedesc.PVerts[i].V);
 
@@ -181,7 +209,7 @@ public static unsafe class DSprite
                 float dv = pnext->V - pvert->V;
                 float slope = du / dv;
                 int u_step = (int)(slope * 0x10000);
-                int u = (int)((pvert->U + slope * (vtop - pvert->V)) * 0x10000) + (0x10000 - 1);
+                int u = (int)((pvert->U + (slope * (vtop - pvert->V))) * 0x10000) + (0x10000 - 1);
                 int itop = (int)vtop;
                 int ibottom = (int)vbottom;
 
@@ -198,8 +226,9 @@ public static unsafe class DSprite
 
             i--;
             if (i == 0)
+            {
                 i = DIface.r_spritedesc.Nump;
-
+            }
         } while (i != lmaxindex);
     }
 
@@ -211,9 +240,14 @@ public static unsafe class DSprite
 
         float vvert = DIface.r_spritedesc.PVerts[i].V;
         if (vvert < RShared.r_refdef->FVrectyAdj)
+        {
             vvert = RShared.r_refdef->FVrectyAdj;
+        }
+
         if (vvert > RShared.r_refdef->FVrectBottomAdj)
+        {
             vvert = RShared.r_refdef->FVrectBottomAdj;
+        }
 
         float vtop = MathF.Ceiling(vvert);
 
@@ -224,9 +258,14 @@ public static unsafe class DSprite
 
             float vnext = pnext->V;
             if (vnext < RShared.r_refdef->FVrectyAdj)
+            {
                 vnext = RShared.r_refdef->FVrectyAdj;
+            }
+
             if (vnext > RShared.r_refdef->FVrectBottomAdj)
+            {
                 vnext = RShared.r_refdef->FVrectBottomAdj;
+            }
 
             float vbottom = MathF.Ceiling(vnext);
 
@@ -234,21 +273,31 @@ public static unsafe class DSprite
             {
                 float uvert = pvert->U;
                 if (uvert < RShared.r_refdef->FVrectxAdj)
+                {
                     uvert = RShared.r_refdef->FVrectxAdj;
+                }
+
                 if (uvert > RShared.r_refdef->FVrectRightAdj)
+                {
                     uvert = RShared.r_refdef->FVrectRightAdj;
+                }
 
                 float unext = pnext->U;
                 if (unext < RShared.r_refdef->FVrectxAdj)
+                {
                     unext = RShared.r_refdef->FVrectxAdj;
+                }
+
                 if (unext > RShared.r_refdef->FVrectRightAdj)
+                {
                     unext = RShared.r_refdef->FVrectRightAdj;
+                }
 
                 float du = unext - uvert;
                 float dv = vnext - vvert;
                 float slope = du / dv;
                 int u_step = (int)(slope * 0x10000);
-                int u = (int)((uvert + slope * (vtop - vvert)) * 0x10000) + (0x10000 - 1);
+                int u = (int)((uvert + (slope * (vtop - vvert))) * 0x10000) + (0x10000 - 1);
                 int itop = (int)vtop;
                 int ibottom = (int)vbottom;
 
@@ -265,8 +314,9 @@ public static unsafe class DSprite
 
             i++;
             if (i == DIface.r_spritedesc.Nump)
+            {
                 i = 0;
-
+            }
         } while (i != maxindex);
 
         pspan->Count = DLocal.DS_SPAN_LIST_END;
@@ -291,14 +341,14 @@ public static unsafe class DSprite
         DLocal.d_zistepu = p_normal[0] * RShared.xscaleinv * distinv;
         DLocal.d_zistepv = -p_normal[1] * RShared.yscaleinv * distinv;
 
-        DLocal.d_sdivzorigin = p_saxis[2] - RShared.xcenter * DLocal.d_sdivzstepu - RShared.ycenter * DLocal.d_sdivzstepv;
-        DLocal.d_tdivzorigin = p_taxis[2] - RShared.xcenter * DLocal.d_tdivzstepu - RShared.ycenter * DLocal.d_tdivzstepv;
-        DLocal.d_ziorigin = p_normal[2] * distinv - RShared.xcenter * DLocal.d_zistepu - RShared.ycenter * DLocal.d_zistepv;
+        DLocal.d_sdivzorigin = p_saxis[2] - (RShared.xcenter * DLocal.d_sdivzstepu) - (RShared.ycenter * DLocal.d_sdivzstepv);
+        DLocal.d_tdivzorigin = p_taxis[2] - (RShared.xcenter * DLocal.d_tdivzstepu) - (RShared.ycenter * DLocal.d_tdivzstepv);
+        DLocal.d_ziorigin = (p_normal[2] * distinv) - (RShared.xcenter * DLocal.d_zistepu) - (RShared.ycenter * DLocal.d_zistepv);
 
         RMisc.TransformVector(RShared.modelorg, out Vec3_t p_temp1);
 
-        DLocal.sadjust = (int)(Vector3.Dot(p_temp1, p_saxis) * 0x10000 + 0.5f) - (-(RShared.cachewidth >> 1) << 16);
-        DLocal.tadjust = (int)(Vector3.Dot(p_temp1, p_taxis) * 0x10000 + 0.5f) - (-(sprite_height >> 1) << 16);
+        DLocal.sadjust = (int)((Vector3.Dot(p_temp1, p_saxis) * 0x10000) + 0.5f) - (-(RShared.cachewidth >> 1) << 16);
+        DLocal.tadjust = (int)((Vector3.Dot(p_temp1, p_taxis) * 0x10000) + 0.5f) - (-(sprite_height >> 1) << 16);
 
         // -1 (-epsilon) so we never wander off the edge of the texture
         DLocal.bbextents = (RShared.cachewidth << 16) - 1;
@@ -334,7 +384,9 @@ public static unsafe class DSprite
         ymax = MathF.Ceiling(ymax);
 
         if (ymin >= ymax)
+        {
             return; // doesn't cross any scans at all
+        }
 
         // Mark V d_sprite.c D_DrawSprite: catch sprite bug (negative ymin would index spans out of range)
         if (ymin < 0)

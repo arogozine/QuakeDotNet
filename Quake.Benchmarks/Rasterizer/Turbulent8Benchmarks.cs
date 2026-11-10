@@ -28,13 +28,15 @@ public unsafe partial class Turbulent8Benchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _tex = NativeMemory.AllocArrayZeroed<byte>(64 * 64 + 4); // +4: dword texel gather may overread 3 bytes
+        _tex = NativeMemory.AllocArrayZeroed<byte>((64 * 64) + 4); // +4: dword texel gather may overread 3 bytes
         _view = NativeMemory.AllocArrayZeroed<byte>(ViewWidth * ViewHeight);
         _spans = NativeMemory.AllocArray<ESpan_t>(SpanCount);
 
         Random rng = new(1234);
         for (int i = 0; i < 64 * 64; i++)
+        {
             _tex[i] = (byte)rng.Next(256);
+        }
 
         for (int i = 0; i < SpanCount; i++)
         {
@@ -51,7 +53,9 @@ public unsafe partial class Turbulent8Benchmarks
         // r_main.c's sintable: AMP + sin(i * 2pi / CYCLE) * AMP, AMP = 8 * 0x10000.
         const float AMP = 8 * 0x10000;
         for (int i = 0; i < DIface.CYCLE * 2; i++)
-            RShared.sintable[i] = (int)(AMP + MathF.Sin(i * MathF.PI * 2 / DIface.CYCLE) * AMP);
+        {
+            RShared.sintable[i] = (int)(AMP + (MathF.Sin(i * MathF.PI * 2 / DIface.CYCLE) * AMP));
+        }
 
         RShared.cacheblock = _tex;
         RShared.cl_time = 1.5f;
@@ -83,7 +87,9 @@ public unsafe partial class Turbulent8Benchmarks
             new Span<byte>(_view, ViewWidth * ViewHeight).Clear();
             variant();
             if (!expected.AsSpan().SequenceEqual(new Span<byte>(_view, ViewWidth * ViewHeight)))
+            {
                 throw new InvalidOperationException($"{variant.Method.Name} output differs from the classic C port");
+            }
         }
 
         new Span<byte>(_view, ViewWidth * ViewHeight).Clear();

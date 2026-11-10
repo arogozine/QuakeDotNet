@@ -25,9 +25,14 @@ public sealed unsafe class DPolyseTests
             DPolyse.PolysetFillSpans8(spans);
 
             for (int i = 0; i < 3; i++)
+            {
                 Assert.AreEqual((byte)10, buf[i]);
+            }
+
             for (int i = 8; i < 10; i++)
+            {
                 Assert.AreEqual((byte)10, buf[i]);
+            }
 
             Assert.AreEqual(11, DPolyse.d_aflatcolor); // incremented exactly once
         }
@@ -47,7 +52,7 @@ public sealed unsafe class DPolyseTests
         try
         {
             const int skinwidth = 8;
-            skin[1 * skinwidth + 2] = 7; // texel at (s=2, t=1) -> palette index 7
+            skin[(1 * skinwidth) + 2] = 7; // texel at (s=2, t=1) -> palette index 7
             colormap[7] = 99; // light offset 0 -> straight palette lookup
 
             DIface.r_affinetridesc.SkinWidth = skinwidth;
@@ -146,27 +151,27 @@ public sealed unsafe class DPolyseTests
 
         float t0 = p0[4] - p2[4];
         float t1 = p1[4] - p2[4];
-        g.LStepX = float.ConvertToIntegerNative<int>(MathF.Ceiling((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv));
-        g.LStepY = float.ConvertToIntegerNative<int>(MathF.Ceiling((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv));
+        g.LStepX = float.ConvertToIntegerNative<int>(MathF.Ceiling(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv));
+        g.LStepY = float.ConvertToIntegerNative<int>(MathF.Ceiling(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv));
 
         t0 = p0[2] - p2[2];
         t1 = p1[2] - p2[2];
-        g.SStepX = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-        g.SStepY = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+        g.SStepX = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+        g.SStepY = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
         t0 = p0[3] - p2[3];
         t1 = p1[3] - p2[3];
-        g.TStepX = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-        g.TStepY = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+        g.TStepX = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+        g.TStepY = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
         t0 = p0[5] - p2[5];
         t1 = p1[5] - p2[5];
-        g.ZiStepX = float.ConvertToIntegerNative<int>((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-        g.ZiStepY = float.ConvertToIntegerNative<int>((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
+        g.ZiStepX = float.ConvertToIntegerNative<int>(((t1 * p01_minus_p21) - (t0 * p11_minus_p21)) * xstepdenominv);
+        g.ZiStepY = float.ConvertToIntegerNative<int>(((t1 * p00_minus_p20) - (t0 * p10_minus_p20)) * ystepdenominv);
 
         g.SStepXFrac = g.SStepX & 0xFFFF;
         g.TStepXFrac = g.TStepX & 0xFFFF;
-        g.StStepXWhole = skinwidth * (g.TStepX >> 16) + (g.SStepX >> 16);
+        g.StStepXWhole = (skinwidth * (g.TStepX >> 16)) + (g.SStepX >> 16);
         return g;
     }
 
@@ -187,7 +192,7 @@ public sealed unsafe class DPolyseTests
 
     // Same winding test D_DrawNonSubdiv uses to compute d_xdenom
     private static int XDenom(int* p0, int* p1, int* p2) =>
-        (p0[1] - p1[1]) * (p0[0] - p2[0]) - (p0[0] - p1[0]) * (p0[1] - p2[1]);
+        ((p0[1] - p1[1]) * (p0[0] - p2[0])) - ((p0[0] - p1[0]) * (p0[1] - p2[1]));
 
     private static void SetVert(int* p, int u, int v, int s, int t, int light, int zi)
     {
@@ -215,7 +220,9 @@ public sealed unsafe class DPolyseTests
 
             int xdenom = XDenom(p0, p1, p2);
             if (xdenom >= 0)
+            {
                 continue; // back-facing or degenerate, never reaches CalcGradients
+            }
 
             DPolyse.d_xdenom = xdenom;
             Gradients expected = CalcGradientsReference(p0, p1, p2, xdenom, skinwidth);
@@ -249,7 +256,7 @@ public sealed unsafe class DPolyseTests
         Assert.AreEqual(9 << 16, DPolyse.r_zistepy);
         Assert.AreEqual(0, DPolyse.a_sstepxfrac);
         Assert.AreEqual(0, DPolyse.a_tstepxfrac);
-        Assert.AreEqual(64 * 5 + 3, DPolyse.a_ststepxwhole);
+        Assert.AreEqual((64 * 5) + 3, DPolyse.a_ststepxwhole);
     }
 
     [TestMethod]
@@ -292,16 +299,32 @@ public sealed unsafe class DPolyseTests
         short[] expZ = new short[n * max];
         try
         {
-            for (int i = 0; i < skin * skin * 2; i++) tex[i] = (byte)rng.Next(256);
-            for (int i = 0; i < 16384; i++) cmap[i] = (byte)rng.Next(256);
-            for (int i = 0; i < n * max; i++) z[i] = (short)rng.Next(0, 6000);
-            for (int i = 0; i < n * max; i++) expZ[i] = z[i];
+            for (int i = 0; i < skin * skin * 2; i++)
+            {
+                tex[i] = (byte)rng.Next(256);
+            }
+
+            for (int i = 0; i < 16384; i++)
+            {
+                cmap[i] = (byte)rng.Next(256);
+            }
+
+            for (int i = 0; i < n * max; i++)
+            {
+                z[i] = (short)rng.Next(0, 6000);
+            }
+
+            for (int i = 0; i < n * max; i++)
+            {
+                expZ[i] = z[i];
+            }
 
             for (int i = 0; i < n; i++)
+            {
                 spans[i] = new SpanPackage_t
                 {
-                    PDest = dest + i * max,
-                    Pz = z + i * max,
+                    PDest = dest + (i * max),
+                    Pz = z + (i * max),
                     Count = rng.Next(2, max - 4),
                     PTex = tex + rng.Next(0, 200),
                     Sfrac = rng.Next(0, 0x10000),
@@ -309,6 +332,8 @@ public sealed unsafe class DPolyseTests
                     Light = rng.Next(0, 0x3F00),
                     Zi = rng.Next(1000, 20000) << 16,
                 };
+            }
+
             spans[n].Count = -999999;
 
             DIface.acolormap = cmap;
@@ -327,7 +352,7 @@ public sealed unsafe class DPolyseTests
                 int lsfrac = spans[i].Sfrac, ltfrac = spans[i].Tfrac, llight = spans[i].Light, lzi = spans[i].Zi;
                 for (int px = 0; px < lcount; px++)
                 {
-                    int o = i * max + px;
+                    int o = (i * max) + px;
                     if (lzi >> 16 >= expZ[o]) { expDest[o] = cmap[*lptex + (llight & 0xFF00)]; expZ[o] = (short)(lzi >> 16); }
                     lzi += DPolyse.r_zistepx; llight += DPolyse.r_lstepx;
                     lptex += DPolyse.a_ststepxwhole;

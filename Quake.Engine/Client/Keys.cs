@@ -113,7 +113,7 @@ public static unsafe class Keys
     // key_lines[edit_line]/key_linepos/edit_line directly, same as the
     // original's console.c reaching into keys.c's globals.
     internal static readonly byte* key_lines = NativeMemory.AllocArrayZeroed<byte>(32 * MAXCMDLINE);
-    internal static byte* KeyLine(int i) => key_lines + i * MAXCMDLINE;
+    internal static byte* KeyLine(int i) => key_lines + (i * MAXCMDLINE);
 
     internal static int key_linepos;
     internal static int edit_line;
@@ -142,7 +142,9 @@ public static unsafe class Keys
         key_linepos = 1;
 
         for (int i = 32; i < 128; i++)
+        {
             consolekeys[i] = true;
+        }
 
         consolekeys[K_ENTER] = true;
         consolekeys[K_TAB] = true;
@@ -160,10 +162,14 @@ public static unsafe class Keys
         consolekeys['~'] = false;
 
         for (int i = 0; i < 256; i++)
+        {
             keyshift[i] = i;
+        }
 
         for (int i = 'a'; i <= 'z'; i++)
+        {
             keyshift[i] = i - 'a' + 'A';
+        }
 
         keyshift['1'] = '!';
         keyshift['2'] = '@';
@@ -189,7 +195,9 @@ public static unsafe class Keys
 
         menubound[K_ESCAPE] = true;
         for (int i = 0; i < 12; i++)
+        {
             menubound[K_F1 + i] = true;
+        }
 
         Cmd.AddCommand("bind"u8, &BindCmd);
         Cmd.AddCommand("unbind"u8, &UnbindCmd);
@@ -236,7 +244,10 @@ public static unsafe class Keys
     public static byte* KeynumToString(int keynum)
     {
         if (keynum == -1)
+        {
             return new Utf8String("<KEY NOT FOUND>"u8);
+        }
+
         if (keynum > 32 && keynum < 127) // printable ascii
         {
             tinystr[0] = (byte)keynum;
@@ -245,8 +256,12 @@ public static unsafe class Keys
         }
 
         foreach (var kn in keynames)
+        {
             if (keynum == kn.KeyNum)
+            {
                 return kn.Name;
+            }
+        }
 
         return new Utf8String("<UNKNOWN KEYNUM>"u8);
     }
@@ -255,20 +270,28 @@ public static unsafe class Keys
     public static int StringToKeynum(byte* str)
     {
         if (str == null || str[0] == 0)
+        {
             return -1;
+        }
+
         if (str[1] == 0)
         {
             // Not in keys.c / Mark V: KeyMap emits lowercase letters, so
             // `bind W` would bind keynum 87, which no key produces.
             if (str[0] >= (byte)'A' && str[0] <= (byte)'Z')
+            {
                 return str[0] | 0x20;
+            }
+
             return str[0];
         }
 
         foreach (var kn in keynames)
         {
             if (Q.StrCaseCmp(str, kn.Name) == 0)
+            {
                 return kn.KeyNum;
+            }
         }
 
         return -1;
@@ -278,7 +301,9 @@ public static unsafe class Keys
     public static void SetBinding(int keynum, Utf8String binding)
     {
         if (keynum == -1)
+        {
             return;
+        }
 
         if (keybindings[keynum] != null)
         {
@@ -338,8 +363,12 @@ public static unsafe class Keys
     public static void UnbindAll_f()
     {
         for (int i = 0; i < 256; i++)
+        {
             if (keybindings[i] != null)
+            {
                 SetBinding(i, Utf8String.Empty);
+            }
+        }
     }
 
     // c_strlcat (Mark V) -- strcat that never writes past dest[size - 1].
@@ -388,9 +417,14 @@ public static unsafe class Keys
         if (c == 2)
         {
             if (keybindings[b] != null)
+            {
                 Con.Printf($"\"{Cmd.Argv(1)}\" = \"{keybindings[b]}\"\n");
+            }
             else
+            {
                 Con.Printf($"\"{Cmd.Argv(1)}\" is not bound\n");
+            }
+
             return;
         }
 
@@ -402,7 +436,10 @@ public static unsafe class Keys
         for (int i = 2; i < c; i++)
         {
             if (i > 2)
+            {
                 StrLCat(cmd, " "u8, cmdSize);
+            }
+
             StrLCat(cmd, Cmd.Argv(i), cmdSize);
         }
 
@@ -429,8 +466,10 @@ public static unsafe class Keys
             KeyLine(edit_line)[0] = (byte)']';
             key_linepos = 1;
             if (Cls.state == CActive.Disconnected)
+            {
                 Screen.UpdateScreen(); // force an update, because the command
-                                       // may take some time
+            }
+            // may take some time
             return;
         }
 
@@ -439,7 +478,10 @@ public static unsafe class Keys
             // command completion
             byte* cmd = Cmd.CompleteCommand(KeyLine(edit_line) + 1);
             if (cmd == null)
+            {
                 cmd = Cvar.CompleteVariable(KeyLine(edit_line) + 1);
+            }
+
             if (cmd != null)
             {
                 Q.StrCpy(KeyLine(edit_line) + 1, cmd);
@@ -454,7 +496,10 @@ public static unsafe class Keys
         if (key == K_BACKSPACE || key == K_LEFTARROW)
         {
             if (key_linepos > 1)
+            {
                 key_linepos--;
+            }
+
             return;
         }
 
@@ -465,7 +510,10 @@ public static unsafe class Keys
                 history_line = (history_line - 1) & 31;
             } while (history_line != edit_line && KeyLine(history_line)[1] == 0);
             if (history_line == edit_line)
+            {
                 history_line = (edit_line + 1) & 31;
+            }
+
             Q.StrCpy(KeyLine(edit_line), KeyLine(history_line));
             key_linepos = Q.StrLen(KeyLine(edit_line));
             return;
@@ -474,7 +522,10 @@ public static unsafe class Keys
         if (key == K_DOWNARROW)
         {
             if (history_line == edit_line)
+            {
                 return;
+            }
+
             do
             {
                 history_line = (history_line + 1) & 31;
@@ -496,7 +547,10 @@ public static unsafe class Keys
         {
             Con.con_backscroll += 2;
             if (Con.con_backscroll > Con.con_totallines - ((int)Vid.vid.Height >> 3) - 1)
+            {
                 Con.con_backscroll = Con.con_totallines - ((int)Vid.vid.Height >> 3) - 1;
+            }
+
             return;
         }
 
@@ -504,7 +558,10 @@ public static unsafe class Keys
         {
             Con.con_backscroll -= 2;
             if (Con.con_backscroll < 0)
+            {
                 Con.con_backscroll = 0;
+            }
+
             return;
         }
 
@@ -521,7 +578,9 @@ public static unsafe class Keys
         }
 
         if (key < 32 || key > 127)
+        {
             return; // non printable
+        }
 
         if (key_linepos < MAXCMDLINE - 1)
         {
@@ -568,7 +627,9 @@ public static unsafe class Keys
         }
 
         if (key < 32 || key > 127)
+        {
             return; // non printable
+        }
 
         if (key == K_BACKSPACE)
         {
@@ -581,7 +642,9 @@ public static unsafe class Keys
         }
 
         if (chat_bufferlen == 31)
+        {
             return; // all full
+        }
 
         chat_buffer[chat_bufferlen++] = (byte)key;
         chat_buffer[chat_bufferlen] = 0;
@@ -601,37 +664,52 @@ public static unsafe class Keys
         Debug.Assert((uint)key < 256, "Key_Event: keynum out of range");
 
         if (down)
+        {
             eventDest = key_dest;
+        }
 
         keydown[key] = down;
 
         if (!down)
+        {
             key_repeats[key] = 0;
+        }
 
         key_lastpress = key;
         key_count++;
         if (key_count <= 0)
+        {
             return; // just catching keys for Con_NotifyBox
+        }
 
         // update auto-repeat status
         if (down)
         {
             key_repeats[key]++;
             if (key != K_BACKSPACE && key != K_PAUSE && key_repeats[key] > 1)
+            {
                 return; // ignore most autorepeats
+            }
 
             if (key >= 200 && keybindings[key] == null)
+            {
                 Con.Printf($"{KeynumToString(key)} is unbound, hit F4 to set.\n");
+            }
         }
 
         if (key == K_SHIFT)
+        {
             shift_down = down;
+        }
 
         // handle escape specialy, so the user can never unbind it
         if (key == K_ESCAPE)
         {
             if (!down)
+            {
                 return;
+            }
+
             switch (key_dest)
             {
                 case KeyDest.Message:
@@ -660,13 +738,17 @@ public static unsafe class Keys
         {
             byte* kb = keybindings[key];
             if (kb != null && kb[0] == (byte)'+')
+            {
                 AddButtonCommand(kb, key, down: false);
+            }
 
             if (keyshift[key] != key)
             {
                 kb = keybindings[keyshift[key]];
                 if (kb != null && kb[0] == (byte)'+')
+                {
                     AddButtonCommand(kb, key, down: false);
+                }
             }
             return;
         }
@@ -687,7 +769,9 @@ public static unsafe class Keys
             if (kb != null)
             {
                 if (kb[0] == (byte)'+')
+                {
                     AddButtonCommand(kb, key, down: true);
+                }
                 else
                 {
                     Cmd.AddText(kb);
@@ -698,16 +782,22 @@ public static unsafe class Keys
         }
 
         if (!down)
+        {
             return; // other systems only care about key down events
+        }
 
         // Not in the original: when the host feeds typed text through
         // CharEvent, printable keys must not also be typed from the physical
         // (US-layout) keynum. The menu keeps using keynums (key grab, y/n).
         if (TextInputActive && key_dest != KeyDest.Menu && key >= 32 && key <= 126)
+        {
             return;
+        }
 
         if (shift_down)
+        {
             key = keyshift[key];
+        }
 
         switch (key_dest)
         {
@@ -741,11 +831,19 @@ public static unsafe class Keys
     public static void CharEvent(int ch)
     {
         if (ch < 32 || ch > 126)
+        {
             return;
+        }
+
         if (ch == '`' || ch == '~') // toggleconsole keys, as in Mark V
+        {
             return;
+        }
+
         if (key_dest != eventDest || keydown[K_CTRL])
+        {
             return;
+        }
 
         switch (key_dest)
         {
@@ -757,7 +855,10 @@ public static unsafe class Keys
                 break;
             case KeyDest.Game:
                 if (Con.con_forcedup)
+                {
                     Console(ch);
+                }
+
                 break;
         }
     }
@@ -796,7 +897,9 @@ public static unsafe class Keys
         for (int i = 0; i < 256; i++)
         {
             if (keydown[i])
+            {
                 Event(i, false);
+            }
         }
 
         ClearStates();

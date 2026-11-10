@@ -27,7 +27,10 @@ internal static unsafe class CStr
     public static string ToString(byte* s)
     {
         if (s == null)
+        {
             return string.Empty;
+        }
+
         return Encoding.Latin1.GetString(MemoryMarshal.CreateReadOnlySpanFromNullTerminated(s));
     }
 
@@ -50,7 +53,10 @@ internal static unsafe class CStr
     public static void Write(byte* dest, string s)
     {
         fixed (char* c = s)
+        {
             Encoding.Latin1.GetBytes(c, s.Length, dest, s.Length);
+        }
+
         dest[s.Length] = 0;
     }
 
@@ -66,7 +72,9 @@ internal static unsafe class CStr
             count--;
         }
         if (count > 0)
+        {
             dest[i] = 0;
+        }
     }
 
     // Q_strncpy for a "..."u8 literal.
@@ -80,7 +88,9 @@ internal static unsafe class CStr
             count--;
         }
         if (count > 0)
+        {
             dest[i] = 0;
+        }
     }
 
     // libc strncpy for a "..."u8 literal.

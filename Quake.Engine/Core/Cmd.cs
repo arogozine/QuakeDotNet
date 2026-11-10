@@ -124,11 +124,19 @@ public static unsafe class Cmd
             for (i = 0; i < cmd_text->CurSize; i++)
             {
                 if (text[i] == (byte)'"')
+                {
                     quotes++;
+                }
+
                 if ((quotes & 1) == 0 && text[i] == (byte)';')
+                {
                     break; // don't break if inside a quoted string
+                }
+
                 if (text[i] == (byte)'\n')
+                {
                     break;
+                }
             }
 
             Q.MemCpy(line, text, i);
@@ -138,7 +146,9 @@ public static unsafe class Cmd
             // down: this is necessary because commands (exec, alias) can insert
             // data at the beginning of the text buffer
             if (i == cmd_text->CurSize)
+            {
                 cmd_text->CurSize = 0;
+            }
             else
             {
                 i++;
@@ -187,22 +197,32 @@ public static unsafe class Cmd
         for (int i = 1; i < Com.com_argc; i++)
         {
             if (Com.com_argv[i] == null)
+            {
                 continue; // NEXTSTEP nulls out -NXHost
+            }
+
             s += Q.StrLen(Com.com_argv[i]) + 1;
         }
 
         if (s == 0)
+        {
             return;
+        }
 
         byte* text = (byte*)Zone.Malloc(s + 1);
         text[0] = 0;
         for (int i = 1; i < Com.com_argc; i++)
         {
             if (Com.com_argv[i] == null)
+            {
                 continue;
+            }
+
             Q.StrCat(text, Com.com_argv[i]);
             if (i != Com.com_argc - 1)
+            {
                 Q.StrCat(text, " "u8);
+            }
         }
 
         // pull out the commands
@@ -231,7 +251,9 @@ public static unsafe class Cmd
         }
 
         if (build[0] != 0)
+        {
             InsertText(build);
+        }
 
         Zone.Free(text);
         Zone.Free(build);
@@ -265,7 +287,10 @@ public static unsafe class Cmd
     public static void Echo_f()
     {
         for (int i = 1; i < Argc(); i++)
+        {
             Con.Printf($"{Argv(i)} ");
+        }
+
         Con.Printf("\n"u8);
     }
 
@@ -285,7 +310,10 @@ public static unsafe class Cmd
         {
             Con.Printf("Current alias commands:\n"u8);
             for (CmdAlias_t* a = cmd_alias; a != null; a = a->Next)
+            {
                 Con.Printf($"{a->Name} : {a->Value}\n");
+            }
+
             return;
         }
 
@@ -325,7 +353,9 @@ public static unsafe class Cmd
         {
             Q.StrCat(cmd, Argv(i));
             if (i != c)
+            {
                 Q.StrCat(cmd, " "u8);
+            }
         }
 
         Q.StrCat(cmd, "\n"u8);
@@ -374,7 +404,10 @@ public static unsafe class Cmd
     public static byte* Argv(int arg)
     {
         if ((uint)arg >= cmd_argc)
+        {
             return cmd_null_string;
+        }
+
         return cmd_argv[arg];
     }
 
@@ -387,7 +420,9 @@ public static unsafe class Cmd
     {
         // clear the args from the last string
         for (int i = 0; i < cmd_argc; i++)
+        {
             Zone.Free(cmd_argv[i]);
+        }
 
         cmd_argc = 0;
         cmd_args = null;
@@ -396,7 +431,9 @@ public static unsafe class Cmd
         {
             // skip whitespace up to a /n
             while (*text != 0 && *text <= (byte)' ' && *text != (byte)'\n')
+            {
                 text++;
+            }
 
             if (*text == (byte)'\n')
             {
@@ -406,14 +443,20 @@ public static unsafe class Cmd
             }
 
             if (*text == 0)
+            {
                 return;
+            }
 
             if (cmd_argc == 1)
+            {
                 cmd_args = text;
+            }
 
             text = Com.Parse(text);
             if (text == null)
+            {
                 return;
+            }
 
             if (cmd_argc < MAX_ARGS)
             {
@@ -428,7 +471,9 @@ public static unsafe class Cmd
     public static void AddCommand(Utf8String cmd_name, delegate*<void> function)
     {
         if (Host.host_initialized) // because hunk allocation would get stomped
+        {
             Sys.Error("Cmd_AddCommand after host_initialized"u8);
+        }
 
         // fail if the command is a variable name
         if (Cvar.VariableString(cmd_name)[0] != 0)
@@ -458,8 +503,12 @@ public static unsafe class Cmd
     public static bool Exists(byte* cmd_name)
     {
         for (CmdFunction_t* cmd = cmd_functions; cmd != null; cmd = cmd->Next)
+        {
             if (Q.StrCmp(cmd_name, cmd->Name) == 0)
+            {
                 return true;
+            }
+        }
 
         return false;
     }
@@ -470,12 +519,18 @@ public static unsafe class Cmd
         int len = Q.StrLen(partial);
 
         if (len == 0)
+        {
             return null;
+        }
 
         // check functions
         for (CmdFunction_t* cmd = cmd_functions; cmd != null; cmd = cmd->Next)
+        {
             if (Q.StrNCmp(partial, cmd->Name, len) == 0)
+            {
                 return cmd->Name;
+            }
+        }
 
         return null;
     }
@@ -490,7 +545,9 @@ public static unsafe class Cmd
 
         // execute the command line
         if (Argc() == 0)
+        {
             return; // no tokens
+        }
 
         // check functions
         for (CmdFunction_t* cmd = cmd_functions; cmd != null; cmd = cmd->Next)
@@ -514,7 +571,9 @@ public static unsafe class Cmd
 
         // check cvars
         if (!Cvar.Command())
+        {
             Con.Printf($"Unknown command \"{Argv(0)}\"\n");
+        }
     }
 
     // Cmd_ForwardToServer
@@ -530,7 +589,9 @@ public static unsafe class Cmd
         }
 
         if (ClDemo.demoplayback)
+        {
             return; // not really connected
+        }
 
         SizeBuf_t* msg = Cls.message;
         Msg.WriteByte(msg, (int)Clc.StringCmd);
@@ -540,9 +601,13 @@ public static unsafe class Cmd
             Sz.Print(msg, " "u8);
         }
         if (Argc() > 1)
+        {
             Sz.Print(msg, Args());
+        }
         else
+        {
             Sz.Print(msg, "\n"u8);
+        }
     }
 
     // Cmd_CheckParm
@@ -552,11 +617,17 @@ public static unsafe class Cmd
     {
         byte* parm = parm_;
         if (parm == null)
+        {
             Sys.Error("Cmd_CheckParm: NULL"u8);
+        }
 
         for (int i = 1; i < Argc(); i++)
+        {
             if (Q.StrCaseCmp(parm, Argv(i)) == 0)
+            {
                 return i;
+            }
+        }
 
         return 0;
     }

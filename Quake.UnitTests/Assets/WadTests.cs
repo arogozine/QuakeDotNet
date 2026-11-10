@@ -33,8 +33,12 @@ public sealed unsafe class WadTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -63,7 +67,9 @@ public sealed unsafe class WadTests
         bw.Write(infotableofs);
 
         foreach (var entry in entries)
+        {
             bw.Write(entry.Payload);
+        }
 
         for (int i = 0; i < entries.Length; i++)
         {

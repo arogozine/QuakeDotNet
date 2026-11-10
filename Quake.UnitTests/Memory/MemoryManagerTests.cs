@@ -55,7 +55,7 @@ public sealed unsafe class MemoryManagerTests
         // too), so the only observable proof of the zone's actual size is
         // its one free block, which Z_ClearZone sizes as size - sizeof(zone
         // header).
-        Assert.AreEqual(512 * 1024 - sizeof(MemZone), Zone.FreeMemory());
+        Assert.AreEqual((512 * 1024) - sizeof(MemZone), Zone.FreeMemory());
     }
 
     [TestMethod]
@@ -77,7 +77,9 @@ public sealed unsafe class MemoryManagerTests
         Assert.IsTrue(user.Data != null);
 
         fixed (byte* text = System.Text.Encoding.ASCII.GetBytes("flush\0"))
+        {
             Cmd.ExecuteString(text, CmdSource_t.SrcCommand);
+        }
 
         Assert.IsTrue(user.Data == null, "flush should have reclaimed the cache entry");
     }
@@ -89,7 +91,9 @@ public sealed unsafe class MemoryManagerTests
         byte* p = (byte*)Hunk.AllocName(100, "test"u8);
         Assert.IsGreaterThan(before, Hunk.LowMark());
         for (int i = 0; i < 100; i++)
+        {
             Assert.AreEqual(0, p[i]);
+        }
     }
 
     [TestMethod]

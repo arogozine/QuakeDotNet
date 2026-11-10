@@ -10,7 +10,7 @@ namespace Quake.Engine;
 /// Host_Init. The port has no WinMain, so Host.host_parms keeps defaults (basedir ".",
 /// no cachedir) that COM_InitFilesystem reads; -basedir/-cachedir still override them.
 /// </summary>
-public static unsafe partial class Host
+public static partial class Host
 {
     // host_parms
     public static HostParms_t host_parms = new()

@@ -40,12 +40,14 @@ public sealed unsafe class RSkyTests
 
         // Row 0: right half (topsky, cols 128-255) filled with 0x42.
         for (int j = 0; j < 128; j++)
-            pixels[0 * 256 + j + 128] = 0x42;
+        {
+            pixels[(0 * 256) + j + 128] = 0x42;
+        }
 
         // Row 0, left half (bottomsky source, cols 0-127): col 0 opaque
         // (color 7), col 1 transparent (0).
-        pixels[0 * 256 + 0] = 7;
-        pixels[0 * 256 + 1] = 0;
+        pixels[(0 * 256) + 0] = 7;
+        pixels[(0 * 256) + 1] = 0;
 
         try
         {
@@ -53,7 +55,7 @@ public sealed unsafe class RSkyTests
 
             Assert.IsTrue(RSky.r_skysource != null);
             // topsky half copied verbatim into newsky's right half.
-            Assert.AreEqual((byte)0x42, RSky.r_skysource[0 * 256 + 0 + 128]);
+            Assert.AreEqual((byte)0x42, RSky.r_skysource[(0 * 256) + 0 + 128]);
         }
         finally
         {

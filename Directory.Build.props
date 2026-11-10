@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Authors>Alexandre Rogozine</Authors>
     <Copyright>Copyright (C) 1996-1997 Id Software, Inc.; Copyright (C) 2026 Alexandre Rogozine</Copyright>
-    <PackageLicenseExpression>GPL-2.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>

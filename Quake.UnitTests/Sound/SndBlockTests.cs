@@ -7,7 +7,7 @@ namespace Quake.UnitTests;
 
 // S_BlockSound / S_UnblockSound (snd_win.c)
 [TestClass]
-public sealed unsafe class SndBlockTests
+public sealed class SndBlockTests
 {
     [TestMethod]
     public void BlockUnblock_NestsSndBlockedCounter()

@@ -49,8 +49,13 @@ public static unsafe class Sys
     private static int Findhandle()
     {
         for (int i = 1; i < MAX_HANDLES; i++)
+        {
             if (sys_handles[i] == null)
+            {
                 return i;
+            }
+        }
+
         Error("out of handles"u8);
         return -1;
     }
@@ -139,7 +144,10 @@ public static unsafe class Sys
         {
             int n = f.Read(span.Slice(total));
             if (n <= 0)
+            {
                 break;
+            }
+
             total += n;
         }
         return total;
@@ -283,7 +291,9 @@ public static unsafe class Sys
     public static byte* ConsoleInput()
     {
         if (Cls.state != CActive.Dedicated)
+        {
             return null;
+        }
 
         while (Console.KeyAvailable)
         {
@@ -305,7 +315,10 @@ public static unsafe class Sys
                 case '\b':
                     Console.Write("\b \b");
                     if (consoleInputLen != 0)
+                    {
                         consoleInputLen--;
+                    }
+
                     break;
 
                 default:
@@ -343,7 +356,9 @@ public static unsafe class Sys
     public static void SendKeyEvents()
     {
         if (SendKeyEventsHook == null)
+        {
             throw new NotImplementedException("Sys_SendKeyEvents has no display backend wired up (Sys.SendKeyEventsHook is unset).");
+        }
 
         SendKeyEventsHook();
     }

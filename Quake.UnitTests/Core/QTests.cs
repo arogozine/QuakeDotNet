@@ -22,12 +22,16 @@ public sealed unsafe class QTests
             count >>= 2;
             fill = fill | (fill << 8) | (fill << 16) | (fill << 24);
             for (int i = 0; i < count; i++)
+            {
                 ((int*)dest)[i] = fill;
+            }
         }
         else
         {
             for (int i = 0; i < count; i++)
+            {
                 ((byte*)dest)[i] = (byte)fill;
+            }
         }
     }
 
@@ -37,7 +41,9 @@ public sealed unsafe class QTests
         {
             count--;
             if (((byte*)m1)[count] != ((byte*)m2)[count])
+            {
                 return -1;
+            }
         }
         return 0;
     }
@@ -46,7 +52,9 @@ public sealed unsafe class QTests
     {
         int count = 0;
         while (str[count] != 0)
+        {
             count++;
+        }
 
         return count;
     }
@@ -67,7 +75,9 @@ public sealed unsafe class QTests
             Q.MemSet(actual, fill, count);
 
             for (int i = 0; i < count; i++)
+            {
                 Assert.AreEqual(expected[i], actual[i], $"byte {i} differs for fill=0x{fill:X}, count={count}");
+            }
         }
         finally
         {
@@ -88,7 +98,9 @@ public sealed unsafe class QTests
             Q.MemSet(buf2 + 1, 0xAB, count);
 
             for (int i = 0; i < count + 1; i++)
+            {
                 Assert.AreEqual(buf1[i], buf2[i], $"byte {i} differs");
+            }
         }
         finally
         {
@@ -167,7 +179,9 @@ public sealed unsafe class QTests
         try
         {
             for (int i = 0; i < len; i++)
-                buf[i] = (byte)(1 + i % 255);
+            {
+                buf[i] = (byte)(1 + (i % 255));
+            }
 
             Assert.AreEqual(ReferenceStrLen(buf), Q.StrLen(buf));
             Assert.AreEqual(len, Q.StrLen(buf));
@@ -182,7 +196,10 @@ public sealed unsafe class QTests
     private static void ReferenceStrCpy(byte* dest, byte* src)
     {
         while (*src != 0)
+        {
             *dest++ = *src++;
+        }
+
         *dest++ = 0;
     }
 
@@ -192,7 +209,13 @@ public sealed unsafe class QTests
         int len = ReferenceStrLen(s);
         s += len;
         while (len-- != 0)
-            if (*--s == c) return s;
+        {
+            if (*--s == c)
+            {
+                return s;
+            }
+        }
+
         return null;
     }
 
@@ -250,7 +273,9 @@ public sealed unsafe class QTests
 
         CollectionAssert.AreEqual(expected, actual);
         fixed (byte* pa = actual)
+        {
             Assert.AreEqual(a.Length + b.Length, Q.StrLen(pa));
+        }
     }
 
     [TestMethod]

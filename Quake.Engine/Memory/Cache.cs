@@ -47,9 +47,15 @@ public static unsafe class Cache
         {
             c = cache_head->Next;
             if (c == cache_head)
+            {
                 return;     // nothing in cache at all
+            }
+
             if ((byte*)c >= Hunk.hunk_base + new_low_hunk)
+            {
                 return;     // there is space to grow the hunk
+            }
+
             Move(c);        // reclaim the space
         }
     }
@@ -64,11 +70,19 @@ public static unsafe class Cache
         {
             c = cache_head->Prev;
             if (c == cache_head)
+            {
                 return;     // nothing in cache at all
+            }
+
             if ((byte*)c + c->Size <= Hunk.hunk_base + Hunk.hunk_size - new_high_hunk)
+            {
                 return;     // there is space to grow the hunk
+            }
+
             if (c == prev)
+            {
                 Free(c->User);   // didn't move out of the way
+            }
             else
             {
                 Move(c);    // try to move it
@@ -81,7 +95,9 @@ public static unsafe class Cache
     public static void UnlinkLRU(CacheSystem* cs)
     {
         if (cs->LruNext == null || cs->LruPrev == null)
+        {
             Sys.Error("Cache_UnlinkLRU: NULL link"u8);
+        }
 
         cs->LruNext->LruPrev = cs->LruPrev;
         cs->LruPrev->LruNext = cs->LruNext;
@@ -93,7 +109,9 @@ public static unsafe class Cache
     public static void MakeLRU(CacheSystem* cs)
     {
         if (cs->LruNext != null || cs->LruPrev != null)
+        {
             Sys.Error("Cache_MakeLRU: active link"u8);
+        }
 
         cache_head->LruNext->LruPrev = cs;
         cs->LruNext = cache_head->LruNext;
@@ -111,7 +129,9 @@ public static unsafe class Cache
         if (!nobottom && cache_head->Prev == cache_head)
         {
             if (Hunk.hunk_size - Hunk.hunk_high_used - Hunk.hunk_low_used < size)
+            {
                 Sys.Error($"Cache_TryAlloc: {size} is greater then free hunk");
+            }
 
             @new = (CacheSystem*)(Hunk.hunk_base + Hunk.hunk_low_used);
             NativeMemory.Clear(@new);
@@ -178,7 +198,9 @@ public static unsafe class Cache
     public static void Flush()
     {
         while (cache_head->Next != cache_head)
+        {
             Free(cache_head->Next->User);   // reclaim the space
+        }
     }
 
     // Cache_Print
@@ -207,7 +229,9 @@ public static unsafe class Cache
         CacheSystem* cs;
 
         if (c->Data == null)
+        {
             Sys.Error("Cache_Free: not allocated"u8);
+        }
 
         cs = ((CacheSystem*)c->Data) - 1;
 
@@ -226,7 +250,9 @@ public static unsafe class Cache
         CacheSystem* cs;
 
         if (c->Data == null)
+        {
             return null;
+        }
 
         cs = ((CacheSystem*)c->Data) - 1;
 
@@ -243,10 +269,14 @@ public static unsafe class Cache
         CacheSystem* cs;
 
         if (c->Data != null)
+        {
             Sys.Error("Cache_Alloc: allready allocated"u8);
+        }
 
         if (size <= 0)
+        {
             Sys.Error($"Cache_Alloc: size {size}");
+        }
 
         // No overflow check in WinQuake or Mark V; debug-only guard.
         Debug.Assert((long)size + sizeof(CacheSystem) + 15 <= int.MaxValue, "Cache_Alloc: size overflow");
@@ -266,7 +296,9 @@ public static unsafe class Cache
 
             // free the least recently used cahedat
             if (cache_head->LruPrev == cache_head)
+            {
                 Sys.Error("Cache_Alloc: out of memory"u8);
+            }
             // not enough memory at all
             Free(cache_head->LruPrev->User);
         }

@@ -57,7 +57,10 @@ public unsafe class ParticleIntegrationBenchmarks
             p->Org[2] += p->Vel[2] * Frametime;
 
             for (int i = 0; i < 3; i++)
+            {
                 p->Vel[i] += p->Vel[i] * Dvel;
+            }
+
             p->Vel[2] -= Grav;
         }
     }

@@ -72,7 +72,9 @@ public static unsafe class Q
             *dest++ = *src++;
         }
         if (count != 0)
+        {
             *dest++ = 0;
+        }
     }
 
     // Q_strlen
@@ -109,9 +111,15 @@ public static unsafe class Q
         while (true)
         {
             if (*s1 != *s2)
+            {
                 return -1;
+            }
+
             if (*s1 == 0)
+            {
                 return 0;
+            }
+
             s1++;
             s2++;
         }
@@ -124,11 +132,20 @@ public static unsafe class Q
         while (true)
         {
             if (count-- == 0)
+            {
                 return 0;
+            }
+
             if (*s1 != *s2)
+            {
                 return -1;
+            }
+
             if (*s1 == 0)
+            {
                 return 0;
+            }
+
             s1++;
             s2++;
         }
@@ -143,19 +160,31 @@ public static unsafe class Q
             int c2 = *s2++;
 
             if (n-- == 0)
+            {
                 return 0;
+            }
 
             if (c1 != c2)
             {
                 if (c1 is >= (byte)'a' and <= (byte)'z')
+                {
                     c1 -= 'a' - 'A';
+                }
+
                 if (c2 is >= (byte)'a' and <= (byte)'z')
+                {
                     c2 -= 'a' - 'A';
+                }
+
                 if (c1 != c2)
+                {
                     return -1;
+                }
             }
             if (c1 == 0)
+            {
                 return 0;
+            }
         }
     }
 
@@ -176,7 +205,9 @@ public static unsafe class Q
             str++;
         }
         else
+        {
             sign = 1;
+        }
 
         int val = 0;
 
@@ -188,13 +219,21 @@ public static unsafe class Q
             {
                 int c = *str++;
                 if (c >= '0' && c <= '9')
+                {
                     val = (val << 4) + c - '0';
+                }
                 else if (c >= 'a' && c <= 'f')
+                {
                     val = (val << 4) + c - 'a' + 10;
+                }
                 else if (c >= 'A' && c <= 'F')
+                {
                     val = (val << 4) + c - 'A' + 10;
+                }
                 else
+                {
                     return val * sign;
+                }
             }
         }
 
@@ -209,8 +248,11 @@ public static unsafe class Q
         {
             int c = *str++;
             if (c < '0' || c > '9')
+            {
                 return val * sign;
-            val = val * 10 + c - '0';
+            }
+
+            val = (val * 10) + c - '0';
         }
     }
 
@@ -225,7 +267,9 @@ public static unsafe class Q
             str++;
         }
         else
+        {
             sign = 1;
+        }
 
         double val = 0;
 
@@ -237,13 +281,21 @@ public static unsafe class Q
             {
                 int c = *str++;
                 if (c >= '0' && c <= '9')
+                {
                     val = (val * 16) + c - '0';
+                }
                 else if (c >= 'a' && c <= 'f')
+                {
                     val = (val * 16) + c - 'a' + 10;
+                }
                 else if (c >= 'A' && c <= 'F')
+                {
                     val = (val * 16) + c - 'A' + 10;
+                }
                 else
+                {
                     return (float)(val * sign);
+                }
             }
         }
 
@@ -265,13 +317,18 @@ public static unsafe class Q
                 continue;
             }
             if (c < '0' || c > '9')
+            {
                 break;
-            val = val * 10 + c - '0';
+            }
+
+            val = (val * 10) + c - '0';
             total++;
         }
 
         if (decimalPoint == -1)
+        {
             return (float)(val * sign);
+        }
 
         while (total > decimalPoint)
         {

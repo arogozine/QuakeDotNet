@@ -10,7 +10,7 @@ namespace Quake.Engine;
 // msprite_t (frames[1] is a flexible array; only Frames (index 0) is
 // declared, more slots are reached via pointer arithmetic past it)
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct MSprite_t
+public struct MSprite_t
 {
     public SpriteType Type; // SPR_* orientation
     public int MaxWidth;

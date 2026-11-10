@@ -16,9 +16,9 @@ public sealed unsafe class VidTests
     public void SetPalette_PacksRgbWithFullAlpha()
     {
         byte* palette = stackalloc byte[256 * 3];
-        palette[5 * 3 + 0] = 10;
-        palette[5 * 3 + 1] = 20;
-        palette[5 * 3 + 2] = 30;
+        palette[(5 * 3) + 0] = 10;
+        palette[(5 * 3) + 1] = 20;
+        palette[(5 * 3) + 2] = 30;
 
         Vid.SetPalette(palette);
 
@@ -31,7 +31,9 @@ public sealed unsafe class VidTests
     {
         byte* palette = stackalloc byte[256 * 3];
         for (int i = 0; i < 3; i++)
-            palette[255 * 3 + i] = 255;
+        {
+            palette[(255 * 3) + i] = 255;
+        }
 
         Vid.SetPalette(palette);
 
@@ -43,9 +45,9 @@ public sealed unsafe class VidTests
     public void ShiftPalette_MatchesSetPalette()
     {
         byte* palette = stackalloc byte[256 * 3];
-        palette[7 * 3 + 0] = 1;
-        palette[7 * 3 + 1] = 2;
-        palette[7 * 3 + 2] = 3;
+        palette[(7 * 3) + 0] = 1;
+        palette[(7 * 3) + 1] = 2;
+        palette[(7 * 3) + 2] = 3;
 
         Vid.ShiftPalette(palette);
 
@@ -67,9 +69,14 @@ public sealed unsafe class VidTests
         try
         {
             for (int i = 0; i < w * h; i++)
+            {
                 screen[i] = (byte)(i * 7);
+            }
+
             for (int i = 0; i < 24 * 24; i++)
+            {
                 bitmap[i] = (byte)(200 + (i % 24));
+            }
 
             byte[] original = new Span<byte>(screen, w * h).ToArray();
 
@@ -83,10 +90,14 @@ public sealed unsafe class VidTests
 
             Assert.AreEqual(1, _flipCount);
             for (int y = 0; y < 24; y++)
+            {
                 for (int x = 0; x < 24; x++)
-                    Assert.AreEqual(bitmap[y * 24 + x], screen[y * w + w - 24 + x]);
+                {
+                    Assert.AreEqual(bitmap[(y * 24) + x], screen[(y * w) + w - 24 + x]);
+                }
+            }
             // outside the rect untouched
-            Assert.AreEqual(original[24 * w + w - 1], screen[24 * w + w - 1]);
+            Assert.AreEqual(original[(24 * w) + w - 1], screen[(24 * w) + w - 1]);
             Assert.AreEqual(original[w - 25], screen[w - 25]);
 
             Vid.D_EndDirectRect(w - 24, 0, 24, 24);
@@ -112,9 +123,14 @@ public sealed unsafe class VidTests
         try
         {
             for (int i = 0; i < w * h; i++)
+            {
                 screen[i] = (byte)(i * 3);
+            }
+
             for (int i = 0; i < 24 * 24; i++)
+            {
                 bitmap[i] = (byte)(i / 24);
+            }
 
             byte[] original = new Span<byte>(screen, w * h).ToArray();
 
@@ -125,8 +141,11 @@ public sealed unsafe class VidTests
             Vid.D_BeginDirectRect(8, 0, bitmap, 24, 24);
 
             for (int y = 0; y < 48; y++)
-                Assert.AreEqual((byte)(y >> 1), screen[y * w + 8]);
-            Assert.AreEqual(original[48 * w + 8], screen[48 * w + 8]);
+            {
+                Assert.AreEqual((byte)(y >> 1), screen[(y * w) + 8]);
+            }
+
+            Assert.AreEqual(original[(48 * w) + 8], screen[(48 * w) + 8]);
 
             Vid.D_EndDirectRect(8, 0, 24, 24);
 
@@ -164,7 +183,7 @@ public sealed unsafe class VidTests
             Vid.SetPalette(palette);
             for (int i = 0; i < 256; i++)
             {
-                uint expected = palette[i * 3] | ((uint)palette[i * 3 + 1] << 8) | ((uint)palette[i * 3 + 2] << 16) | 0xFF000000u;
+                uint expected = palette[i * 3] | ((uint)palette[(i * 3) + 1] << 8) | ((uint)palette[(i * 3) + 2] << 16) | 0xFF000000u;
                 Assert.AreEqual(expected, Vid.d_8to24table[i], $"entry {i}");
             }
         }

@@ -24,11 +24,26 @@ public unsafe class FillBenchmarks
     #endregion
 
     [Benchmark(Baseline = true)]
-    public void Original() { byte* dest = _buf; for (int v = 0; v < H; v++, dest += 1024) for (int u = 0; u < W; u++) dest[u] = 7; }
+    public void Original() { byte* dest = _buf; for (int v = 0; v < H; v++, dest += 1024)
+        {
+            for (int u = 0; u < W; u++)
+            {
+                dest[u] = 7;
+            }
+        }
+    }
 
     [Benchmark]
-    public void SpanFill() { byte* dest = _buf; for (int v = 0; v < H; v++, dest += 1024) new Span<byte>(dest, W).Fill(7); }
+    public void SpanFill() { byte* dest = _buf; for (int v = 0; v < H; v++, dest += 1024)
+        {
+            new Span<byte>(dest, W).Fill(7);
+        }
+    }
 
     [Benchmark]
-    public void InitBlock() { byte* dest = _buf; for (int v = 0; v < H; v++, dest += 1024) System.Runtime.CompilerServices.Unsafe.InitBlockUnaligned(dest, 7, (uint)W); }
+    public void InitBlock() { byte* dest = _buf; for (int v = 0; v < H; v++, dest += 1024)
+        {
+            System.Runtime.CompilerServices.Unsafe.InitBlockUnaligned(dest, 7, (uint)W);
+        }
+    }
 }

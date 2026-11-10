@@ -52,7 +52,9 @@ public sealed unsafe class EdictSerializationTests
     public void Teardown()
     {
         foreach (nint p in _allocations)
+        {
             NativeMemory.Free((void*)p);
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -565,7 +567,9 @@ public sealed unsafe class EdictSerializationTests
             Progs.pr_globals[1] = 0f;
             byte[] bytes = File.ReadAllBytes(path);
             fixed (byte* p = bytes)
+            {
                 EdictSerialization.ParseGlobals(p + 2); // skip the leading "{\n"
+            }
 
             Assert.AreEqual(42f, Progs.pr_globals[1]);
         }

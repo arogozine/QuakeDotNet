@@ -67,11 +67,15 @@ public sealed unsafe class SndDmaTests
         // every dynamic channel is a candidate, however many there are, so give
         // them all a later end than the ones under test
         for (int i = 0; i < SndDma.MAX_DYNAMIC_CHANNELS; i++)
+        {
             SndDma.channels[dynBase + i].End = 5000;
+        }
 
         int[] ends = [1500, 1300, 1700, 1100, 1600, 1900, 1200, 1400];
         for (int i = 0; i < ends.Length; i++)
+        {
             SndDma.channels[dynBase + i].End = ends[i];
+        }
 
         Channel_t* picked = SndDma.PickChannel(99, 0);
 

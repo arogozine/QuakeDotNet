@@ -60,12 +60,18 @@ public static unsafe class DInit
 
         DLocal.d_minmip = (int)DInit.d_mipcap->Value;
         if (DLocal.d_minmip > 3)
+        {
             DLocal.d_minmip = 3;
+        }
         else if (DLocal.d_minmip < 0)
+        {
             DLocal.d_minmip = 0;
+        }
 
         for (int i = 0; i < NUM_MIPS - 1; i++)
+        {
             DLocal.d_scalemip[i] = basemip[i] * DInit.d_mipscale->Value;
+        }
 
         DLocal.d_drawspans = &DScan.DrawSpans8;
 

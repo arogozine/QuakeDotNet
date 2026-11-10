@@ -262,7 +262,9 @@ public sealed unsafe class ClMainTests
         Model_t* realModel = NativeMemory.AllocZeroed<Model_t>();
         byte[] name = System.Text.Encoding.ASCII.GetBytes("progs/soldier.mdl");
         for (int i = 0; i < name.Length; i++)
+        {
             realModel->Name[i] = name[i];
+        }
 
         Entity_t* ent = &ClEntities.cl_entities[1];
         ent->Model = realModel;
@@ -315,7 +317,10 @@ public sealed unsafe class ClMainTests
         data[0] = (byte)(int)Svc.Time;
         byte[] timeBytes = BitConverter.GetBytes(0.05f);
         for (int i = 0; i < 4; i++)
+        {
             data[1 + i] = timeBytes[i];
+        }
+
         SizeBuf_t msg = new() { Data = data, MaxSize = 8, CurSize = 5 };
         Net.SendMessage(serverSock, &msg);
 

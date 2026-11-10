@@ -90,13 +90,17 @@ public sealed unsafe class HostTests
     {
         string? dir = TestConfiguration.PakFilesDirectory;
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive("PakFilesDirectory is not configured in configuration.json; skipping Host.Init end-to-end test.");
+        }
 
         // PakFilesDirectory points at .../Quake/id1; Host_Init's basedir is
         // its parent (COM_InitFilesystem appends "/id1" itself).
         string baseDir = Path.GetDirectoryName(dir!) ?? dir!;
         if (!File.Exists(Path.Combine(dir!, "PAK0.PAK")))
+        {
             Assert.Inconclusive($"PAK0.PAK was not found in {dir}; skipping Host.Init end-to-end test.");
+        }
 
         Host.host_parms.BaseDir = (byte*)Marshal.StringToHGlobalAnsi(baseDir);
 

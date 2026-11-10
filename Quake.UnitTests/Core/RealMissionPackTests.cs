@@ -56,8 +56,13 @@ public sealed unsafe class RealMissionPackTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
+
         Com.com_searchpaths = null;
         Com.rogue = false;
         Com.hipnotic = false;
@@ -89,11 +94,15 @@ public sealed unsafe class RealMissionPackTests
     {
         string? dir = ConfiguredDirectory(missionPack);
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive($"The {missionPack} directory is not configured in configuration.json; skipping real mission pack test.");
+        }
 
         string pak = Path.Combine(dir, "pak0.pak");
         if (!File.Exists(pak) && !File.Exists(Path.Combine(dir, "PAK0.PAK")))
+        {
             Assert.Inconclusive($"pak0.pak was not found in the configured {missionPack} directory ({dir}); skipping real mission pack test.");
+        }
 
         return dir;
     }
@@ -111,7 +120,10 @@ public sealed unsafe class RealMissionPackTests
         int handle;
         int len = Com.OpenFile(Ansi(name), &handle);
         if (handle != -1)
+        {
             Com.CloseFile(handle);
+        }
+
         return len;
     }
 
@@ -129,16 +141,26 @@ public sealed unsafe class RealMissionPackTests
     private static bool PackContains(Pack_t* pack, string name)
     {
         for (int i = 0; i < pack->NumFiles; i++)
+        {
             if (Marshal.PtrToStringAnsi((nint)pack->Files[i].Name) == name)
+            {
                 return true;
+            }
+        }
+
         return false;
     }
 
     private static int PackFileLength(Pack_t* pack, string name)
     {
         for (int i = 0; i < pack->NumFiles; i++)
+        {
             if (Marshal.PtrToStringAnsi((nint)pack->Files[i].Name) == name)
+            {
                 return pack->Files[i].FileLen;
+            }
+        }
+
         return -1;
     }
 
@@ -160,7 +182,9 @@ public sealed unsafe class RealMissionPackTests
         bw.Write(entries.Length * 64);
 
         foreach ((string _, byte[] payload) in entries)
+        {
             bw.Write(payload);
+        }
 
         for (int i = 0; i < entries.Length; i++)
         {
@@ -197,7 +221,10 @@ public sealed unsafe class RealMissionPackTests
         argv[1] = Ansi("-basedir");
         argv[2] = Ansi(baseDir.Replace('\\', '/'));
         for (int i = 0; i < extraArgs.Length; i++)
+        {
             argv[3 + i] = Ansi(extraArgs[i]);
+        }
+
         Com.InitArgv(argv.Length, argv);
 
         Com.InitFilesystem();
@@ -377,7 +404,9 @@ public sealed unsafe class RealMissionPackTests
         string dir = RequireDirectory(missionPack);
         string baseDir = Path.GetDirectoryName(dir)!;
         if (!File.Exists(Path.Combine(baseDir, "id1", "PAK0.PAK")) && !File.Exists(Path.Combine(baseDir, "id1", "pak0.pak")))
+        {
             Assert.Inconclusive($"{missionPack} has no sibling id1 directory with pak0.pak under {baseDir}; skipping.");
+        }
 
         InitFilesystemWith(baseDir, flag);
 

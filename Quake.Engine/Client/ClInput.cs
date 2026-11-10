@@ -46,12 +46,18 @@ public static unsafe class ClInput
         int k = c[0] != 0 ? Q.Atoi(c) : -1; // typed manually at the console for continuous down
 
         if (k == b->Down[0] || k == b->Down[1])
+        {
             return; // repeating key
+        }
 
         if (b->Down[0] == 0)
+        {
             b->Down[0] = k;
+        }
         else if (b->Down[1] == 0)
+        {
             b->Down[1] = k;
+        }
         else
         {
             Con.Printf("Three keys down for a button!\n"u8);
@@ -59,7 +65,10 @@ public static unsafe class ClInput
         }
 
         if ((b->State & 1) != 0)
+        {
             return; // still down
+        }
+
         b->State |= 1 + 2; // down + impulse down
     }
 
@@ -71,13 +80,22 @@ public static unsafe class ClInput
         {
             int k = Q.Atoi(c);
             if (b->Down[0] == k)
+            {
                 b->Down[0] = 0;
+            }
             else if (b->Down[1] == k)
+            {
                 b->Down[1] = 0;
+            }
             else
+            {
                 return; // key up without corresponding down (menu pass through)
+            }
+
             if (b->Down[0] != 0 || b->Down[1] != 0)
+            {
                 return; // some other key is still holding it down
+            }
         }
         else
         {
@@ -88,7 +106,10 @@ public static unsafe class ClInput
         }
 
         if ((b->State & 1) == 0)
+        {
             return; // still up (this should not happen)
+        }
+
         b->State &= ~1; // now up
         b->State |= 4;  // impulse up
     }
@@ -101,7 +122,9 @@ public static unsafe class ClInput
     {
         KeyUp(in_mlook);
         if ((in_mlook->State & 1) == 0 && lookspring->Value != 0)
+        {
             View.StartPitchDrift();
+        }
     }
 
     private static void UpDownCmd() => KeyDown(in_up);
@@ -155,13 +178,24 @@ public static unsafe class ClInput
         float val = 0;
 
         if (impulsedown && !impulseup)
+        {
             val = down ? 0.5f : 0f;
+        }
+
         if (impulseup && !impulsedown)
+        {
             val = 0f; // released this frame
+        }
+
         if (!impulsedown && !impulseup)
+        {
             val = down ? 1.0f : 0f;
+        }
+
         if (impulsedown && impulseup)
+        {
             val = down ? 0.75f : 0.25f;
+        }
 
         key->State &= 1; // clear impulses
 
@@ -237,17 +271,29 @@ public static unsafe class ClInput
         Cl.viewangles[QuakeDef.PITCH] += speed * cl_pitchspeed->Value * down;
 
         if (up != 0 || down != 0)
+        {
             View.StopPitchDrift();
+        }
 
         if (Cl.viewangles[QuakeDef.PITCH] > 80)
+        {
             Cl.viewangles[QuakeDef.PITCH] = 80;
+        }
+
         if (Cl.viewangles[QuakeDef.PITCH] < -70)
+        {
             Cl.viewangles[QuakeDef.PITCH] = -70;
+        }
 
         if (Cl.viewangles[QuakeDef.ROLL] > 50)
+        {
             Cl.viewangles[QuakeDef.ROLL] = 50;
+        }
+
         if (Cl.viewangles[QuakeDef.ROLL] < -50)
+        {
             Cl.viewangles[QuakeDef.ROLL] = -50;
+        }
     }
 
     /*
@@ -260,7 +306,9 @@ public static unsafe class ClInput
     public static void BaseMove(UserCmd_t* cmd)
     {
         if (Cls.signon != Cls.SIGNONS)
+        {
             return;
+        }
 
         AdjustAngles();
 
@@ -344,27 +392,42 @@ public static unsafe class ClInput
 
         // add mouse X/Y movement to cmd
         if ((in_strafe->State & 1) != 0 || (lookstrafe->Value != 0 && (in_mlook->State & 1) != 0))
+        {
             cmd->SideMove += m_side->Value * mouse_x;
+        }
         else
+        {
             Cl.viewangles[QuakeDef.YAW] -= m_yaw->Value * mouse_x;
+        }
 
         if ((in_mlook->State & 1) != 0)
+        {
             View.StopPitchDrift();
+        }
 
         if ((in_mlook->State & 1) != 0 && (in_strafe->State & 1) == 0)
         {
             Cl.viewangles[QuakeDef.PITCH] += m_pitch->Value * mouse_y;
             if (Cl.viewangles[QuakeDef.PITCH] > 80)
+            {
                 Cl.viewangles[QuakeDef.PITCH] = 80;
+            }
+
             if (Cl.viewangles[QuakeDef.PITCH] < -70)
+            {
                 Cl.viewangles[QuakeDef.PITCH] = -70;
+            }
         }
         else
         {
             if ((in_strafe->State & 1) != 0 && Cl.noclip_anglehack)
+            {
                 cmd->UpMove -= m_forward->Value * mouse_y;
+            }
             else
+            {
                 cmd->ForwardMove -= m_forward->Value * mouse_y;
+            }
         }
     }
 

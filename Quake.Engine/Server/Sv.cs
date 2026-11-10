@@ -89,7 +89,9 @@ public static unsafe partial class Svs
     public static void EnsureLocalPlayerConnected()
     {
         if (clients[0].Active || Sv.num_edicts <= 1)
+        {
             return;
+        }
 
         clients[0].Active = true;
         clients[0].Edict = Progs.EdictNum(1);
@@ -134,11 +136,17 @@ public static unsafe partial class Sv
     {
         byte* name = name_;
         if (name == null || *name == 0)
+        {
             return 0;
+        }
 
         for (int i = 0; i < QuakeDef.MAX_MODELS && model_precache[i] != null; i++)
+        {
             if (Q.StrCmp(model_precache[i], name) == 0)
+            {
                 return i;
+            }
+        }
 
         return 0;
     }
@@ -215,7 +223,9 @@ public static unsafe partial class Sv
                 {
                     Cvar.SetValue("sv_protocol"u8, i);
                     if (active)
+                    {
                         Con.Printf("changes will not take effect until the next map load.\n"u8);
+                    }
                 }
                 break;
             default:
@@ -307,9 +317,13 @@ public static unsafe partial class Sv
         Msg.WriteByte(&client->Message, Svs.maxclients);
 
         if (Host.coop->Value == 0 && Host.deathmatch->Value != 0)
+        {
             Msg.WriteByte(&client->Message, (int)GameType.Deathmatch);
+        }
         else
+        {
             Msg.WriteByte(&client->Message, (int)GameType.Coop);
+        }
 
         // sprintf(message, pr_strings+sv.edicts->v.message) -- the original
         // uses the world entity's "message" key (the level title) AS a
@@ -325,11 +339,17 @@ public static unsafe partial class Sv
         int maxSounds = current_protocol == Protocol.PROTOCOL_NETQUAKE ? Protocol.MAX_P15_SOUNDS : QuakeDef.MAX_SOUNDS;
 
         for (int i = 1; i < maxModels && model_precache[i] != null; i++)
+        {
             Msg.WriteString(&client->Message, model_precache[i]);
+        }
+
         Msg.WriteByte(&client->Message, 0);
 
         for (int i = 1; i < maxSounds && sound_precache[i] != null; i++)
+        {
             Msg.WriteString(&client->Message, sound_precache[i]);
+        }
+
         Msg.WriteByte(&client->Message, 0);
 
         // send music
@@ -370,8 +390,12 @@ public static unsafe partial class Sv
 
         float* savedSpawnParms = stackalloc float[Svs.NUM_SPAWN_PARMS];
         if (loadgame)
+        {
             for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+            {
                 savedSpawnParms[i] = client->spawn_parms[i];
+            }
+        }
 
         *client = default;
         client->NetConnection = netconnection;
@@ -390,7 +414,9 @@ public static unsafe partial class Sv
         if (loadgame)
         {
             for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+            {
                 client->spawn_parms[i] = savedSpawnParms[i];
+            }
         }
         else
         {
@@ -398,7 +424,9 @@ public static unsafe partial class Sv
             Progs.ExecuteProgram(Progs.pr_global_struct->SetNewParms);
             float* parms = &Progs.pr_global_struct->Parm1;
             for (int i = 0; i < Svs.NUM_SPAWN_PARMS; i++)
+            {
                 client->spawn_parms[i] = parms[i];
+            }
         }
 
         SendServerinfo(client);
@@ -415,14 +443,23 @@ public static unsafe partial class Sv
         {
             QSocket_t* ret = Net.CheckNewConnections();
             if (ret == null)
+            {
                 break;
+            }
 
             int i;
             for (i = 0; i < Svs.maxclients; i++)
+            {
                 if (!Svs.clients[i].Active)
+                {
                     break;
+                }
+            }
+
             if (i == Svs.maxclients)
+            {
                 Sys.Error("Host_CheckForNewClients: no free clients"u8);
+            }
 
             Svs.clients[i].NetConnection = ret;
             ConnectClient(i);
@@ -442,7 +479,9 @@ public static unsafe partial class Sv
     public static void StartParticle(Vec3_t org, Vec3_t dir, int color, int count)
     {
         if (datagram->CurSize > host_protocol_datagram_maxsize - 16)
+        {
             return;
+        }
 
         SizeBuf_t* dg = datagram;
         Msg.WriteByte(dg, (int)Svc.Particle);
@@ -453,9 +492,14 @@ public static unsafe partial class Sv
         {
             int v = (int)(dir[i] * 16);
             if (v > 127)
+            {
                 v = 127;
+            }
             else if (v < -128)
+            {
                 v = -128;
+            }
+
             Msg.WriteChar(dg, v);
         }
         Msg.WriteByte(dg, count);
@@ -493,11 +537,15 @@ public static unsafe partial class Sv
             }
 
             MPlane_t* plane = node->Plane;
-            float d = org[0] * plane->Normal[0] + org[1] * plane->Normal[1] + org[2] * plane->Normal[2] - plane->Dist;
+            float d = (org[0] * plane->Normal[0]) + (org[1] * plane->Normal[1]) + (org[2] * plane->Normal[2]) - plane->Dist;
             if (d > 8)
+            {
                 node = node->Children[0];
+            }
             else if (d < -8)
+            {
                 node = node->Children[1];
+            }
             else
             { // go down both
                 AddToFatPVS(org, node->Children[0]);
@@ -533,14 +581,20 @@ public static unsafe partial class Sv
         if (alpha_field_ofs == -2)
         {
             if (Progs.progs == null)
+            {
                 return ent->Alpha;
+            }
+
             Utf8String alphaName = "alpha"u8;
             DDef_t* def = EdictSerialization.FindField(alphaName);
             alpha_field_ofs = def == null ? -1 : def->Ofs;
         }
 
         if (alpha_field_ofs >= 0)
-            ent->Alpha = Protocol.EntAlphaEncode(*(float*)((byte*)&ent->V + alpha_field_ofs * 4));
+        {
+            ent->Alpha = Protocol.EntAlphaEncode(*(float*)((byte*)&ent->V + (alpha_field_ofs * 4)));
+        }
+
         return ent->Alpha;
     }
 
@@ -564,19 +618,29 @@ public static unsafe partial class Sv
             {
                 // ignore ents without visible models
                 if (ent->V.ModelIndex == 0 || Progs.pr_strings[ent->V.Model] == 0)
+                {
                     continue;
+                }
 
                 // johnfitz -- don't send model>255 entities if protocol is 15
                 if (current_protocol == Protocol.PROTOCOL_NETQUAKE && ((int)ent->V.ModelIndex & 0xFF00) != 0)
+                {
                     continue;
+                }
 
                 int i;
                 for (i = 0; i < ent->NumLeafs; i++)
+                {
                     if ((pvs[ent->LeafNums[i] >> 3] & (1 << (ent->LeafNums[i] & 7))) != 0)
+                    {
                         break;
+                    }
+                }
 
                 if (i == ent->NumLeafs)
+                {
                     continue; // not visible
+                }
             }
 
             if (msg->MaxSize - msg->CurSize < 24) // johnfitz -- max size for protocol 85 is 24 bytes
@@ -592,112 +656,211 @@ public static unsafe partial class Sv
             {
                 float miss = ent->V.Origin[i] - ent->Baseline.Origin[i];
                 if (miss < -0.1f || miss > 0.1f)
+                {
                     bits |= Protocol.U_ORIGIN1 << i;
+                }
             }
 
             if (ent->V.Angles[0] != ent->Baseline.Angles[0])
+            {
                 bits |= Protocol.U_ANGLE1;
+            }
 
             if (ent->V.Angles[1] != ent->Baseline.Angles[1])
+            {
                 bits |= Protocol.U_ANGLE2;
+            }
 
             if (ent->V.Angles[2] != ent->Baseline.Angles[2])
+            {
                 bits |= Protocol.U_ANGLE3;
+            }
 
             if ((int)ent->V.MoveType == (int)MoveType.Step)
+            {
                 bits |= Protocol.U_NOLERP; // don't mess up the step animation
+            }
 
             if (ent->Baseline.ColorMap != (int)ent->V.ColorMap)
+            {
                 bits |= Protocol.U_COLORMAP;
+            }
 
             if (ent->Baseline.Skin != (int)ent->V.Skin)
+            {
                 bits |= Protocol.U_SKIN;
+            }
 
             if (ent->Baseline.Frame != (int)ent->V.Frame)
+            {
                 bits |= Protocol.U_FRAME;
+            }
 
             if (ent->Baseline.Effects != (int)ent->V.Effects)
+            {
                 bits |= Protocol.U_EFFECTS;
+            }
 
             if (ent->Baseline.ModelIndex != (int)ent->V.ModelIndex)
+            {
                 bits |= Protocol.U_MODEL;
+            }
 
             // johnfitz -- alpha
             byte entAlpha = UpdateEntAlpha(ent);
 
             // don't send invisible entities unless they have effects
             if (entAlpha == Protocol.ENTALPHA_ZERO && (int)ent->V.Effects == 0)
+            {
                 continue;
+            }
 
             // johnfitz -- PROTOCOL_FITZQUAKE
             if (current_protocol != Protocol.PROTOCOL_NETQUAKE)
             {
                 if (ent->Baseline.Alpha != entAlpha)
+                {
                     bits |= Protocol.U_ALPHA;
+                }
+
                 if ((bits & Protocol.U_FRAME) != 0 && ((int)ent->V.Frame & 0xFF00) != 0)
+                {
                     bits |= Protocol.U_FRAME2;
+                }
+
                 if ((bits & Protocol.U_MODEL) != 0 && ((int)ent->V.ModelIndex & 0xFF00) != 0)
+                {
                     bits |= Protocol.U_MODEL2;
+                }
+
                 if (ent->SendInterval)
+                {
                     bits |= Protocol.U_LERPFINISH;
+                }
+
                 if (bits >= 65536)
+                {
                     bits |= Protocol.U_EXTEND1;
+                }
+
                 if (bits >= 16777216)
+                {
                     bits |= Protocol.U_EXTEND2;
+                }
             }
 
             if (e >= 256)
+            {
                 bits |= Protocol.U_LONGENTITY;
+            }
 
             if (bits >= 256)
+            {
                 bits |= Protocol.U_MOREBITS;
+            }
 
             // write the message
             Msg.WriteByte(msg, bits | Protocol.U_SIGNAL);
 
             if ((bits & Protocol.U_MOREBITS) != 0)
+            {
                 Msg.WriteByte(msg, bits >> 8);
+            }
+
             if ((bits & Protocol.U_EXTEND1) != 0)
+            {
                 Msg.WriteByte(msg, bits >> 16);
+            }
+
             if ((bits & Protocol.U_EXTEND2) != 0)
+            {
                 Msg.WriteByte(msg, bits >> 24);
+            }
+
             if ((bits & Protocol.U_LONGENTITY) != 0)
+            {
                 Msg.WriteShort(msg, e);
+            }
             else
+            {
                 Msg.WriteByte(msg, e);
+            }
 
             if ((bits & Protocol.U_MODEL) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.ModelIndex);
+            }
+
             if ((bits & Protocol.U_FRAME) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.Frame);
+            }
+
             if ((bits & Protocol.U_COLORMAP) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.ColorMap);
+            }
+
             if ((bits & Protocol.U_SKIN) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.Skin);
+            }
+
             if ((bits & Protocol.U_EFFECTS) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.Effects);
+            }
+
             if ((bits & Protocol.U_ORIGIN1) != 0)
+            {
                 Msg.WriteCoord(msg, ent->V.Origin[0]);
+            }
+
             if ((bits & Protocol.U_ANGLE1) != 0)
+            {
                 Msg.WriteAngle(msg, ent->V.Angles[0]);
+            }
+
             if ((bits & Protocol.U_ORIGIN2) != 0)
+            {
                 Msg.WriteCoord(msg, ent->V.Origin[1]);
+            }
+
             if ((bits & Protocol.U_ANGLE2) != 0)
+            {
                 Msg.WriteAngle(msg, ent->V.Angles[1]);
+            }
+
             if ((bits & Protocol.U_ORIGIN3) != 0)
+            {
                 Msg.WriteCoord(msg, ent->V.Origin[2]);
+            }
+
             if ((bits & Protocol.U_ANGLE3) != 0)
+            {
                 Msg.WriteAngle(msg, ent->V.Angles[2]);
+            }
 
             // johnfitz -- PROTOCOL_FITZQUAKE
             if ((bits & Protocol.U_ALPHA) != 0)
+            {
                 Msg.WriteByte(msg, entAlpha);
+            }
+
             if ((bits & Protocol.U_FRAME2) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.Frame >> 8);
+            }
+
             if ((bits & Protocol.U_MODEL2) != 0)
+            {
                 Msg.WriteByte(msg, (int)ent->V.ModelIndex >> 8);
+            }
+
             if ((bits & Protocol.U_LERPFINISH) != 0)
+            {
                 Msg.WriteByte(msg, (byte)MathF.Round((ent->V.NextThink - (float)time) * 255, MidpointRounding.ToEven));
+            }
         }
     }
 
@@ -710,7 +873,9 @@ public static unsafe partial class Sv
     {
         EDict_t* ent = Progs.NextEdict(edicts);
         for (int e = 1; e < num_edicts; e++, ent = Progs.NextEdict(ent))
+        {
             ent->V.Effects = (int)ent->V.Effects & ~EF_MUZZLEFLASH;
+        }
     }
 
     /*
@@ -728,7 +893,9 @@ public static unsafe partial class Sv
             Msg.WriteByte(msg, (int)ent->V.DmgSave);
             Msg.WriteByte(msg, (int)ent->V.DmgTake);
             for (int i = 0; i < 3; i++)
-                Msg.WriteCoord(msg, other->V.Origin[i] + 0.5f * (other->V.Mins[i] + other->V.Maxs[i]));
+            {
+                Msg.WriteCoord(msg, other->V.Origin[i] + (0.5f * (other->V.Mins[i] + other->V.Maxs[i])));
+            }
 
             ent->V.DmgTake = 0;
             ent->V.DmgSave = 0;
@@ -742,48 +909,72 @@ public static unsafe partial class Sv
         {
             Msg.WriteByte(msg, (int)Svc.SetAngle);
             for (int i = 0; i < 3; i++)
+            {
                 Msg.WriteAngle(msg, ent->V.Angles[i]);
+            }
+
             ent->V.FixAngle = 0;
         }
 
         int bits = 0;
 
         if (ent->V.ViewOfs[2] != Protocol.DEFAULT_VIEWHEIGHT)
+        {
             bits |= Protocol.SU_VIEWHEIGHT;
+        }
 
         if (ent->V.IdealPitch != 0)
+        {
             bits |= Protocol.SU_IDEALPITCH;
+        }
 
         // stuff the sigil bits into the high bits of items for sbar, or else
         // mix in items2
         int items;
         float* val = EdictSerialization.GetEdictFieldValue(ent, "items2"u8);
         if (val != null)
+        {
             items = (int)ent->V.Items | ((int)*val << 23);
+        }
         else
+        {
             items = (int)ent->V.Items | ((int)Progs.pr_global_struct->ServerFlags << 28);
+        }
 
         bits |= Protocol.SU_ITEMS;
 
         if (((int)ent->V.Flags & SvPhys.FL_ONGROUND) != 0)
+        {
             bits |= Protocol.SU_ONGROUND;
+        }
 
         if (ent->V.WaterLevel >= 2)
+        {
             bits |= Protocol.SU_INWATER;
+        }
 
         for (int i = 0; i < 3; i++)
         {
             if (ent->V.PunchAngle[i] != 0)
+            {
                 bits |= Protocol.SU_PUNCH1 << i;
+            }
+
             if (ent->V.Velocity[i] != 0)
+            {
                 bits |= Protocol.SU_VELOCITY1 << i;
+            }
         }
 
         if (ent->V.WeaponFrame != 0)
+        {
             bits |= Protocol.SU_WEAPONFRAME;
+        }
 
         if (ent->V.ArmorValue != 0)
+        {
             bits |= Protocol.SU_ARMOR;
+        }
 
         // if (ent->v.weapon)
         bits |= Protocol.SU_WEAPON;
@@ -794,27 +985,59 @@ public static unsafe partial class Sv
         if (current_protocol != Protocol.PROTOCOL_NETQUAKE)
         {
             if ((bits & Protocol.SU_WEAPON) != 0 && (weaponModel & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_WEAPON2;
+            }
+
             if (((int)ent->V.ArmorValue & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_ARMOR2;
+            }
+
             if (((int)ent->V.CurrentAmmo & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_AMMO2;
+            }
+
             if (((int)ent->V.AmmoShells & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_SHELLS2;
+            }
+
             if (((int)ent->V.AmmoNails & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_NAILS2;
+            }
+
             if (((int)ent->V.AmmoRockets & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_ROCKETS2;
+            }
+
             if (((int)ent->V.AmmoCells & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_CELLS2;
+            }
+
             if ((bits & Protocol.SU_WEAPONFRAME) != 0 && ((int)ent->V.WeaponFrame & 0xFF00) != 0)
+            {
                 bits |= Protocol.SU_WEAPONFRAME2;
+            }
+
             if ((bits & Protocol.SU_WEAPON) != 0 && entAlpha != Protocol.ENTALPHA_DEFAULT)
+            {
                 bits |= Protocol.SU_WEAPONALPHA; // for now, weaponalpha = client entity alpha
+            }
+
             if (bits >= 65536)
+            {
                 bits |= Protocol.SU_EXTEND1;
+            }
+
             if (bits >= 16777216)
+            {
                 bits |= Protocol.SU_EXTEND2;
+            }
         }
 
         // send the data
@@ -823,33 +1046,55 @@ public static unsafe partial class Sv
         Msg.WriteShort(msg, bits);
 
         if ((bits & Protocol.SU_EXTEND1) != 0)
+        {
             Msg.WriteByte(msg, bits >> 16);
+        }
+
         if ((bits & Protocol.SU_EXTEND2) != 0)
+        {
             Msg.WriteByte(msg, bits >> 24);
+        }
 
         if ((bits & Protocol.SU_VIEWHEIGHT) != 0)
+        {
             Msg.WriteChar(msg, (int)ent->V.ViewOfs[2]);
+        }
 
         if ((bits & Protocol.SU_IDEALPITCH) != 0)
+        {
             Msg.WriteChar(msg, (int)ent->V.IdealPitch);
+        }
 
         for (int i = 0; i < 3; i++)
         {
             if ((bits & (Protocol.SU_PUNCH1 << i)) != 0)
+            {
                 Msg.WriteChar(msg, (int)ent->V.PunchAngle[i]);
+            }
+
             if ((bits & (Protocol.SU_VELOCITY1 << i)) != 0)
+            {
                 Msg.WriteChar(msg, (int)(ent->V.Velocity[i] / 16));
+            }
         }
 
         // [always sent] if (bits & SU_ITEMS)
         Msg.WriteLong(msg, items);
 
         if ((bits & Protocol.SU_WEAPONFRAME) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.WeaponFrame);
+        }
+
         if ((bits & Protocol.SU_ARMOR) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.ArmorValue);
+        }
+
         if ((bits & Protocol.SU_WEAPON) != 0)
+        {
             Msg.WriteByte(msg, weaponModel);
+        }
 
         Msg.WriteShort(msg, (int)ent->V.Health);
         Msg.WriteByte(msg, (int)ent->V.CurrentAmmo);
@@ -880,23 +1125,49 @@ public static unsafe partial class Sv
 
         // johnfitz -- PROTOCOL_FITZQUAKE
         if ((bits & Protocol.SU_WEAPON2) != 0)
+        {
             Msg.WriteByte(msg, weaponModel >> 8);
+        }
+
         if ((bits & Protocol.SU_ARMOR2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.ArmorValue >> 8);
+        }
+
         if ((bits & Protocol.SU_AMMO2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.CurrentAmmo >> 8);
+        }
+
         if ((bits & Protocol.SU_SHELLS2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.AmmoShells >> 8);
+        }
+
         if ((bits & Protocol.SU_NAILS2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.AmmoNails >> 8);
+        }
+
         if ((bits & Protocol.SU_ROCKETS2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.AmmoRockets >> 8);
+        }
+
         if ((bits & Protocol.SU_CELLS2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.AmmoCells >> 8);
+        }
+
         if ((bits & Protocol.SU_WEAPONFRAME2) != 0)
+        {
             Msg.WriteByte(msg, (int)ent->V.WeaponFrame >> 8);
+        }
+
         if ((bits & Protocol.SU_WEAPONALPHA) != 0)
+        {
             Msg.WriteByte(msg, entAlpha); // for now, weaponalpha = client entity alpha
+        }
     }
 
     /*
@@ -923,7 +1194,9 @@ public static unsafe partial class Sv
         // copy the server datagram if there is space
         SizeBuf_t* dg = datagram;
         if (msg.CurSize + dg->CurSize < msg.MaxSize)
+        {
             Sz.Write(&msg, dg->Data, dg->CurSize);
+        }
 
         // send the datagram
         if (Net.SendUnreliableMessage(client->NetConnection, &msg) == -1)
@@ -952,7 +1225,10 @@ public static unsafe partial class Sv
                 {
                     Client_t* client = &Svs.clients[j];
                     if (!client->Active)
+                    {
                         continue;
+                    }
+
                     Msg.WriteByte(&client->Message, (int)Svc.UpdateFrags);
                     Msg.WriteByte(&client->Message, i);
                     Msg.WriteShort(&client->Message, (int)Svs.host_client->Edict->V.Frags);
@@ -966,7 +1242,10 @@ public static unsafe partial class Sv
         {
             Client_t* client = &Svs.clients[j];
             if (!client->Active)
+            {
                 continue;
+            }
+
             Sz.Write(&client->Message, reliable_datagram->Data, reliable_datagram->CurSize);
         }
 
@@ -992,7 +1271,10 @@ public static unsafe partial class Sv
         Msg.WriteChar(&msg, (int)Svc.Nop);
 
         if (Net.SendUnreliableMessage(client->NetConnection, &msg) == -1)
+        {
             Host.DropClient(true); // if the message couldn't send, kick off
+        }
+
         client->LastMessage = Host.realtime;
     }
 
@@ -1012,12 +1294,16 @@ public static unsafe partial class Sv
             Svs.host_client = &Svs.clients[i];
 
             if (!Svs.host_client->Active)
+            {
                 continue;
+            }
 
             if (Svs.host_client->Spawned)
             {
                 if (!SendClientDatagram(Svs.host_client))
+                {
                     continue;
+                }
             }
             else
             {
@@ -1029,7 +1315,10 @@ public static unsafe partial class Sv
                 if (!Svs.host_client->SendSignon)
                 {
                     if (Host.realtime - Svs.host_client->LastMessage > 5)
+                    {
                         SendNop(Svs.host_client);
+                    }
+
                     continue; // don't send out non-signon messages
                 }
             }
@@ -1047,7 +1336,9 @@ public static unsafe partial class Sv
             if (Svs.host_client->Message.CurSize != 0 || Svs.host_client->DropAsap)
             {
                 if (!Net.CanSendMessage(Svs.host_client->NetConnection))
+                {
                     continue;
+                }
 
                 if (Svs.host_client->DropAsap)
                 {
@@ -1056,7 +1347,10 @@ public static unsafe partial class Sv
                 else
                 {
                     if (Net.SendMessage(Svs.host_client->NetConnection, &Svs.host_client->Message) == -1)
+                    {
                         Host.DropClient(true); // if the message couldn't send, kick off
+                    }
+
                     Sz.Clear(&Svs.host_client->Message);
                     Svs.host_client->LastMessage = Host.realtime;
                     Svs.host_client->SendSignon = false;
@@ -1080,9 +1374,14 @@ public static unsafe partial class Sv
             // get the current server version
             EDict_t* svent = Progs.EdictNum(entnum);
             if (svent->Free != 0)
+            {
                 continue;
+            }
+
             if (entnum > Svs.maxclients && svent->V.ModelIndex == 0)
+            {
                 continue;
+            }
 
             // create entity baseline
             svent->Baseline.Origin = svent->V.Origin;
@@ -1108,19 +1407,33 @@ public static unsafe partial class Sv
             if (current_protocol == Protocol.PROTOCOL_NETQUAKE) // still want to send baseline in PROTOCOL_NETQUAKE, so reset these values
             {
                 if ((svent->Baseline.ModelIndex & 0xFF00) != 0)
+                {
                     svent->Baseline.ModelIndex = 0;
+                }
+
                 if ((svent->Baseline.Frame & 0xFF00) != 0)
+                {
                     svent->Baseline.Frame = 0;
+                }
+
                 svent->Baseline.Alpha = Protocol.ENTALPHA_DEFAULT;
             }
             else // decide which extra data needs to be sent
             {
                 if ((svent->Baseline.ModelIndex & 0xFF00) != 0)
+                {
                     bits |= Protocol.B_LARGEMODEL;
+                }
+
                 if ((svent->Baseline.Frame & 0xFF00) != 0)
+                {
                     bits |= Protocol.B_LARGEFRAME;
+                }
+
                 if (svent->Baseline.Alpha != Protocol.ENTALPHA_DEFAULT)
+                {
                     bits |= Protocol.B_ALPHA;
+                }
             }
 
             // add to the message
@@ -1129,17 +1442,27 @@ public static unsafe partial class Sv
             Msg.WriteShort(sig, entnum);
 
             if (bits != 0)
+            {
                 Msg.WriteByte(sig, bits);
+            }
 
             if ((bits & Protocol.B_LARGEMODEL) != 0)
+            {
                 Msg.WriteShort(sig, svent->Baseline.ModelIndex);
+            }
             else
+            {
                 Msg.WriteByte(sig, svent->Baseline.ModelIndex);
+            }
 
             if ((bits & Protocol.B_LARGEFRAME) != 0)
+            {
                 Msg.WriteShort(sig, svent->Baseline.Frame);
+            }
             else
+            {
                 Msg.WriteByte(sig, svent->Baseline.Frame);
+            }
 
             Msg.WriteByte(sig, svent->Baseline.ColorMap);
             Msg.WriteByte(sig, svent->Baseline.Skin);
@@ -1150,7 +1473,9 @@ public static unsafe partial class Sv
             }
 
             if ((bits & Protocol.B_ALPHA) != 0)
+            {
                 Msg.WriteByte(sig, svent->Baseline.Alpha);
+            }
         }
     }
 
@@ -1206,7 +1531,9 @@ public static unsafe partial class Sv
         Net.SendToAll(&msg, 5);
 
         if (Cls.state != CActive.Dedicated)
+        {
             Cmd.ExecuteString("reconnect\n"u8, CmdSource_t.SrcCommand);
+        }
     }
 
     /*
@@ -1225,14 +1552,18 @@ public static unsafe partial class Sv
         {
             Svs.host_client = &Svs.clients[i];
             if (!Svs.host_client->Active)
+            {
                 continue;
+            }
 
             // call the progs to get default spawn parms for the new client
             Progs.pr_global_struct->Self = Progs.EdictToProg(Svs.host_client->Edict);
             Progs.ExecuteProgram(Progs.pr_global_struct->SetChangeParms);
             float* parms = &Progs.pr_global_struct->Parm1;
             for (int j = 0; j < Svs.NUM_SPAWN_PARMS; j++)
+            {
                 Svs.host_client->spawn_parms[j] = parms[j];
+            }
         }
     }
 
@@ -1247,7 +1578,10 @@ public static unsafe partial class Sv
     {
         // let's not have any servers with no name
         if (Net.hostname->String.AsSpan()[0] == 0)
+        {
             Cvar.Set("hostname"u8, "UNNAMED"u8);
+        }
+
         Screen.scr_centertime_off = 0;
 
         Con.DPrintf($"SpawnServer: {server}\n");
@@ -1255,16 +1589,27 @@ public static unsafe partial class Sv
 
         // tell all connected clients that we are going to a new level
         if (active)
+        {
             SendReconnect();
+        }
 
         // make cvars consistant
         if (Host.coop->Value != 0)
+        {
             Cvar.SetValue("deathmatch"u8, 0);
+        }
+
         SaveGame.current_skill = (int)(Host.skill->Value + 0.5f);
         if (SaveGame.current_skill < 0)
+        {
             SaveGame.current_skill = 0;
+        }
+
         if (SaveGame.current_skill > 3)
+        {
             SaveGame.current_skill = 3;
+        }
+
         Cvar.SetValue("skill"u8, SaveGame.current_skill);
 
         // set up the new server
@@ -1366,9 +1711,13 @@ public static unsafe partial class Sv
         ent0->V.MoveType = (int)MoveType.Push;
 
         if (Host.coop->Value != 0)
+        {
             Progs.pr_global_struct->Coop = Host.coop->Value;
+        }
         else
+        {
             Progs.pr_global_struct->DeathMatch = Host.deathmatch->Value;
+        }
 
         // pr_global_struct->mapname = sv.name - pr_strings (both in the Hunk)
         Progs.pr_global_struct->MapName = Progs.PR_SetString(Name);
@@ -1393,8 +1742,12 @@ public static unsafe partial class Sv
 
         // send serverinfo to all connected clients
         for (int i = 0; i < Svs.maxclients; i++)
+        {
             if (Svs.clients[i].Active)
+            {
                 SendServerinfo(&Svs.clients[i]);
+            }
+        }
 
         Con.DPrintf("Server spawned.\n"u8);
     }

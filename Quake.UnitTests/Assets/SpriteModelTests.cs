@@ -38,8 +38,12 @@ public sealed unsafe class SpriteModelTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -73,7 +77,9 @@ public sealed unsafe class SpriteModelTests
         bw.Write(width);
         bw.Write(height);
         for (int i = 0; i < size; i++)
+        {
             bw.Write((byte)(i + 1));
+        }
 
         return ms.ToArray();
     }

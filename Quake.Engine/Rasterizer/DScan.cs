@@ -79,7 +79,7 @@ public static unsafe class DScan
 
         do
         {
-            byte* r_turb_pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* r_turb_pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -93,15 +93,23 @@ public static unsafe class DScan
 
             r_turb_s = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
             if (r_turb_s > bbextents)
+            {
                 r_turb_s = bbextents;
+            }
             else if (r_turb_s < 0)
+            {
                 r_turb_s = 0;
+            }
 
             r_turb_t = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
             if (r_turb_t > bbextentt)
+            {
                 r_turb_t = bbextentt;
+            }
             else if (r_turb_t < 0)
+            {
                 r_turb_t = 0;
+            }
 
             int snext, tnext;
 
@@ -119,15 +127,23 @@ public static unsafe class DScan
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 16)
+                    {
                         snext = 16;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 16)
+                    {
                         tnext = 16;
+                    }
 
                     r_turb_sstep = (snext - r_turb_s) >> 4;
                     r_turb_tstep = (tnext - r_turb_t) >> 4;
@@ -141,15 +157,23 @@ public static unsafe class DScan
                     z = 0x10000 / zi;
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 16)
+                    {
                         snext = 16;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 16)
+                    {
                         tnext = 16;
+                    }
 
                     if (r_turb_spancount > 1)
                     {
@@ -169,8 +193,8 @@ public static unsafe class DScan
                 {
                     Vector256<int> sstepV = Vector256.Create(r_turb_sstep);
                     Vector256<int> tstepV = Vector256.Create(r_turb_tstep);
-                    Vector256<int> sV = Vector256.Create(r_turb_s) + indexV * sstepV;
-                    Vector256<int> tV = Vector256.Create(r_turb_t) + indexV * tstepV;
+                    Vector256<int> sV = Vector256.Create(r_turb_s) + (indexV * sstepV);
+                    Vector256<int> tV = Vector256.Create(r_turb_t) + (indexV * tstepV);
                     Vector256<byte> g0 = Avx2.GatherVector256((int*)r_turb_pbase, TexIndex8(r_turb_turb, sV, tV), 1).AsByte();
 
                     if (r_turb_spancount == 16)
@@ -241,7 +265,7 @@ public static unsafe class DScan
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -276,15 +300,23 @@ public static unsafe class DScan
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     sstep = (snext - s) >> 3;
                     tstep = (tnext - t) >> 3;
@@ -299,15 +331,23 @@ public static unsafe class DScan
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     if (spancount > 1)
                     {
@@ -316,9 +356,9 @@ public static unsafe class DScan
                     }
                 }
 
-                Vector256<int> sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                Vector256<int> tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                ((sV >> 16) + (tV >> 16) * cachewidthV).Store(idx);
+                Vector256<int> sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                Vector256<int> tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                ((sV >> 16) + ((tV >> 16) * cachewidthV)).Store(idx);
 
                 if (spancount == 8)
                 {
@@ -326,13 +366,13 @@ public static unsafe class DScan
 
                     ulong texels =
                           pbase[(uint)i01]
-                        | (ulong)pbase[(uint)(i01 >> 32)] << 8
-                        | (ulong)pbase[(uint)i23] << 16
-                        | (ulong)pbase[(uint)(i23 >> 32)] << 24
-                        | (ulong)pbase[(uint)i45] << 32
-                        | (ulong)pbase[(uint)(i45 >> 32)] << 40
-                        | (ulong)pbase[(uint)i67] << 48
-                        | (ulong)pbase[(uint)(i67 >> 32)] << 56;
+                        | ((ulong)pbase[(uint)(i01 >> 32)] << 8)
+                        | ((ulong)pbase[(uint)i23] << 16)
+                        | ((ulong)pbase[(uint)(i23 >> 32)] << 24)
+                        | ((ulong)pbase[(uint)i45] << 32)
+                        | ((ulong)pbase[(uint)(i45 >> 32)] << 40)
+                        | ((ulong)pbase[(uint)i67] << 48)
+                        | ((ulong)pbase[(uint)(i67 >> 32)] << 56);
 
                     Unsafe.WriteUnaligned(pdest, texels);
                     pdest += 8;
@@ -340,7 +380,9 @@ public static unsafe class DScan
                 else
                 {
                     for (int j = 0; j < spancount; j++)
+                    {
                         *pdest++ = pbase[idx[j]];
+                    }
                 }
 
                 s = snext;
@@ -379,7 +421,7 @@ public static unsafe class DScan
 
         do
         {
-            byte* pdest = viewbuffer + screenwidth * pspan->V + pspan->U;
+            byte* pdest = viewbuffer + (screenwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -415,23 +457,31 @@ public static unsafe class DScan
 
                         snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                         if (snext > bbextents)
+                        {
                             snext = bbextents;
+                        }
                         else if (snext < 8)
+                        {
                             snext = 8;
+                        }
 
                         tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                         if (tnext > bbextentt)
+                        {
                             tnext = bbextentt;
+                        }
                         else if (tnext < 8)
+                        {
                             tnext = 8;
+                        }
 
                         sstep = (snext - s) >> 3;
                         tstep = (tnext - t) >> 3;
 
 
-                        sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                        tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                        idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                        sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                        tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                        idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                         Vector256<int> gathered = Avx2.GatherVector256((int*)pbase, idxV, 1);
 
@@ -461,15 +511,23 @@ public static unsafe class DScan
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     sstep = (snext - s) >> 3;
                     tstep = (tnext - t) >> 3;
@@ -484,15 +542,23 @@ public static unsafe class DScan
 
                     snext = float.ConvertToIntegerNative<int>(sdivz * z) + sadjust;
                     if (snext > bbextents)
+                    {
                         snext = bbextents;
+                    }
                     else if (snext < 8)
+                    {
                         snext = 8;
+                    }
 
                     tnext = float.ConvertToIntegerNative<int>(tdivz * z) + tadjust;
                     if (tnext > bbextentt)
+                    {
                         tnext = bbextentt;
+                    }
                     else if (tnext < 8)
+                    {
                         tnext = 8;
+                    }
 
                     if (spancount > 1)
                     {
@@ -501,9 +567,9 @@ public static unsafe class DScan
                     }
                 }
 
-                sV = Vector256.Create(s) + Vector256.Create(sstep) * indexV;
-                tV = Vector256.Create(t) + Vector256.Create(tstep) * indexV;
-                idxV = (sV >> 16) + (tV >> 16) * cachewidthV;
+                sV = Vector256.Create(s) + (Vector256.Create(sstep) * indexV);
+                tV = Vector256.Create(t) + (Vector256.Create(tstep) * indexV);
+                idxV = (sV >> 16) + ((tV >> 16) * cachewidthV);
 
                 if (spancount == 8)
                 {
@@ -518,7 +584,9 @@ public static unsafe class DScan
                 {
                     idxV.Store(idx);
                     for (int j = 0; j < spancount; j++)
+                    {
                         *pdest++ = pbase[idx[j]];
+                    }
                 }
 
                 s = snext;
@@ -534,8 +602,8 @@ public static unsafe class DScan
     // D_WarpScreen: rowptr[], column[] -- the original's are stack locals;
     // allocated once here to avoid zero-initializing ~33 KB per call. Every
     // entry read is written earlier in the same call.
-    internal static readonly byte** warp_rowptr = NativeMemory.AllocPointerArray<byte>(RShared.MAXHEIGHT + RLocal.AMP2 * 2);
-    internal static readonly int* warp_column = NativeMemory.AllocArray<int>(RShared.MAXWIDTH + RLocal.AMP2 * 2);
+    internal static readonly byte** warp_rowptr = NativeMemory.AllocPointerArray<byte>(RShared.MAXHEIGHT + (RLocal.AMP2 * 2));
+    internal static readonly int* warp_column = NativeMemory.AllocArray<int>(RShared.MAXWIDTH + (RLocal.AMP2 * 2));
 
     private record struct WarpKey_t(int W, int H, int VrectX, int VrectY, int ScrW, int ScrH, int ScreenWidth, nint ViewBuffer);
     private static WarpKey_t warpKey;
@@ -571,16 +639,16 @@ public static unsafe class DScan
 
         if (!warpKeyValid || !key.Equals(warpKey))
         {
-            for (int v = 0; v < Screen.scr_vrect->Height + RLocal.AMP2 * 2; v++)
+            for (int v = 0; v < Screen.scr_vrect->Height + (RLocal.AMP2 * 2); v++)
             {
                 rowptr[v] = DLocal.d_viewbuffer + (RShared.r_refdef->Vrect.Y * RShared.screenwidth) +
-                    (RShared.screenwidth * (int)(v * hratio * h / (h + RLocal.AMP2 * 2)));
+                    (RShared.screenwidth * (int)(v * hratio * h / (h + (RLocal.AMP2 * 2))));
             }
 
-            for (int u = 0; u < Screen.scr_vrect->Width + RLocal.AMP2 * 2; u++)
+            for (int u = 0; u < Screen.scr_vrect->Width + (RLocal.AMP2 * 2); u++)
             {
                 column[u] = RShared.r_refdef->Vrect.X +
-                    (int)(u * wratio * w / (w + RLocal.AMP2 * 2));
+                    (int)(u * wratio * w / (w + (RLocal.AMP2 * 2)));
             }
 
             warpKey = key;
@@ -589,7 +657,7 @@ public static unsafe class DScan
 
         {
             int* turb = RShared.intsintable + ((int)(RShared.cl_time * RLocal.SPEED) & (DIface.CYCLE - 1));
-            byte* dest = Vid.vid.Buffer + Screen.scr_vrect->Y * Vid.vid.RowBytes + Screen.scr_vrect->X;
+            byte* dest = Vid.vid.Buffer + (Screen.scr_vrect->Y * Vid.vid.RowBytes) + Screen.scr_vrect->X;
 
             for (int v = 0; v < Screen.scr_vrect->Height; v++, dest += Vid.vid.RowBytes)
             {
@@ -619,7 +687,7 @@ public static unsafe class DScan
 
         do
         {
-            short* pdest = pzbuffer + zwidth * pspan->V + pspan->U;
+            short* pdest = pzbuffer + (zwidth * pspan->V) + pspan->U;
 
             int count = pspan->Count;
 
@@ -669,8 +737,9 @@ public static unsafe class DScan
             }
 
             if ((count & 1) != 0)
+            {
                 *pdest = (short)(izi >> 16);
-
+            }
         } while ((pspan = pspan->PNext) != null);
     }
 

@@ -30,7 +30,9 @@ public unsafe class MemCpyBenchmarks
 
         Random rng = new(1234);
         for (int i = 0; i < Count; i++)
+        {
             _src[i] = (byte)rng.Next(256);
+        }
     }
 
     [GlobalCleanup]
@@ -62,12 +64,16 @@ public unsafe class MemCpyBenchmarks
         {
             count >>= 2;
             for (int i = 0; i < count; i++)
+            {
                 ((int*)dest)[i] = ((int*)src)[i];
+            }
         }
         else
         {
             for (int i = 0; i < count; i++)
+            {
                 ((byte*)dest)[i] = ((byte*)src)[i];
+            }
         }
     }
 }

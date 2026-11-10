@@ -67,7 +67,9 @@ public sealed unsafe class RAliasTests
         // = [vright | 0; -vup | 0; vpn | 0].
         float[] expected = { 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0 };
         for (int i = 0; i < 12; i++)
+        {
             Assert.AreEqual(expected[i], RAlias.aliastransform[i], 0.0001f, $"index {i}");
+        }
     }
 
     [TestMethod]
@@ -129,10 +131,10 @@ public sealed unsafe class RAliasTests
         float* a = RAlias.aliastransform;
         for (int i = 0; i < numverts; i++, fv++, pverts++, pstverts++)
         {
-            float zi = 1.0f / (pverts->V[0] * a[8] + pverts->V[1] * a[9] + pverts->V[2] * a[10] + a[11]);
+            float zi = 1.0f / ((pverts->V[0] * a[8]) + (pverts->V[1] * a[9]) + (pverts->V[2] * a[10]) + a[11]);
             fv->V[5] = (int)zi;
-            fv->V[0] = (int)((pverts->V[0] * a[0] + pverts->V[1] * a[1] + pverts->V[2] * a[2] + a[3]) * zi + RMain.aliasxcenter);
-            fv->V[1] = (int)((pverts->V[0] * a[4] + pverts->V[1] * a[5] + pverts->V[2] * a[6] + a[7]) * zi + RMain.aliasycenter);
+            fv->V[0] = (int)((((pverts->V[0] * a[0]) + (pverts->V[1] * a[1]) + (pverts->V[2] * a[2]) + a[3]) * zi) + RMain.aliasxcenter);
+            fv->V[1] = (int)((((pverts->V[0] * a[4]) + (pverts->V[1] * a[5]) + (pverts->V[2] * a[6]) + a[7]) * zi) + RMain.aliasycenter);
             fv->V[2] = pstverts->S;
             fv->V[3] = pstverts->T;
             fv->Flags = pstverts->OnSeam;
@@ -143,7 +145,9 @@ public sealed unsafe class RAliasTests
             {
                 temp += (int)(RAlias.r_shadelight * lightcos);
                 if (temp < 0)
+                {
                     temp = 0;
+                }
             }
             fv->V[4] = temp;
         }
@@ -172,8 +176,11 @@ public sealed unsafe class RAliasTests
             // kept positive (in front of the viewer)
             const float Scale = 1.0f / ((float)0x8000 * 0x10000);
             for (int i = 0; i < 12; i++)
-                RAlias.aliastransform[i] = (float)(rng.NextDouble() * 2 - 1) * (i % 4 == 3 ? 200 : 1) * Scale;
-            RAlias.aliastransform[11] = (float)(300 + rng.NextDouble() * 500) * Scale;
+            {
+                RAlias.aliastransform[i] = (float)((rng.NextDouble() * 2) - 1) * (i % 4 == 3 ? 200 : 1) * Scale;
+            }
+
+            RAlias.aliastransform[11] = (float)(300 + (rng.NextDouble() * 500)) * Scale;
 
             for (int i = 0; i < NumVerts; i++)
             {
@@ -192,7 +199,10 @@ public sealed unsafe class RAliasTests
             for (int i = 0; i < NumVerts; i++)
             {
                 for (int k = 0; k < 6; k++)
+                {
                     Assert.AreEqual(expected[i].V[k], actual[i].V[k], $"iteration {iter}, vert {i}, V[{k}]");
+                }
+
                 Assert.AreEqual(expected[i].Flags, actual[i].Flags, $"iteration {iter}, vert {i}, Flags");
             }
         }
@@ -209,13 +219,18 @@ public sealed unsafe class RAliasTests
         for (int iter = 0; iter < 1000; iter++)
         {
             for (int i = 0; i < 12; i++)
-                a[i] = (float)(rng.NextDouble() * 200 - 100);
-            for (int i = 0; i < 3; i++)
-                in_[i] = (float)(rng.NextDouble() * 2000 - 1000);
+            {
+                a[i] = (float)((rng.NextDouble() * 200) - 100);
+            }
 
-            float e0 = in_[0] * a[0] + in_[1] * a[1] + in_[2] * a[2] + a[3];
-            float e1 = in_[0] * a[4] + in_[1] * a[5] + in_[2] * a[6] + a[7];
-            float e2 = in_[0] * a[8] + in_[1] * a[9] + in_[2] * a[10] + a[11];
+            for (int i = 0; i < 3; i++)
+            {
+                in_[i] = (float)((rng.NextDouble() * 2000) - 1000);
+            }
+
+            float e0 = (in_[0] * a[0]) + (in_[1] * a[1]) + (in_[2] * a[2]) + a[3];
+            float e1 = (in_[0] * a[4]) + (in_[1] * a[5]) + (in_[2] * a[6]) + a[7];
+            float e2 = (in_[0] * a[8]) + (in_[1] * a[9]) + (in_[2] * a[10]) + a[11];
 
             Vector3 actual = default;
             RAlias.TransformVector(in_, &actual);
@@ -238,15 +253,18 @@ public sealed unsafe class RAliasTests
         for (int iter = 0; iter < 1000; iter++)
         {
             for (int i = 0; i < 12; i++)
-                a[i] = (float)(rng.NextDouble() * 2 - 1);
+            {
+                a[i] = (float)((rng.NextDouble() * 2) - 1);
+            }
+
             vert.V[0] = (byte)rng.Next(256);
             vert.V[1] = (byte)rng.Next(256);
             vert.V[2] = (byte)rng.Next(256);
             vert.LightNormalIndex = (byte)rng.Next(162);
 
-            float e0 = vert.V[0] * a[0] + vert.V[1] * a[1] + vert.V[2] * a[2] + a[3];
-            float e1 = vert.V[0] * a[4] + vert.V[1] * a[5] + vert.V[2] * a[6] + a[7];
-            float e2 = vert.V[0] * a[8] + vert.V[1] * a[9] + vert.V[2] * a[10] + a[11];
+            float e0 = (vert.V[0] * a[0]) + (vert.V[1] * a[1]) + (vert.V[2] * a[2]) + a[3];
+            float e1 = (vert.V[0] * a[4]) + (vert.V[1] * a[5]) + (vert.V[2] * a[6]) + a[7];
+            float e2 = (vert.V[0] * a[8]) + (vert.V[1] * a[9]) + (vert.V[2] * a[10]) + a[11];
 
             FinalVert_t fv = default;
             Vector3 av = default;

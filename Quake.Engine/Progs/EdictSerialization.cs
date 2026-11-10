@@ -48,7 +48,9 @@ public static unsafe class EdictSerialization
         {
             DDef_t* def = &Progs.pr_fielddefs[i];
             if (def->Ofs == ofs)
+            {
                 return def;
+            }
         }
         return null;
     }
@@ -60,7 +62,9 @@ public static unsafe class EdictSerialization
         {
             DDef_t* def = &Progs.pr_fielddefs[i];
             if (Q.StrCmp(Progs.pr_strings + def->S_Name, name) == 0)
+            {
                 return def;
+            }
         }
         return null;
     }
@@ -74,8 +78,11 @@ public static unsafe class EdictSerialization
     {
         DDef_t* def = FindField(field);
         if (def == null)
+        {
             return null;
-        return (float*)((byte*)&ed->V + def->Ofs * 4);
+        }
+
+        return (float*)((byte*)&ed->V + (def->Ofs * 4));
     }
 
     // ED_FindGlobal
@@ -85,7 +92,9 @@ public static unsafe class EdictSerialization
         {
             DDef_t* def = &Progs.pr_globaldefs[i];
             if (Q.StrCmp(Progs.pr_strings + def->S_Name, name) == 0)
+            {
                 return def;
+            }
         }
         return null;
     }
@@ -97,7 +106,9 @@ public static unsafe class EdictSerialization
         {
             DFunction_t* func = &Progs.pr_functions[i];
             if (Q.StrCmp(Progs.pr_strings + func->S_Name, name) == 0)
+            {
                 return func;
+            }
         }
         return null;
     }
@@ -120,7 +131,9 @@ public static unsafe class EdictSerialization
                 *newP++ = s[i] == (byte)'n' ? (byte)'\n' : (byte)'\\';
             }
             else
+            {
                 *newP++ = s[i];
+            }
         }
 
         return Progs.PR_SetString(newStr);
@@ -188,7 +201,10 @@ public static unsafe class EdictSerialization
                     for (int i = 0; i < 3; i++)
                     {
                         while (*v != 0 && *v != (byte)' ')
+                        {
                             v++;
+                        }
+
                         *v = 0;
                         fd[i] = Q.Atof(w);
                         w = v = v + 1;
@@ -241,17 +257,27 @@ public static unsafe class EdictSerialization
         {
             data = Com.Parse(data);
             if (Com.com_token[0] == (byte)'}')
+            {
                 break;
+            }
+
             if (data == null)
+            {
                 Sys.Error("ED_ParseEntity: EOF without closing brace"u8);
+            }
 
             Q.StrCpy(keyname, Com.com_token);
 
             data = Com.Parse(data);
             if (data == null)
+            {
                 Sys.Error("ED_ParseEntity: EOF without closing brace"u8);
+            }
+
             if (Com.com_token[0] == (byte)'}')
+            {
                 Sys.Error("ED_ParseEntity: closing brace without data"u8);
+            }
 
             DDef_t* key = FindGlobal(keyname);
             if (key == null)
@@ -261,7 +287,9 @@ public static unsafe class EdictSerialization
             }
 
             if (!ParseEpair(Progs.pr_globals, key, Com.com_token))
+            {
                 Host.Error("ED_ParseGlobals: parse error"u8);
+            }
         }
     }
 
@@ -275,7 +303,9 @@ public static unsafe class EdictSerialization
 
         // clear it
         if (ent != Sv.edicts) // hack
+        {
             Q.MemSet(&ent->V, 0, Progs.progs->EntityFields * 4);
+        }
 
         byte* keyname = stackalloc byte[256];
         byte* temp = stackalloc byte[32];
@@ -284,9 +314,14 @@ public static unsafe class EdictSerialization
         {
             data = Com.Parse(data);
             if (Com.com_token[0] == (byte)'}')
+            {
                 break;
+            }
+
             if (data == null)
+            {
                 Sys.Error("ED_ParseEntity: EOF without closing brace"u8);
+            }
 
             // anglehack is to allow QuakeEd to write single scalar angles
             // and allow them to be turned into vectors. (FIXME...)
@@ -297,11 +332,15 @@ public static unsafe class EdictSerialization
                 anglehack = true;
             }
             else
+            {
                 anglehack = false;
+            }
 
             // FIXME: change light to _light to get rid of this hack
             if (Q.StrCmp(Com.com_token, "light"u8) == 0)
+            {
                 Q.StrCpy(Com.com_token, "light_lev"u8); // hack for single light def
+            }
 
             Q.StrCpy(keyname, Com.com_token);
 
@@ -315,16 +354,23 @@ public static unsafe class EdictSerialization
 
             data = Com.Parse(data);
             if (data == null)
+            {
                 Sys.Error("ED_ParseEntity: EOF without closing brace"u8);
+            }
+
             if (Com.com_token[0] == (byte)'}')
+            {
                 Sys.Error("ED_ParseEntity: closing brace without data"u8);
+            }
 
             init = true;
 
             // keynames with a leading underscore are used for utility comments,
             // and are immediately discarded by quake
             if (keyname[0] == (byte)'_')
+            {
                 continue;
+            }
 
             DDef_t* key = FindField(keyname);
             if (key == null)
@@ -342,11 +388,15 @@ public static unsafe class EdictSerialization
             }
 
             if (!ParseEpair(&ent->V, key, Com.com_token))
+            {
                 Host.Error("ED_ParseEdict: parse error"u8);
+            }
         }
 
         if (!init)
+        {
             ent->Free = 1;
+        }
 
         return data;
     }
@@ -375,14 +425,24 @@ public static unsafe class EdictSerialization
             // parse the opening brace
             data = Com.Parse(data);
             if (data == null)
+            {
                 break;
+            }
+
             if (Com.com_token[0] != (byte)'{')
+            {
                 Sys.Error($"ED_LoadFromFile: found {Com.com_token} when expecting {{");
+            }
 
             if (ent == null)
+            {
                 ent = Progs.EdictNum(0);
+            }
             else
+            {
                 ent = Progs.Alloc();
+            }
+
             data = ParseEdict(data, ent);
 
             // remove things from different skill levels or deathmatch
@@ -448,19 +508,28 @@ public static unsafe class EdictSerialization
             DDef_t* d = &Progs.pr_fielddefs[i];
             byte* name = Progs.pr_strings + d->S_Name;
             if (name[Q.StrLen(name) - 2] == (byte)'_')
+            {
                 continue; // skip _x, _y, _z vars
+            }
 
-            int* val = (int*)((byte*)&ed->V + d->Ofs * 4);
+            int* val = (int*)((byte*)&ed->V + (d->Ofs * 4));
 
             // if the value is still all 0, skip the field
             int type = d->Type & ~Progs.DEF_SAVEGLOBAL;
             int size = TypeSize[type];
             int j;
             for (j = 0; j < size; j++)
+            {
                 if (val[j] != 0)
+                {
                     break;
+                }
+            }
+
             if (j == size)
+            {
                 continue;
+            }
 
             WriteText(fileHandle, $"\"{name}\" ");
             WriteText(fileHandle, $"\"{UglyValueString(d->Type, val)}\"\n");
@@ -479,11 +548,16 @@ public static unsafe class EdictSerialization
             DDef_t* def = &Progs.pr_globaldefs[i];
             int type = def->Type;
             if ((def->Type & Progs.DEF_SAVEGLOBAL) == 0)
+            {
                 continue;
+            }
+
             type &= ~Progs.DEF_SAVEGLOBAL;
 
             if (type != (int)EType_t.String && type != (int)EType_t.Float && type != (int)EType_t.Entity)
+            {
                 continue;
+            }
 
             byte* name = Progs.pr_strings + def->S_Name;
             WriteText(fileHandle, $"\"{name}\" ");

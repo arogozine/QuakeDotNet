@@ -54,13 +54,17 @@ public static unsafe class EngineStateGuard
             // file streams, ...) would otherwise stay open and could lock
             // files the next test wants.
             if (current is IDisposable disposable && !ReferenceEquals(current, initial))
+            {
                 disposable.Dispose();
+            }
 
             field.SetValue(null, initial);
         }
 
         foreach ((nint ptr, byte[] bytes) in _tableSnapshot!)
+        {
             bytes.CopyTo(new Span<byte>((void*)ptr, bytes.Length));
+        }
     }
 
     [GlobalTestCleanup]
@@ -85,7 +89,10 @@ public static unsafe class EngineStateGuard
         foreach (FieldInfo field in EngineStaticFields())
         {
             if (field.IsInitOnly)
+            {
                 continue;
+            }
+
             snapshot.Add((field, field.GetValue(null)));
         }
         return snapshot;
@@ -96,7 +103,9 @@ public static unsafe class EngineStateGuard
         foreach (Type type in typeof(Host).Assembly.GetTypes())
         {
             if (type.ContainsGenericParameters || type.IsDefined(typeof(CompilerGeneratedAttribute)))
+            {
                 continue;
+            }
 
             // so the snapshot captures post-static-constructor values
             RuntimeHelpers.RunClassConstructor(type.TypeHandle);
@@ -104,7 +113,10 @@ public static unsafe class EngineStateGuard
             foreach (FieldInfo field in type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
             {
                 if (field.IsLiteral || field.IsDefined(typeof(ThreadStaticAttribute)))
+                {
                     continue;
+                }
+
                 yield return field;
             }
         }
@@ -307,16 +319,27 @@ public static unsafe class EngineStateGuard
         foreach (FieldInfo field in EngineStaticFields())
         {
             if (!field.IsInitOnly || !field.FieldType.IsPointer)
+            {
                 continue;
+            }
 
             string name = $"{field.DeclaringType!.Name}.{field.Name}";
             nint p = (nint)Pointer.Unbox(field.GetValue(null)!);
             if (p == 0 || ScratchTables.Contains(name))
+            {
                 continue;
+            }
+
             if (p >= imageBase && p < imageBase + sizeOfImage)
+            {
                 continue;
+            }
+
             if (restored.Any(t => t.Ptr == p))
+            {
                 continue;
+            }
+
             unclassified.Add(name);
         }
         return unclassified;

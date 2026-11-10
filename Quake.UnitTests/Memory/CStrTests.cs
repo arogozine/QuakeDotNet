@@ -21,13 +21,18 @@ public sealed unsafe class CStrTests
         try
         {
             for (int i = 1; i < 256; i++)
+            {
                 src[i - 1] = (byte)i;
+            }
+
             src[255] = 0;
 
             string s = CStr.ToString(src);
             Assert.AreEqual(255, s.Length);
             for (int i = 1; i < 256; i++)
+            {
                 Assert.AreEqual((char)i, s[i - 1]);
+            }
 
             CStr.Write(dst, s);
             Assert.AreEqual(0, Q.StrCmp(src, dst));
@@ -102,7 +107,10 @@ public sealed unsafe class CStrTests
         foreach (string s in new[] { "", "abc", "abcdefgh", "abcdefghijkl" })
         {
             for (int i = 0; i < 16; i++)
+            {
                 a[i] = b[i] = 0x55;
+            }
+
             CStr.QStrncpy(a, s, 8);
             CStr.QStrncpy(b, System.Text.Encoding.Latin1.GetBytes(s), 8);
             Assert.IsTrue(new ReadOnlySpan<byte>(a, 16).SequenceEqual(new ReadOnlySpan<byte>(b, 16)), s);
@@ -117,7 +125,10 @@ public sealed unsafe class CStrTests
         foreach (string s in new[] { "", "abc", "abcdefgh", "abcdefghijkl" })
         {
             for (int i = 0; i < 16; i++)
+            {
                 a[i] = b[i] = 0x55;
+            }
+
             CStr.Strncpy(a, s, 8);
             CStr.Strncpy(b, System.Text.Encoding.Latin1.GetBytes(s), 8);
             Assert.IsTrue(new ReadOnlySpan<byte>(a, 16).SequenceEqual(new ReadOnlySpan<byte>(b, 16)), s);

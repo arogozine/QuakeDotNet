@@ -54,7 +54,9 @@ public sealed unsafe class RPartTests
 
         int count = 0;
         for (Particle_t* p = RPart.free_particles; p != null; p = p->Next)
+        {
             count++;
+        }
 
         Assert.AreEqual(RPart.r_numparticles, count);
     }
@@ -73,7 +75,10 @@ public sealed unsafe class RPartTests
 
         int activeCount = 0;
         for (Particle_t* p = RPart.active_particles; p != null; p = p->Next)
+        {
             activeCount++;
+        }
+
         Assert.AreEqual(10, activeCount);
     }
 
@@ -92,7 +97,10 @@ public sealed unsafe class RPartTests
 
         int activeCount = 0;
         for (Particle_t* p = RPart.active_particles; p != null; p = p->Next)
+        {
             activeCount++;
+        }
+
         Assert.AreEqual(total, activeCount);
     }
 
@@ -120,7 +128,10 @@ public sealed unsafe class RPartTests
         Assert.IsTrue(RPart.active_particles != dead);
         bool foundInFree = false;
         for (Particle_t* p = RPart.free_particles; p != null; p = p->Next)
+        {
             if (p == dead) { foundInFree = true; break; }
+        }
+
         Assert.IsTrue(foundInFree);
     }
 
@@ -140,7 +151,10 @@ public sealed unsafe class RPartTests
         // across calls, so don't assert its specific value here.
         int activeCount = 0;
         for (Particle_t* p = RPart.active_particles; p != null; p = p->Next)
+        {
             activeCount++;
+        }
+
         Assert.IsGreaterThan(0, activeCount);
     }
 
@@ -148,7 +162,10 @@ public sealed unsafe class RPartTests
     {
         int n = 0;
         for (Particle_t* p = RPart.free_particles; p != null; p = p->Next)
+        {
             n++;
+        }
+
         return n;
     }
 }

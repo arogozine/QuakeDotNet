@@ -41,8 +41,12 @@ public sealed unsafe class WavTests
     public void Teardown()
     {
         for (SearchPath_t* s = Com.com_searchpaths; s != null; s = s->Next)
+        {
             if (s->Pack != null)
+            {
                 Sys.FileClose(s->Pack->Handle);
+            }
+        }
 
         NativeMemory.Free(_buf);
     }
@@ -85,7 +89,9 @@ public sealed unsafe class WavTests
         bw.Write(dataChunkSize);
         bw.Write(samples);
         if ((dataChunkSize & 1) != 0)
+        {
             bw.Write((byte)0);
+        }
 
         return ms.ToArray();
     }
@@ -149,7 +155,9 @@ public sealed unsafe class WavTests
         bw.Write(dataChunkSize);
         bw.Write(samples);
         if ((dataChunkSize & 1) != 0)
+        {
             bw.Write((byte)0);
+        }
 
         return ms.ToArray();
     }
@@ -172,7 +180,9 @@ public sealed unsafe class WavTests
 
             byte* dataStart = p + info.DataOfs;
             for (int i = 0; i < samples.Length; i++)
+            {
                 Assert.AreEqual(samples[i], dataStart[i]);
+            }
         }
     }
 
@@ -182,7 +192,9 @@ public sealed unsafe class WavTests
         // 4 stereo 16-bit sample frames = 16 bytes of sample data.
         byte[] samples = new byte[16];
         for (int i = 0; i < samples.Length; i++)
+        {
             samples[i] = (byte)(i + 1);
+        }
 
         byte[] wav = BuildMinimalWav(samples, rate: 22050, bitsPerSample: 16, channels: 2);
 
@@ -202,7 +214,9 @@ public sealed unsafe class WavTests
     {
         byte[] samples = new byte[20];
         for (int i = 0; i < samples.Length; i++)
+        {
             samples[i] = (byte)i;
+        }
 
         const int loopStart = 5;
         const int loopSamples = 15;
@@ -295,7 +309,7 @@ public sealed unsafe class WavTests
     public void ResampleSfx_HalvesRate_DecimatesEveryOtherSample()
     {
         Sfx_t sfx = default;
-        int size = sizeof(SfxCache_t) + 2 * sizeof(short);
+        int size = sizeof(SfxCache_t) + (2 * sizeof(short));
         SfxCache_t* sc = (SfxCache_t*)Cache.Alloc(&sfx.Cache, size, "test"u8);
         sc->Length = 4;    // pre-resample count; stepscale = 2 -> outcount = 2
         sc->LoopStart = 4; // halved to 2 below
@@ -369,7 +383,9 @@ public sealed unsafe class WavTests
 
             sbyte* outData = (sbyte*)(sc + 1);
             for (int i = 0; i < samples.Length; i++)
+            {
                 Assert.AreEqual((sbyte)(samples[i] - 128), outData[i]);
+            }
 
             // a second load should hit the cache and return the same entry
             SfxCache_t* again = Wav.LoadSound(pSfx);

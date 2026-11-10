@@ -21,14 +21,25 @@ public unsafe class ConsoleBackgroundBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _conback = NativeMemory.AllocArrayZeroed<byte>(320 * 200 + 8); // +8 slack for gather overread
-        Random r = new(2); for (int i = 0; i < 320 * 200; i++) _conback[i] = (byte)r.Next(256);
+        _conback = NativeMemory.AllocArrayZeroed<byte>((320 * 200) + 8); // +8 slack for gather overread
+        Random r = new(2); for (int i = 0; i < 320 * 200; i++)
+        {
+            _conback[i] = (byte)r.Next(256);
+        }
+
         _a = NativeMemory.AllocArrayZeroed<byte>(W * Rows); _b = NativeMemory.AllocArrayZeroed<byte>(W * Rows);
         _tab = NativeMemory.AllocArrayZeroed<ushort>(W);
         int fstep = (int)(320L * 0x10000 / W);
-        for (int x = 0; x < W; x++) _tab[x] = (ushort)((x * fstep) >> 16);
+        for (int x = 0; x < W; x++)
+        {
+            _tab[x] = (ushort)((x * fstep) >> 16);
+        }
+
         Orig(); Table();
-        if (!new ReadOnlySpan<byte>(_a, W * Rows).SequenceEqual(new ReadOnlySpan<byte>(_b, W * Rows))) throw new Exception("mismatch");
+        if (!new ReadOnlySpan<byte>(_a, W * Rows).SequenceEqual(new ReadOnlySpan<byte>(_b, W * Rows)))
+        {
+            throw new Exception("mismatch");
+        }
     }
 
     [GlobalCleanup] public void Cleanup() { NativeMemory.Free(_conback); NativeMemory.Free(_a); NativeMemory.Free(_b); NativeMemory.Free(_tab); }
@@ -40,7 +51,7 @@ public unsafe class ConsoleBackgroundBenchmarks
         int fstep = (int)(320L * 0x10000 / W);
         for (int y = 0; y < Rows; y++)
         {
-            byte* dest = _a + y * W; int v = y * 200 / Rows; byte* src = _conback + v * 320; int f = 0;
+            byte* dest = _a + (y * W); int v = y * 200 / Rows; byte* src = _conback + (v * 320); int f = 0;
             for (int x = 0; x < W; x++) { dest[x] = src[f >> 16]; f += fstep; }
         }
     }
@@ -49,8 +60,11 @@ public unsafe class ConsoleBackgroundBenchmarks
     {
         for (int y = 0; y < Rows; y++)
         {
-            byte* dest = _b + y * W; int v = y * 200 / Rows; byte* src = _conback + v * 320;
-            for (int x = 0; x < W; x++) dest[x] = src[_tab[x]];
+            byte* dest = _b + (y * W); int v = y * 200 / Rows; byte* src = _conback + (v * 320);
+            for (int x = 0; x < W; x++)
+            {
+                dest[x] = src[_tab[x]];
+            }
         }
     }
 
@@ -59,10 +73,13 @@ public unsafe class ConsoleBackgroundBenchmarks
         int prev = -1;
         for (int y = 0; y < Rows; y++)
         {
-            byte* dest = _b + y * W; int v = y * 200 / Rows; byte* src = _conback + v * 320;
+            byte* dest = _b + (y * W); int v = y * 200 / Rows; byte* src = _conback + (v * 320);
             if (v == prev) { Buffer.MemoryCopy(dest - W, dest, W, W); continue; }
             prev = v;
-            for (int x = 0; x < W; x++) dest[x] = src[_tab[x]];
+            for (int x = 0; x < W; x++)
+            {
+                dest[x] = src[_tab[x]];
+            }
         }
     }
 

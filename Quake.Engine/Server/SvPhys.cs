@@ -74,9 +74,13 @@ public static unsafe class SvPhys
                 ent->V.Origin[i] = 0;
             }
             if (ent->V.Velocity[i] > Sv.sv_maxvelocity->Value)
+            {
                 ent->V.Velocity[i] = Sv.sv_maxvelocity->Value;
+            }
             else if (ent->V.Velocity[i] < -Sv.sv_maxvelocity->Value)
+            {
                 ent->V.Velocity[i] = -Sv.sv_maxvelocity->Value;
+            }
         }
     }
 
@@ -88,10 +92,14 @@ public static unsafe class SvPhys
     {
         float thinktime = ent->V.NextThink;
         if (thinktime <= 0 || thinktime > Sv.time + Host.host_frametime)
+        {
             return true;
+        }
 
         if (thinktime < Sv.time)
+        {
             thinktime = (float)Sv.time;
+        }
 
         // cache the frame from before the think function was run
         float oldframe = ent->V.Frame; // johnfitz
@@ -116,7 +124,9 @@ public static unsafe class SvPhys
 
             // 25 and 26 are close enough to 0.1 to not send
             if (i is >= 0 and < 256 && i != 25 && i != 26)
+            {
                 ent->SendInterval = true;
+            }
         }
 
         return ent->Free == 0;
@@ -152,15 +162,20 @@ public static unsafe class SvPhys
     {
         int blocked = 0;
         if (normal[2] > 0)
+        {
             blocked |= 1; // floor
+        }
+
         if (normal[2] == 0)
+        {
             blocked |= 2; // step
+        }
 
         float backoff = Vector3.Dot(@in, normal) * overbounce;
 
         // per lane: change = normal[i] * backoff; out[i] = in[i] - change;
         // then zero any lane inside (-STOP_EPSILON, STOP_EPSILON)
-        Vector3 result = @in - normal * backoff;
+        Vector3 result = @in - (normal * backoff);
         Vector3 nearZero = Vector3.GreaterThan(result, new Vector3(-STOP_EPSILON))
                          & Vector3.LessThan(result, new Vector3(STOP_EPSILON));
         @out = Vector3.ConditionalSelect(nearZero, Vector3.Zero, result);
@@ -182,9 +197,11 @@ public static unsafe class SvPhys
         for (int bumpcount = 0; bumpcount < numbumps; bumpcount++)
         {
             if (ent->V.Velocity == Vec3_t.Zero)
+            {
                 break;
+            }
 
-            Vec3_t end = ent->V.Origin + time_left * ent->V.Velocity;
+            Vec3_t end = ent->V.Origin + (time_left * ent->V.Velocity);
 
             Trace_t trace = World.Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.Normal, ent);
 
@@ -202,10 +219,14 @@ public static unsafe class SvPhys
             }
 
             if (trace.Fraction == 1)
+            {
                 break; // moved the entire distance
+            }
 
             if (trace.Ent == null)
+            {
                 Sys.Error("SV_FlyMove: !trace.ent"u8);
+            }
 
             if (trace.Plane.Normal[2] > 0.7f)
             {
@@ -220,13 +241,17 @@ public static unsafe class SvPhys
             {
                 blocked |= 2; // step
                 if (steptrace != null)
+                {
                     *steptrace = trace; // save for player extrafriction
+                }
             }
 
             // run the impact function
             Impact(ent, trace.Ent);
             if (ent->Free != 0)
+            {
                 break; // removed by the impact function
+            }
 
             time_left -= time_left * trace.Fraction;
 
@@ -248,10 +273,17 @@ public static unsafe class SvPhys
                 ClipVelocity(original_velocity, planes[i2], ref new_velocity, 1);
                 int j;
                 for (j = 0; j < numplanes; j++)
+                {
                     if (j != i2 && Vector3.Dot(new_velocity, planes[j]) < 0)
+                    {
                         break; // not ok
+                    }
+                }
+
                 if (j == numplanes)
+                {
                     break;
+                }
             }
 
             if (i2 != numplanes)
@@ -305,18 +337,26 @@ public static unsafe class SvPhys
 
         Trace_t trace;
         if ((int)ent->V.MoveType == (int)MoveType.FlyMissile)
+        {
             trace = World.Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.Missile, ent);
+        }
         else if ((int)ent->V.Solid == (int)SolidType.Trigger || (int)ent->V.Solid == (int)SolidType.Not)
+        {
             // only clip against bmodels
             trace = World.Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.NoMonsters, ent);
+        }
         else
+        {
             trace = World.Move(ent->V.Origin, ent->V.Mins, ent->V.Maxs, end, (int)ClipMoveType.Normal, ent);
+        }
 
         ent->V.Origin = trace.EndPos;
         World.LinkEdict(ent, true);
 
         if (trace.Ent != null)
+        {
             Impact(ent, trace.Ent);
+        }
 
         return trace;
     }
@@ -351,10 +391,15 @@ public static unsafe class SvPhys
         for (int e = 1; e < Sv.num_edicts; e++, check = Progs.NextEdict(check))
         {
             if (check->Free != 0)
+            {
                 continue;
+            }
+
             int checkMoveType = (int)check->V.MoveType;
             if (checkMoveType == (int)MoveType.Push || checkMoveType == (int)MoveType.None || checkMoveType == (int)MoveType.NoClip)
+            {
                 continue;
+            }
 
             // if the entity is standing on the pusher, it will definitely be moved
             bool standingOnPusher = ((int)check->V.Flags & FL_ONGROUND) != 0
@@ -368,16 +413,22 @@ public static unsafe class SvPhys
                     || check->V.AbsMax[0] <= mins[0]
                     || check->V.AbsMax[1] <= mins[1]
                     || check->V.AbsMax[2] <= mins[2])
+                {
                     continue;
+                }
 
                 // see if the ent's bbox is inside the pusher's final position
                 if (World.TestEntityPosition(check) == null)
+                {
                     continue;
+                }
             }
 
             // remove the onground flag for non-players
             if ((int)check->V.MoveType != (int)MoveType.Walk)
+            {
                 check->V.Flags = (int)check->V.Flags & ~FL_ONGROUND;
+            }
 
             Vec3_t entorig = check->V.Origin;
             moved_from[num_moved] = check->V.Origin;
@@ -394,7 +445,10 @@ public static unsafe class SvPhys
             if (block != null)
             { // fail the move
                 if (check->V.Mins[0] == check->V.Maxs[0])
+                {
                     continue;
+                }
+
                 if ((int)check->V.Solid == (int)SolidType.Not || (int)check->V.Solid == (int)SolidType.Trigger)
                 { // corpse
                     check->V.Mins[0] = check->V.Mins[1] = 0;
@@ -440,7 +494,9 @@ public static unsafe class SvPhys
         {
             movetime = thinktime - ent->V.LTime;
             if (movetime < 0)
+            {
                 movetime = 0;
+            }
         }
         else
         {
@@ -448,7 +504,9 @@ public static unsafe class SvPhys
         }
 
         if (movetime != 0)
+        {
             PushMove(ent, movetime); // advances ent->v.ltime if not blocked
+        }
 
         if (thinktime > oldltime && thinktime <= ent->V.LTime)
         {
@@ -458,7 +516,9 @@ public static unsafe class SvPhys
             Progs.pr_global_struct->Other = Progs.EdictToProg(Sv.edicts);
             Progs.ExecuteProgram(ent->V.Think);
             if (ent->Free != 0)
+            {
                 return;
+            }
         }
     }
 
@@ -488,7 +548,9 @@ public static unsafe class SvPhys
         }
 
         for (int z = 0; z < 18; z++)
+        {
             for (int i = -1; i <= 1; i++)
+            {
                 for (int j = -1; j <= 1; j++)
                 {
                     ent->V.Origin[0] = org[0] + i;
@@ -501,6 +563,8 @@ public static unsafe class SvPhys
                         return;
                     }
                 }
+            }
+        }
 
         ent->V.Origin = org;
         Con.DPrintf("player is stuck.\n"u8);
@@ -521,7 +585,7 @@ public static unsafe class SvPhys
         {
             ent->V.WaterType = cont;
             ent->V.WaterLevel = 1;
-            point[2] = ent->V.Origin[2] + (ent->V.Mins[2] + ent->V.Maxs[2]) * 0.5f;
+            point[2] = ent->V.Origin[2] + ((ent->V.Mins[2] + ent->V.Maxs[2]) * 0.5f);
             cont = World.PointContents(point);
             if (cont <= (int)Contents.Water)
             {
@@ -529,7 +593,9 @@ public static unsafe class SvPhys
                 point[2] = ent->V.Origin[2] + ent->V.ViewOfs[2];
                 cont = World.PointContents(point);
                 if (cont <= (int)Contents.Water)
+                {
                     ent->V.WaterLevel = 3;
+                }
             }
         }
 
@@ -544,7 +610,9 @@ public static unsafe class SvPhys
 
         d += 0.5f;
         if (d >= 0)
+        {
             return;
+        }
 
         // cut the tangential velocity
         float i = Vector3.Dot(trace.Plane.Normal, ent->V.Velocity);
@@ -588,7 +656,9 @@ public static unsafe class SvPhys
 
             if (MathF.Abs(oldorg[1] - ent->V.Origin[1]) > 4
                 || MathF.Abs(oldorg[0] - ent->V.Origin[0]) > 4)
+            {
                 return clip;
+            }
 
             // go back to the original pos and try again
             ent->V.Origin = oldorg;
@@ -611,19 +681,29 @@ public static unsafe class SvPhys
         int clip = FlyMove(ent, Host.host_frametime, &steptrace);
 
         if ((clip & 2) == 0)
+        {
             return; // move didn't block on a step
+        }
 
         if (oldonground == 0 && ent->V.WaterLevel == 0)
+        {
             return; // don't stair up while jumping
+        }
 
         if ((int)ent->V.MoveType != (int)MoveType.Walk)
+        {
             return; // gibbed by a trigger
+        }
 
         if (Sv.sv_nostep->Value != 0)
+        {
             return;
+        }
 
         if (((int)Sv.sv_player->V.Flags & FL_WATERJUMP) != 0)
+        {
             return;
+        }
 
         Vec3_t nosteporg = ent->V.Origin;
         Vec3_t nostepvel = ent->V.Velocity;
@@ -633,7 +713,7 @@ public static unsafe class SvPhys
 
         Vec3_t upmove = default, downmove = default;
         upmove[2] = STEPSIZE;
-        downmove[2] = -STEPSIZE + oldvel[2] * Host.host_frametime;
+        downmove[2] = -STEPSIZE + (oldvel[2] * Host.host_frametime);
 
         // move up
         PushEntity(ent, upmove); // FIXME: don't link?
@@ -657,7 +737,9 @@ public static unsafe class SvPhys
 
         // extra friction based on view angle
         if ((clip & 2) != 0)
+        {
             WallFriction(ent, steptrace);
+        }
 
         // move down
         Trace_t downtrace = PushEntity(ent, downmove); // FIXME: don't link?
@@ -684,7 +766,9 @@ public static unsafe class SvPhys
     public static void Physics_Client(EDict_t* ent, int num)
     {
         if (!Svs.clients[num - 1].Active)
+        {
             return; // unconnected slot
+        }
 
         // call standard client pre-think
         Progs.pr_global_struct->Time = (float)Sv.time;
@@ -699,14 +783,23 @@ public static unsafe class SvPhys
         {
             case (int)MoveType.None:
                 if (!RunThink(ent))
+                {
                     return;
+                }
+
                 break;
 
             case (int)MoveType.Walk:
                 if (!RunThink(ent))
+                {
                     return;
+                }
+
                 if (!CheckWater(ent) && ((int)ent->V.Flags & FL_WATERJUMP) == 0)
+                {
                     AddGravity(ent);
+                }
+
                 CheckStuck(ent);
                 WalkMove(ent);
                 break;
@@ -718,13 +811,19 @@ public static unsafe class SvPhys
 
             case (int)MoveType.Fly:
                 if (!RunThink(ent))
+                {
                     return;
+                }
+
                 FlyMove(ent, Host.host_frametime, null);
                 break;
 
             case (int)MoveType.NoClip:
                 if (!RunThink(ent))
+                {
                     return;
+                }
+
                 ent->V.Origin += Host.host_frametime * ent->V.Velocity;
                 break;
 
@@ -748,7 +847,9 @@ public static unsafe class SvPhys
     public static void Physics_Noclip(EDict_t* ent)
     {
         if (!RunThink(ent))
+        {
             return;
+        }
 
         ent->V.Angles += Host.host_frametime * ent->V.AVelocity;
         ent->V.Origin += Host.host_frametime * ent->V.Velocity;
@@ -777,14 +878,20 @@ public static unsafe class SvPhys
         if (cont <= (int)Contents.Water)
         {
             if ((int)ent->V.WaterType == (int)Contents.Empty)
+            {
                 StartSound(ent, 0, "misc/h2ohit1.wav"u8, 255, 1);
+            }
+
             ent->V.WaterType = cont;
             ent->V.WaterLevel = 1;
         }
         else
         {
             if ((int)ent->V.WaterType != (int)Contents.Empty)
+            {
                 StartSound(ent, 0, "misc/h2ohit1.wav"u8, 255, 1);
+            }
+
             ent->V.WaterType = (int)Contents.Empty;
             ent->V.WaterLevel = cont;
         }
@@ -807,13 +914,19 @@ public static unsafe class SvPhys
     public static void StartSound(EDict_t* entity, int channel, Utf8String sample, int volume, float attenuation)
     {
         if (Sv.datagram->CurSize > Sv.host_protocol_datagram_maxsize - 16)
+        {
             return;
+        }
 
         // find precache number for sound
         int sound_num;
         for (sound_num = 1; sound_num < QuakeDef.MAX_SOUNDS && Sv.sound_precache[sound_num] != null; sound_num++)
+        {
             if (Q.StrCmp(sample, Sv.sound_precache[sound_num]) == 0)
+            {
                 break;
+            }
+        }
 
         if (sound_num == QuakeDef.MAX_SOUNDS || Sv.sound_precache[sound_num] == null)
         {
@@ -825,51 +938,80 @@ public static unsafe class SvPhys
 
         int field_mask = 0;
         if (volume != 255) // DEFAULT_SOUND_PACKET_VOLUME
+        {
             field_mask |= Protocol.SND_VOLUME;
+        }
+
         if (attenuation != 1.0f) // DEFAULT_SOUND_PACKET_ATTENUATION
+        {
             field_mask |= Protocol.SND_ATTENUATION;
+        }
 
         // johnfitz -- PROTOCOL_FITZQUAKE
         if (ent >= Protocol.MAX_P15_SOUND_ENTITIES)
         {
             // protocol 15: (ent << 3) | channel is sent as a short, so the sound is dropped
             if (Sv.current_protocol == Protocol.PROTOCOL_NETQUAKE)
+            {
                 return;
+            }
+
             field_mask |= Protocol.SND_LARGEENTITY;
         }
 
         if (sound_num >= Protocol.MAX_P15_SOUNDS || channel >= 8)
         {
             if (Sv.current_protocol == Protocol.PROTOCOL_NETQUAKE)
+            {
                 return;
+            }
+
             field_mask |= Protocol.SND_LARGESOUND;
         }
 
         // johnfitz -- the entity/channel are only packed together when small
         if ((field_mask & Protocol.SND_LARGEENTITY) == 0)
+        {
             channel = (ent << 3) | channel;
+        }
 
         // directed messages go only to the entity the are targeted on
         SizeBuf_t* dg = Sv.datagram;
         Msg.WriteByte(dg, (int)Svc.Sound);
         Msg.WriteByte(dg, field_mask);
         if ((field_mask & Protocol.SND_VOLUME) != 0)
+        {
             Msg.WriteByte(dg, volume);
+        }
+
         if ((field_mask & Protocol.SND_ATTENUATION) != 0)
+        {
             Msg.WriteByte(dg, (int)(attenuation * 64));
+        }
+
         if ((field_mask & Protocol.SND_LARGEENTITY) != 0)
         {
             Msg.WriteShort(dg, ent);
             Msg.WriteByte(dg, channel);
         }
         else
+        {
             Msg.WriteShort(dg, channel);
+        }
+
         if ((field_mask & Protocol.SND_LARGESOUND) != 0)
+        {
             Msg.WriteShort(dg, sound_num);
+        }
         else
+        {
             Msg.WriteByte(dg, sound_num);
+        }
+
         for (int i = 0; i < 3; i++)
-            Msg.WriteCoord(dg, entity->V.Origin[i] + 0.5f * (entity->V.Mins[i] + entity->V.Maxs[i]));
+        {
+            Msg.WriteCoord(dg, entity->V.Origin[i] + (0.5f * (entity->V.Mins[i] + entity->V.Maxs[i])));
+        }
     }
 
     // SV_Physics_Toss -- toss, bounce, and fly movement. When onground, do
@@ -878,17 +1020,23 @@ public static unsafe class SvPhys
     {
         // regular thinking
         if (!RunThink(ent))
+        {
             return;
+        }
 
         // if onground, return without moving
         if (((int)ent->V.Flags & FL_ONGROUND) != 0)
+        {
             return;
+        }
 
         CheckVelocity(ent);
 
         // add gravity
         if ((int)ent->V.MoveType != (int)MoveType.Fly && (int)ent->V.MoveType != (int)MoveType.FlyMissile)
+        {
             AddGravity(ent);
+        }
 
         // move angles
         ent->V.Angles += Host.host_frametime * ent->V.AVelocity;
@@ -897,9 +1045,14 @@ public static unsafe class SvPhys
         Vec3_t move = ent->V.Velocity * Host.host_frametime;
         Trace_t trace = PushEntity(ent, move);
         if (trace.Fraction == 1)
+        {
             return;
+        }
+
         if (ent->Free != 0)
+        {
             return;
+        }
 
         float backoff = (int)ent->V.MoveType == (int)MoveType.Bounce ? 1.5f : 1f;
 
@@ -946,7 +1099,9 @@ public static unsafe class SvPhys
             if (((int)ent->V.Flags & FL_ONGROUND) != 0) // just hit ground
             {
                 if (hitsound)
+                {
                     StartSound(ent, 0, "demon/dland2.wav"u8, 255, 1);
+                }
             }
         }
 
@@ -970,32 +1125,52 @@ public static unsafe class SvPhys
         for (int i = 0; i < Sv.num_edicts; i++, ent = Progs.NextEdict(ent))
         {
             if (ent->Free != 0)
+            {
                 continue;
+            }
 
             if (Progs.pr_global_struct->ForceRetouch != 0)
+            {
                 World.LinkEdict(ent, true); // force retouch even for stationary
+            }
 
             if (i > 0 && i <= Svs.maxclients)
+            {
                 Physics_Client(ent, i);
+            }
             else if ((int)ent->V.MoveType == (int)MoveType.Push)
+            {
                 Physics_Pusher(ent);
+            }
             else if ((int)ent->V.MoveType == (int)MoveType.None)
+            {
                 Physics_None(ent);
+            }
             else if ((int)ent->V.MoveType == (int)MoveType.NoClip)
+            {
                 Physics_Noclip(ent);
+            }
             else if ((int)ent->V.MoveType == (int)MoveType.Step)
+            {
                 Physics_Step(ent);
+            }
             else if ((int)ent->V.MoveType == (int)MoveType.Toss
                      || (int)ent->V.MoveType == (int)MoveType.Bounce
                      || (int)ent->V.MoveType == (int)MoveType.Fly
                      || (int)ent->V.MoveType == (int)MoveType.FlyMissile)
+            {
                 Physics_Toss(ent);
+            }
             else
+            {
                 Sys.Error($"SV_Physics: bad movetype {(int)ent->V.MoveType}");
+            }
         }
 
         if (Progs.pr_global_struct->ForceRetouch != 0)
+        {
             Progs.pr_global_struct->ForceRetouch--;
+        }
 
         Sv.time += Host.host_frametime;
     }

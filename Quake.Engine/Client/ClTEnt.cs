@@ -151,16 +151,24 @@ public static unsafe class ClTEnt
                     pos[2] = Msg.ReadCoord();
                     RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 10);
                     if (Q.Rand() % 5 != 0)
+                    {
                         SndDma.StartSound(-1, 0, cl_sfx_tink1, pos, 1, 1);
+                    }
                     else
                     {
                         int rnd = Q.Rand() & 3;
                         if (rnd == 1)
+                        {
                             SndDma.StartSound(-1, 0, cl_sfx_ric1, pos, 1, 1);
+                        }
                         else if (rnd == 2)
+                        {
                             SndDma.StartSound(-1, 0, cl_sfx_ric2, pos, 1, 1);
+                        }
                         else
+                        {
                             SndDma.StartSound(-1, 0, cl_sfx_ric3, pos, 1, 1);
+                        }
                     }
                     break;
                 }
@@ -174,16 +182,24 @@ public static unsafe class ClTEnt
                     RPart.RunParticleEffect(pos, MathLib.vec3_origin, 0, 20);
 
                     if (Q.Rand() % 5 != 0)
+                    {
                         SndDma.StartSound(-1, 0, cl_sfx_tink1, pos, 1, 1);
+                    }
                     else
                     {
                         int rnd = Q.Rand() & 3;
                         if (rnd == 1)
+                        {
                             SndDma.StartSound(-1, 0, cl_sfx_ric1, pos, 1, 1);
+                        }
                         else if (rnd == 2)
+                        {
                             SndDma.StartSound(-1, 0, cl_sfx_ric2, pos, 1, 1);
+                        }
                         else
+                        {
                             SndDma.StartSound(-1, 0, cl_sfx_ric3, pos, 1, 1);
+                        }
                     }
                     break;
                 }
@@ -293,9 +309,14 @@ public static unsafe class ClTEnt
     public static Entity_t* NewTempEntity()
     {
         if (ClEntities.cl_numvisedicts == ClEntities.MAX_VISEDICTS)
+        {
             return null;
+        }
+
         if (num_temp_entities == MAX_TEMP_ENTITIES)
+        {
             return null;
+        }
 
         Entity_t* ent = &cl_temp_entities[num_temp_entities];
         *ent = default;
@@ -322,11 +343,15 @@ public static unsafe class ClTEnt
             {
                 Beam_t* b = &cl_beams[i];
                 if (b->Model == null || b->Endtime < Cl.time)
+                {
                     continue;
+                }
 
                 // if coming from the player, update the start position
                 if (b->Entity == Cl.viewentity)
+                {
                     b->Start = ClEntities.cl_entities[Cl.viewentity].Origin;
+                }
 
                 // calculate pitch and yaw
                 Vec3_t dist = b->End - b->Start;
@@ -341,12 +366,16 @@ public static unsafe class ClTEnt
                 {
                     yaw = (int)(Math.Atan2(dist[1], dist[0]) * 180 / Math.PI);
                     if (yaw < 0)
+                    {
                         yaw += 360;
+                    }
 
-                    float forward = MathF.Sqrt(dist[0] * dist[0] + dist[1] * dist[1]);
+                    float forward = MathF.Sqrt((dist[0] * dist[0]) + (dist[1] * dist[1]));
                     pitch = (int)(Math.Atan2(dist[2], forward) * 180 / Math.PI);
                     if (pitch < 0)
+                    {
                         pitch += 360;
+                    }
                 }
 
                 // add new entities for the lightning
@@ -356,7 +385,10 @@ public static unsafe class ClTEnt
                 {
                     Entity_t* ent = NewTempEntity();
                     if (ent == null)
+                    {
                         return;
+                    }
+
                     ent->Origin = org;
                     ent->Model = b->Model;
                     ent->Angles[0] = pitch;
@@ -364,7 +396,10 @@ public static unsafe class ClTEnt
                     ent->Angles[2] = Q.Rand() % 360;
 
                     for (int j = 0; j < 3; j++)
+                    {
                         org[j] += dist[j] * 30;
+                    }
+
                     d -= 30;
                 }
             }

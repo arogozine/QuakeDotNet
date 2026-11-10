@@ -114,14 +114,20 @@ public sealed unsafe class RealSaveGameTests
     {
         string? dir = TestConfiguration.PakFilesDirectory;
         if (string.IsNullOrWhiteSpace(dir))
+        {
             Assert.Inconclusive("PakFilesDirectory is not configured in configuration.json; skipping real savegame test.");
+        }
 
         if (!File.Exists(Path.Combine(dir!, "PAK0.PAK")))
+        {
             Assert.Inconclusive($"PAK0.PAK was not found in {dir}; skipping real savegame test.");
+        }
 
         saveFiles = Directory.GetFiles(dir!, "*.sav");
         if (saveFiles.Length == 0)
+        {
             Assert.Inconclusive($"No .sav files were found in {dir}; skipping real savegame test.");
+        }
 
         return dir!;
     }
@@ -144,7 +150,9 @@ public sealed unsafe class RealSaveGameTests
     private static void LoadByName(string saveName)
     {
         fixed (byte* text = Encoding.ASCII.GetBytes($"load {saveName}\0"))
+        {
             Cmd.TokenizeString(text);
+        }
 
         SaveGame.Loadgame_f();
     }

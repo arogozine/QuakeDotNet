@@ -41,8 +41,12 @@ public static unsafe class Cvar
     public static Cvar_t* FindVar(byte* var_name)
     {
         for (Cvar_t* var = cvar_vars; var != null; var = var->Next)
+        {
             if (Q.StrCmp(var_name, var->Name) == 0)
+            {
                 return var;
+            }
+        }
 
         return null;
     }
@@ -52,7 +56,10 @@ public static unsafe class Cvar
     {
         Cvar_t* var = FindVar(var_name);
         if (var == null)
+        {
             return 0;
+        }
+
         return Q.Atof(var->String);
     }
 
@@ -61,7 +68,10 @@ public static unsafe class Cvar
     {
         Cvar_t* var = FindVar(var_name);
         if (var == null)
+        {
             return cvar_null_string;
+        }
+
         return var->String;
     }
 
@@ -71,12 +81,18 @@ public static unsafe class Cvar
         int len = Q.StrLen(partial);
 
         if (len == 0)
+        {
             return null;
+        }
 
         // check functions
         for (Cvar_t* cvar = cvar_vars; cvar != null; cvar = cvar->Next)
+        {
             if (Q.StrNCmp(partial, cvar->Name, len) == 0)
+            {
                 return cvar->Name;
+            }
+        }
 
         return null;
     }
@@ -103,7 +119,9 @@ public static unsafe class Cvar
         if (var->Server && changed)
         {
             if (Sv.active)
+            {
                 Host.BroadcastPrintf($"\"{var->Name}\" changed to \"{var->String}\"\n");
+            }
         }
     }
 
@@ -159,7 +177,9 @@ public static unsafe class Cvar
         // check variables
         Cvar_t* v = FindVar(Cmd.Argv(0));
         if (v == null)
+        {
             return false;
+        }
 
         // perform a variable print or set
         if (Cmd.Argc() == 1)
