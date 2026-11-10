@@ -255,7 +255,6 @@ public static unsafe partial class Sv
         RegisterCvar(sv_protocol, "sv_protocol"u8, "666"u8);
         Cmd.AddCommand("sv_protocol"u8, &Protocol_f);
 
-        // for (i=0 ; i<MAX_MODELS ; i++) sprintf(localmodels[i], "*%i", i);
         for (int i = 0; i < QuakeDef.MAX_MODELS; i++)
         {
             byte* buf = (byte*)Hunk.AllocName(8, "lclmdl"u8); // char[8]: "*" + up to 4 digits (MAX_MODELS = 2048) + NUL

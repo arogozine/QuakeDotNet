@@ -512,7 +512,7 @@ public static unsafe class Sbar
         // ammo counts
         for (int i = 0; i < 4; i++)
         {
-            Utf3String num = default;
+            Fixed3AsciiInt num = default;
             num.Format(Cl.stats[(int)Stat.Shells + i]);
             if (num[0] != ' ')
                 DrawCharacter((6 * i + 1) * 8 - 2, -24, 18 + num[0] - '0');
@@ -637,7 +637,7 @@ public static unsafe class Sbar
         int xofs = Cl.gametype == (int)GameType.Deathmatch ? 0 : (Canvas.Width - 320) >> 1;
         int y = Canvas.Height - SBAR_HEIGHT - 23;
 
-        Utf3String num = default;
+        Fixed3AsciiInt num = default;
 
         for (int i = 0; i < l; i++)
         {
@@ -696,7 +696,7 @@ public static unsafe class Sbar
             Draw.Fill(xofs, Canvas.Height - SBAR_HEIGHT + 12, 22, 9, bottom);
 
             // draw number
-            Utf3String num = default;
+            Fixed3AsciiInt num = default;
             num.Format(s->Frags);
 
             if (top == 8)
@@ -946,7 +946,7 @@ public static unsafe class Sbar
             Draw.Fill(x, y, 40, 4, top);
             Draw.Fill(x, y + 4, 40, 4, bottom);
 
-            Utf3String num = default;
+            Fixed3AsciiInt num = default;
             num.Format(s->Frags);
 
             Draw.Character(x + 8, y, num[0]);
@@ -1014,7 +1014,7 @@ public static unsafe class Sbar
             Draw.Fill(x, y + 1, 40, 3, top);
             Draw.Fill(x, y + 4, 40, 4, bottom);
 
-            Utf3String num = default;
+            Fixed3AsciiInt num = default;
             num.Format(s->Frags);
 
             Draw.Character(x + 8, y, num[0]);

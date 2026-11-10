@@ -60,8 +60,8 @@ public static unsafe class DEdge
         const int SKY_SPAN_SHIFT = 5;
         const int SKY_SPAN_MAX = 1 << SKY_SPAN_SHIFT;
 
-        int sstep = 0; // keep compiler happy
-        int tstep = 0; // ditto
+        int sstep = 0;
+        int tstep = 0;
         int s = 0, t = 0, snext = 0, tnext = 0;
 
         byte* viewbuffer = DLocal.d_viewbuffer;
@@ -269,8 +269,6 @@ public static unsafe class DEdge
         RShared.currententity = ClEntities.cl_entities; // &cl_entities[0]
         RMisc.TransformVector(RShared.modelorg, out transformed_modelorg);
 
-        // Vec3_t world_transformed_modelorg = default;
-        // world_transformed_modelorg = transformed_modelorg;
         Vec3_t world_transformed_modelorg = transformed_modelorg;
 
         // TODO (original comment): could preset a lot of this at mode set time

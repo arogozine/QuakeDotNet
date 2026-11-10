@@ -46,14 +46,6 @@ public static unsafe class World
     internal static readonly MPlane_t* box_planes =
         NativeMemory.AllocArrayZeroed<MPlane_t>(6);
 
-    // Fixed float[3] (e.g. MPlane_t.Normal) -> Vec3_t
-    private static Vec3_t FromPtr(float* p)
-    {
-        Vec3_t v = default;
-        v[0] = p[0]; v[1] = p[1]; v[2] = p[2];
-        return v;
-    }
-
     // SV_InitBoxHull
     public static void InitBoxHull()
     {
@@ -111,7 +103,6 @@ public static unsafe class World
             // calculate an offset value to center the origin
             *offset = hull->ClipMins - mins;
             *offset += ent->V.Origin;
-            //MathLib.VectorAdd(offset, ent->V.Origin, offset);
         }
         else
         {
@@ -379,7 +370,6 @@ public static unsafe class World
             DClipNode_t* node = hull->ClipNodes + num;
             MPlane_t* plane = hull->Planes + node->PlaneNum;
 
-            // float d = plane->Type < 3 ? p[plane->Type] - plane->Dist : MathLib.DotProduct(FromPtr(plane->Normal), p) - plane->Dist;
             float d = plane->Type < 3 ? p[plane->Type] - plane->Dist : Vector3.Dot(plane->Normal, p) - plane->Dist;
             num = node->Children[d < 0 ? 1 : 0];
         }
@@ -453,7 +443,6 @@ public static unsafe class World
         }
         else
         {
-            //Vec3_t normal = FromPtr(plane->Normal);
             Vec3_t normal = plane->Normal;
             t1 = Vector3.Dot(normal, p1) - plane->Dist;
             t2 = Vector3.Dot(normal, p2) - plane->Dist;

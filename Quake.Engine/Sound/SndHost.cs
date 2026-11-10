@@ -74,7 +74,6 @@ public static unsafe class SndHost
         snd_sent = 0;
         snd_completed = 0;
 
-        // sn = default;
         SndDma.shm = sn;
 
         SndDma.shm->Channels = 2;

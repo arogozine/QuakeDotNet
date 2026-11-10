@@ -29,7 +29,7 @@ public static unsafe class DSprite
     // D_SpriteDrawSpans
     public static void SpriteDrawSpans(SSpan_t* pspan)
     {
-        int sstep = 0, tstep = 0; // keep compiler happy
+        int sstep = 0, tstep = 0;
 
         byte* pbase = RShared.cacheblock;
 

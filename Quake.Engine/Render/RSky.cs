@@ -27,7 +27,6 @@ public static unsafe class RSky
 
     // r_skymade already lives in DEdge.cs (needed there since
     // D_DrawSurfaces already checks it) -- reused, not redeclared.
-    public static int r_skydirect; // not used? (original comment)
 
     // TODO (original comment): clean up these routines
     internal static readonly byte* bottomsky = NativeMemory.AllocArrayZeroed<byte>(128 * 131);
@@ -128,33 +127,6 @@ public static unsafe class RSky
             }
 
             pnewsky += 128;
-        }
-    }
-
-    // R_GenSkyTile16
-    public static void GenSkyTile16(void* pdest)
-    {
-        int xshift = (int)(skytime * skyspeed);
-        int yshift = (int)(skytime * skyspeed);
-
-        byte* pnewsky = newsky;
-        ushort* pd = (ushort*)pdest;
-
-        for (int y = 0; y < SKYSIZE; y++)
-        {
-            int baseofs = ((y + yshift) & SKYMASK) * 131;
-
-            // FIXME (original comment): do faster unaligned version?
-            for (int x = 0; x < SKYSIZE; x++)
-            {
-                int ofs = baseofs + ((x + xshift) & SKYMASK);
-
-                *pd = Vid.d_8to16table[(pnewsky[128] & bottommask[ofs]) | bottomsky[ofs]];
-                pnewsky++;
-                pd++;
-            }
-
-            pnewsky += DIface.TILE_SIZE;
         }
     }
 

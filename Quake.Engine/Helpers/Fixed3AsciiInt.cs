@@ -11,7 +11,7 @@ namespace Quake.Engine;
 /// right-aligned, space padded, truncated to the first 3 characters when wider.
 /// </summary>
 [SkipLocalsInit]
-public ref struct Utf3String
+public ref struct Fixed3AsciiInt
 {
     private const int Alignment = 3;
 

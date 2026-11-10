@@ -72,9 +72,6 @@ public static unsafe class HostCmd
         Keys.key_dest = KeyDest.Game; // remove console or menu
         Screen.BeginLoadingPlaque();
 
-        // cls.mapstring[0] = 0;
-        // for (i=0 ; i<Cmd_Argc() ; i++) { strcat(cls.mapstring, Cmd_Argv(i)); strcat(cls.mapstring, " "); }
-        // strcat(cls.mapstring, "\n");
         Cls.mapstring[0] = 0;
         for (int i = 0; i < Cmd.Argc(); i++)
         {

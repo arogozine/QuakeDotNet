@@ -33,7 +33,7 @@ public enum SyncType_t
     Rand,
 }
 
-// model.h's EF_* -- model_t.flags bits set by qcc/the alias model compiler
+// model.h's EF_* -- model_t.flags bits
 // (renders as a trail/rotation in cl_main.c's ClMain.RelinkEntities), not to
 // be confused with entvars_t/entity_t.effects' EF_BRIGHTFIELD/EF_MUZZLEFLASH/
 // EF_BRIGHTLIGHT/EF_DIMLIGHT bits (Sv.cs) -- distinct bit spaces in the
@@ -1090,7 +1090,6 @@ public static class Surf
 {
     public const int PLANEBACK = 2;
     public const int DRAWSKY = 4;
-    public const int DRAWSPRITE = 8;
     public const int DRAWTURB = 0x10;
     public const int DRAWTILED = 0x20;
     public const int DRAWBACKGROUND = 0x40;

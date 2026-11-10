@@ -494,7 +494,6 @@ public static unsafe class RDraw
         MPlane_t* pplane = fa->Plane;
         // FIXME (original comment): cache this?
         RMisc.TransformVector(in pplane->Normal, out Vec3_t p_normal);
-        // RShared.TransformVector(WorldVec(pplane->Normal), ref p_normal);
         // FIXME (original comment): cache this?
         float distinv = 1.0f / (pplane->Dist - Vector3.Dot(RShared.modelorg, pplane->Normal));
 
@@ -504,7 +503,6 @@ public static unsafe class RDraw
             - RShared.xcenter * RShared.surface_p->DZiStepU
             - RShared.ycenter * RShared.surface_p->DZiStepV;
 
-        //JDC VectorCopy (r_worldmodelorg, surface_p->modelorg);
         RShared.surface_p++;
     }
 
@@ -600,9 +598,7 @@ public static unsafe class RDraw
         MPlane_t* pplane = psurf->Plane;
         // FIXME (original comment): cache this?
         RMisc.TransformVector(in pplane->Normal, out Vec3_t p_normal);
-        // RShared.TransformVector(WorldVec(pplane->Normal), ref p_normal);
         // FIXME (original comment): cache this?
-        // float distinv = 1.0f / (pplane->Dist - MathLib.DotProduct(RShared.modelorg, WorldVec(pplane->Normal)));
         float distinv = 1.0f / (pplane->Dist - Vector3.Dot(RShared.modelorg, pplane->Normal));
 
         RShared.surface_p->DZiStepU = p_normal[0] * RShared.xscaleinv * distinv;
@@ -611,7 +607,6 @@ public static unsafe class RDraw
             - RShared.xcenter * RShared.surface_p->DZiStepU
             - RShared.ycenter * RShared.surface_p->DZiStepV;
 
-        //JDC VectorCopy (r_worldmodelorg, surface_p->modelorg);
         RShared.surface_p++;
     }
 
@@ -627,7 +622,7 @@ public static unsafe class RDraw
     {
         // FIXME (original comment): clean this up and make it faster
         // FIXME (original comment): guard against running out of vertices
-        int s_axis = 0, t_axis = 0; // keep compiler happy
+        int s_axis = 0, t_axis = 0;
 
         // set up clip planes
         ClipPlane_t* pclip = null;
@@ -795,7 +790,6 @@ public static unsafe class RDraw
             // find which side of the node we are on
             MPlane_t* pplane = psurf->Plane;
 
-            // float dot = MathLib.DotProduct(RShared.modelorg, WorldVec(pplane->Normal)) - pplane->Dist;
             float dot = Vector3.Dot(RShared.modelorg, pplane->Normal) - pplane->Dist;
 
             // draw the polygon

@@ -90,7 +90,6 @@ public sealed unsafe class RAliasTests
         ALight_t lighting = default;
         lighting.AmbientLight = 0; // below LIGHT_MIN
         lighting.ShadeLight = -5;  // negative -> clamped to 0
-        //float* lightvec = stackalloc float[3] { 1, 0, 0 };
         var lightvec = new Vec3_t(1, 0, 0);
         lighting.PLightVec = lightvec;
 

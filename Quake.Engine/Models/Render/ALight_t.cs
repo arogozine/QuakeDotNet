@@ -13,7 +13,6 @@ public unsafe struct ALight_t
 {
     public int AmbientLight;
     public int ShadeLight;
-    // public float* PLightVec;
 
     public Vec3_t PLightVec;
 }

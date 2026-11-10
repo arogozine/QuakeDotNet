@@ -8,11 +8,11 @@ namespace Quake.UnitTests;
 // Utf3String.Format must match sbar.c's sprintf (num, "%3i", v) as read through num[0..2]:
 // right-aligned, space padded, first 3 characters when the text is wider.
 [TestClass]
-public sealed unsafe class Utf3StringTests
+public sealed unsafe class Fixed3AsciiIntTests
 {
     private static string Format(int v)
     {
-        Utf3String num = default;
+        Fixed3AsciiInt num = default;
         num.Format(v);
         return new string([(char)num[0], (char)num[1], (char)num[2]]);
     }
@@ -69,7 +69,7 @@ public sealed unsafe class Utf3StringTests
     [TestMethod]
     public void Format_Reused_FullyOverwritesPreviousValue()
     {
-        Utf3String num = default;
+        Fixed3AsciiInt num = default;
         num.Format(123);
         num.Format(7);
         Assert.AreEqual((byte)' ', num[0]);

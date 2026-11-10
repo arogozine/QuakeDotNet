@@ -96,9 +96,8 @@ public static unsafe class Net
     private static readonly PollProcedure_t* slistPollProcedure = NativeMemory.AllocZeroed<PollProcedure_t>();
     private static PollProcedure_t* pollProcedureList;
 
-    // these two macros are to make the code more readable (sfunc/dfunc)
+    // this macro is to make the code more readable (sfunc)
     private static ref NetDriver_t Sfunc(QSocket_t* sock) => ref net_drivers[sock->Driver];
-    private static ref NetDriver_t Dfunc() => ref net_drivers[net_driverlevel];
 
     // SetNetTime
     public static double SetNetTime()

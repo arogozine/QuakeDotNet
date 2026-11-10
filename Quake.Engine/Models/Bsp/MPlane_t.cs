@@ -11,7 +11,6 @@ namespace Quake.Engine;
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct MPlane_t
 {
-    // public fixed float Normal[3];
     public Vec3_t Normal;
     public float Dist;
     public byte Type;      // for texture axis selection and fast side tests

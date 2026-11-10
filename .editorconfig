@@ -6,6 +6,10 @@ root = false
 [Quake.Engine/**.cs]
 dotnet_style_namespace_match_folder = false
 
+[*.cs]
+# Code style rules are enforced during build (EnforceCodeStyleInBuild in Directory.Build.props).
+dotnet_analyzer_diagnostic.category-Style.severity = warning
+
 [*]
 end_of_line = crlf
 insert_final_newline = true

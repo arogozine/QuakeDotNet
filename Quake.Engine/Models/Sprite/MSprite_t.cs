@@ -17,6 +17,5 @@ public unsafe struct MSprite_t
     public int MaxHeight;
     public int NumFrames;
     public float BeamLength; // remove?
-    public void* CacheSpot;  // remove? -- render-only, unused by the loader
     public MSpriteFrameDesc_t Frames;
 }

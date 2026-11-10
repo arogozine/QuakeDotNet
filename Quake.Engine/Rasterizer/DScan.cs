@@ -44,7 +44,7 @@ public static unsafe class DScan
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Turbulent8Inner(ESpan_t* pspan)
     {
-        int r_turb_sstep = 0; // keep compiler happy
+        int r_turb_sstep = 0;
         int r_turb_tstep = 0;
         int r_turb_s = 0;
         int r_turb_t = 0;

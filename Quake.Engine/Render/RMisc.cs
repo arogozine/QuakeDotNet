@@ -49,7 +49,6 @@ public static unsafe class RMisc
 
             v2 = v.Y * RShared.vright + v.Z * RShared.vup + v.X * RShared.vpn;
 
-            // RMain.view_clipplanes[i].Normal = v2;
             RMain.view_clipplanes[i].Normal = v2;
 
             RMain.view_clipplanes[i].Dist = Vector3.Dot(RShared.modelorg, v2);

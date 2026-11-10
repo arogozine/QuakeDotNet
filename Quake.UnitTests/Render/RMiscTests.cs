@@ -76,7 +76,6 @@ public sealed unsafe class RMiscTests
         plane.Normal[2] = 0;
         plane.Dist = 10;
 
-        //Vec3_t normal = default;
         float* normal = stackalloc float[3];
         float dist;
         RMisc.TransformPlane(&plane, normal, &dist);
@@ -213,8 +212,7 @@ public sealed unsafe class RMiscTests
             RShared.vup = new Vec3_t(0, 0, 1);
             RShared.vpn = new Vec3_t(1, 0, 0);
 
-            Vec3_t outVec = default;
-            RMisc.TransformVector(new Vec3_t(2, 3, 4), out outVec);
+            RMisc.TransformVector(new Vec3_t(2, 3, 4), out Vec3_t outVec);
 
             Assert.AreEqual(new Vec3_t(3, 4, 2), outVec);
         }

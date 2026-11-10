@@ -901,7 +901,6 @@ public static unsafe class Com
         // start up with GAMENAME by default (id1)
         byte* gamedir = stackalloc byte[MAX_OSPATH];
         Q.StrCpy(gamedir, basedir);
-        // Q.StrCat(gamedir, Va("/" + GAMENAME));
         Q.StrCat(gamedir, "/"u8);
         Q.StrCat(gamedir, GAMENAME);
         AddGameDirectory(gamedir);

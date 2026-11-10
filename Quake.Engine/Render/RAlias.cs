@@ -451,9 +451,6 @@ public static unsafe class RAlias
         Unsafe3(viewmatrix, 4) = -Unsafe3(viewmatrix, 4);
         Unsafe3(viewmatrix, 8) = RShared.vpn;
 
-        // viewmatrix[0][3] = 0; viewmatrix[1][3] = 0; viewmatrix[2][3] = 0;
-        // (already 0 from the zero-initialized stackalloc)
-
         MathLib.R_ConcatTransforms(viewmatrix, rotationmatrix, aliastransform);
 
         // do the scaling up of x and y to screen coordinates as part of the transform
@@ -721,7 +718,6 @@ public static unsafe class RAlias
         r_shadelight *= Vid.VID_GRADES;
 
         // rotate the lighting vector into the model's frame of reference
-        //float* pv = plighting->PLightVec;
         Vec3_t pv = plighting->PLightVec;
         r_plightvec[0] = Vector3.Dot(pv, alias_forward);
         r_plightvec[1] = -Vector3.Dot(pv, alias_right);

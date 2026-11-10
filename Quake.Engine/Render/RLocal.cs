@@ -26,16 +26,13 @@ public static class RLocal
     public const float XCENTERING = 1.0f / 2.0f;
     public const float YCENTERING = 1.0f / 2.0f;
 
-    public const float CLIP_EPSILON = 0.001f;
     public const float BACKFACE_EPSILON = 0.01f;
 
-    public const int DIST_NOT_SET = 98765;
 
     // !!! if this is changed, it must be changed in asm_draw.h too !!!
     public const float NEAR_CLIP = 0.01f;
 
     // new clipped vertices when clipping bmodels to the world BSP
-    public const int MAXBVERTINDEXES = 1000;
 
     public const int MAX_BTOFPOLYS = 5000; // FIXME: tune this
 
